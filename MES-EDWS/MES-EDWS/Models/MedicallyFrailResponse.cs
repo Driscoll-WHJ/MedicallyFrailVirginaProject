@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace MES_EDWS.Models
 {
     public class MedicallyFrailResponse
-    {
+    {//push new code
         [JsonPropertyName("requestId")]
         public string RequestId { get; set; } = string.Empty;
 
