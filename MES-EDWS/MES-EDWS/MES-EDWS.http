@@ -1,0 +1,6 @@
+@MES_EDWS_HostAddress = http://localhost:5122
+
+GET {{MES_EDWS_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,115 @@
+@{
+    ViewData["Title"] = "Medical Frailty Audit Log";
+}
+
+@section Styles {
+<style>
+    #auditTable th,
+    #auditTable td {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="mb-0 fw-bold">Medical Frailty Audit Log</h4>
+        <p class="text-muted small mb-0">All API requests to <code>/api/mes/medically-frail</code></p>
+    </div>
+    <button id="btnRefresh" class="btn btn-outline-primary btn-sm">
+        &#x21BB; Refresh
+    </button>
+</div>
+
+<div class="table-wrapper">
+    <table id="auditTable" class="table table-striped table-hover w-100">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Request ID</th>
+                <th>Date Requested</th>
+                <th>MMIS Enrollee ID</th>
+                <th>SSN</th>
+                <th>Medically Frail</th>
+                <th>Circumstance Start Date</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+@section Scripts {
+<script>
+    var table;
+
+    function initTable() {
+        table = $('#auditTable').DataTable({
+            ajax: {
+                url: '@Url.Action("Data", "AuditLog")',
+                dataSrc: 'data'
+            },
+            columns: [
+                { data: 'id',                   title: 'ID',                    width: '60px', className: 'text-center' },
+                { data: 'requestId',             title: 'Request ID',                           className: 'text-center' },
+                { data: 'dateRequested',         title: 'Date Requested',                       className: 'text-center' },
+                { data: 'mmisEnrolleeId',        title: 'MMIS Enrollee ID',                     className: 'text-center' },
+                { data: 'ssn',                   title: 'SSN',                                  className: 'text-center' },
+                {
+                    data: 'medicallyFrail',
+                    title: 'Medically Frail',
+                    className: 'text-center',
+                    render: function (data) {
+                        var cls = data === 'Yes' ? 'success' : 'secondary';
+                        return '<span class="badge bg-' + cls + '">' + data + '</span>';
+                    }
+                },
+                { data: 'circumstanceStartDate', title: 'Circumstance Start Date',              className: 'text-center' }
+            ],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: '&#x2B07; Export to Excel',
+                    className: 'btn btn-success btn-sm',
+                    title: 'Medical Frailty Audit Log',
+                    exportOptions: { columns: ':visible' }
+                }
+            ],
+            order: [[2, 'desc']],
+            pageLength: 25,
+            lengthMenu: [10, 25, 50, 100],
+            dom: '<"row mb-3"<"col-sm-6"l><"col-sm-6 text-end"B>>' +
+                 '<"row"<"col-12"f>>' +
+                 '<"row"<"col-12"tr>>' +
+                 '<"row mt-3"<"col-sm-5"i><"col-sm-7"p>>',
+            language: {
+                search: 'Global search:',
+                emptyTable: 'No audit records found.'
+            },
+            initComplete: function () {
+                // Add per-column search inputs below each header
+                this.api().columns().every(function () {
+                    var column = this;
+                    var header = $(column.header());
+                    var title = header.text();
+
+                    var input = $('<input type="text" class="form-control form-control-sm mt-1" placeholder="Filter ' + title + '" />')
+                        .appendTo(header)
+                        .on('keyup change clear', function () {
+                            if (column.search() !== this.value) {
+                                column.search(this.value).draw();
+                            }
+                        });
+                });
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        initTable();
+
+        $('#btnRefresh').on('click', function () {
+            table.ajax.reload(null, false);
+        });
+    });
+</script>
+}
