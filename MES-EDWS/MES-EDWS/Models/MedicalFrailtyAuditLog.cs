@@ -13,8 +13,7 @@ namespace MES_EDWS.Models
         [Required]
         public DateTime DateRequested { get; set; }
 
-        [Required]
-        public string MmisEnrolleeId { get; set; } = string.Empty;
+        public string? MmisEnrolleeId { get; set; }
 
         public string? Ssn { get; set; }
 

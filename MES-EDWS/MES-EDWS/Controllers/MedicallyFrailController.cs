@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MES_EDWS.Data;
@@ -8,7 +9,7 @@ namespace MES_EDWS.Controllers
 {
     [ApiController]
     [Route("api/mes/medically-frail")]
-    //[Authorize] // TODO: Re-enable once client certificate is received
+    [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
     public class MedicallyFrailController : ControllerBase
     {
         private readonly ILogger<MedicallyFrailController> _logger;
@@ -33,7 +34,22 @@ namespace MES_EDWS.Controllers
                 request.RequestId,
                 request.MmisEnrolleeId);
 
-            // Query Teradata: first by mmisEnrolleeId, fall back to SSN
+            // At least one identifier must be present.
+            if (string.IsNullOrWhiteSpace(request.MmisEnrolleeId) &&
+                string.IsNullOrWhiteSpace(request.Ssn))
+            {
+                return BadRequest(new
+                {
+                    errorCode = 4000,
+                    message   = "Either mmisEnrolleeId or ssn must be provided."
+                });
+            }
+
+            // Persist the incoming request to Teradata (non-blocking — failures are logged, not thrown).
+            await _medicalFrailtyService.SaveRequestAsync(
+                request.RequestId, request.MmisEnrolleeId, request.Ssn);
+
+            // Lookup in HR1_MEDICALLY_FRAIL_MEMBERS by MMIS_ENROLLEE_ID, then SSN.
             MedicalFrailtyRecord? record;
             try
             {
@@ -43,10 +59,16 @@ namespace MES_EDWS.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Teradata lookup failed for RequestId: {RequestId}", request.RequestId);
+
+                await _medicalFrailtyService.SaveResponseAsync(
+                    request.RequestId, "N", null, null,
+                    errorCode: "5000",
+                    errorMessage: "Internal error during member lookup.");
+
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     errorCode = 5000,
-                    message = "The system could not process your request at this time. Please try after some time. If the issue persists, please contact helpdesk."
+                    message   = "The system could not process your request at this time. Please try after some time. If the issue persists, please contact helpdesk."
                 });
             }
 
@@ -54,27 +76,42 @@ namespace MES_EDWS.Controllers
             {
                 _logger.LogWarning(
                     "No medical frailty record found for RequestId: {RequestId}, MmisEnrolleeId: {MmisEnrolleeId}",
-                    request.RequestId,
-                    request.MmisEnrolleeId);
+                    request.RequestId, request.MmisEnrolleeId);
+
+                await _medicalFrailtyService.SaveResponseAsync(
+                    request.RequestId, "N", null, null,
+                    errorCode: "8000",
+                    errorMessage: "No medical frailty record found for the provided identifiers.");
 
                 return NotFound(new
                 {
                     errorCode = 8000,
-                    message = "No medical frailty record found for the provided identifiers."
+                    message   = "No medical frailty record found for the provided identifiers."
                 });
             }
+
+            var medicallyFrailFlag = record.MedicallyFrail ? "Y" : "N";
+
+            // Persist the response to Teradata.
+            await _medicalFrailtyService.SaveResponseAsync(
+                request.RequestId,
+                medicallyFrailFlag,
+                record.CircumstanceStartDate,
+                record.CircumstanceEndDate,
+                errorCode:    null,
+                errorMessage: null);
 
             var response = new MedicallyFrailResponse
             {
                 RequestId             = request.RequestId,
-                MedicallyFrail        = record.MedicallyFrail ? "Y" : "N",
+                MedicallyFrail        = medicallyFrailFlag,
                 CircumstanceStartDate = record.CircumstanceStartDate,
                 CircumstanceEndDate   = record.CircumstanceEndDate,
                 Code                  = "200",
                 Message               = "Success"
             };
 
-            // Persist audit log entry
+            // Also persist to the SQLite audit log (used by the web UI audit viewer).
             var auditEntry = new MedicalFrailtyAuditLog
             {
                 RequestId             = request.RequestId,
