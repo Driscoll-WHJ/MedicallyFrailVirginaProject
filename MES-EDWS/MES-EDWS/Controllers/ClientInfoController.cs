@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MES_EDWS.Models;
+using MES_EDWS.Services;
 
 namespace MES_EDWS.Controllers
 {
@@ -15,10 +16,14 @@ namespace MES_EDWS.Controllers
     public class ClientInfoController : ControllerBase
     {
         private readonly ILogger<ClientInfoController> _logger;
+        private readonly IClientInfoService _clientInfoService;
 
-        public ClientInfoController(ILogger<ClientInfoController> logger)
+        public ClientInfoController(
+            ILogger<ClientInfoController> logger,
+            IClientInfoService clientInfoService)
         {
             _logger = logger;
+            _clientInfoService = clientInfoService;
         }
 
         /// <summary>
@@ -38,9 +43,8 @@ namespace MES_EDWS.Controllers
                 request.RequestSource,
                 request.NvhResponses.Count);
 
-            // TODO: Persist CE verification results to the data store once the schema is defined.
-
-            var nvhRequestId = GenerateNvhRequestId();
+            // Parse the payload and persist it to the HR1_MWR_* Teradata tables.
+            var nvhRequestId = await _clientInfoService.SaveCeVerificationResultsAsync(request);
 
             _logger.LogInformation(
                 "CE verification acknowledged. NvhRequestId: {NvhRequestId}, " +
@@ -65,13 +69,5 @@ namespace MES_EDWS.Controllers
 
             return Ok(response);
         }
-
-        /// <summary>
-        /// Generates a short numeric identifier for the NVH request, matching the sample format
-        /// shown in the ICD (e.g. "988862").
-        /// TODO: Replace with a persisted sequential ID once storage is available.
-        /// </summary>
-        private static string GenerateNvhRequestId() =>
-            Random.Shared.Next(100_000, 999_999).ToString();
     }
 }

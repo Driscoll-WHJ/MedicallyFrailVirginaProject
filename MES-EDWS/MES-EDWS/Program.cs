@@ -12,6 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<MES_EDWS.Services.IMedicalFrailtyService, MES_EDWS.Services.MedicalFrailtyService>();
+builder.Services.AddScoped<MES_EDWS.Services.IClientInfoService, MES_EDWS.Services.ClientInfoService>();
 
 // Configure SQLite Audit Database
 builder.Services.AddDbContext<AuditDbContext>(options =>
