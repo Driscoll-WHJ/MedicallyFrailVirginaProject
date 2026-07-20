@@ -427,3 +427,8 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Offline NuGet package store (see nuget.config) — committed on purpose so the
+# project can be restored/built on servers with no internet connection.
+# The negation overrides the global *.nupkg / *.pdb ignore rules above.
+!offline-packages/**

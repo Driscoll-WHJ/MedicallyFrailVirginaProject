@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Duende.IdentityModel.OidcClient</id>
+    <version>6.0.1</version>
+    <authors>Duende Software</authors>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <icon>icon.png</icon>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/duendesoftware/foss</projectUrl>
+    <description>RFC8252 compliant and certified OpenID Connect and OAuth 2.0 client library for native applications</description>
+    <releaseNotes>https://github.com/duendesoftware/foss/releases</releaseNotes>
+    <copyright>Duende Software</copyright>
+    <tags>OAuth2 OAuth 2.0 OpenID Connect Security Identity IdentityServer</tags>
+    <repository type="git" url="https://github.com/DuendeSoftware/foss" branch="refs/heads/main" commit="6921c49546ed79b5bf14c93df0296b6c6e8057de" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="Duende.IdentityModel" version="7.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="8.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net9.0">
+        <dependency id="Duende.IdentityModel" version="7.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="9.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Duende.IdentityModel" version="7.0.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="8.0.5" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

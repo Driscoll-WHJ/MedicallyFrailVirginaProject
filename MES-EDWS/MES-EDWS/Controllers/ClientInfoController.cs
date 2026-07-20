@@ -11,7 +11,7 @@ namespace MES_EDWS.Controllers
     /// ICD Reference: CEP-ICD-003 CEP to EDWS v1.0
     /// </summary>
     [ApiController]
-    [Route("api/mes/clientinfo")]
+    [Route("api/nvh/verification-requests")]
     [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
     public class ClientInfoController : ControllerBase
     {

@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "dependencies": {
+    "@microsoft/vscode.projectsystem.managed.win32-arm64": "18.5.61-g91c034bc48",
+    "@microsoft/vscode.templateengine.win32-arm64": "18.5.61-g91c034bc48"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://devdiv.visualstudio.com/DevDiv/_git/dotnet-project-system",
+    "branch": "rel/aprilRelease",
+    "commit": "91c034bc48bb4221fc4df2c3012211c1c8eb3edd"
+  }
+}

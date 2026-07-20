@@ -9,7 +9,7 @@ namespace MES_EDWS.Controllers
 {
     [ApiController]
     [Route("api/mes/medically-frail")]
-    [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
     public class MedicallyFrailController : ControllerBase
     {
         private readonly ILogger<MedicallyFrailController> _logger;

@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "dependencies": {
+    "@microsoft/visualstudio-code-servicehost.alpine-x64": "0.2.563-beta",
+    "@microsoft/visualstudio-controller.alpine-x64": "0.2.563-beta",
+    "@microsoft/visualstudio-reliability-monitor.alpine-x64": "0.2.563-beta",
+    "@microsoft/visualstudio-server-samples-sayhello.alpine-x64": "0.2.563-beta",
+    "@microsoft/visualstudio-server-shared.alpine-x64": "0.2.563-beta",
+    "@microsoft/visualstudio-server.alpine-x64": "0.2.563-beta"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://devdiv.visualstudio.com/DevDiv/_git/vs-green-server",
+    "branch": "main",
+    "commit": "c42d24210da0253aec1af7d86b53f1e89a9a3eb7"
+  }
+}

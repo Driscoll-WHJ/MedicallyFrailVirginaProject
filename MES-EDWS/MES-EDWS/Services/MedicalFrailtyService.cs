@@ -11,9 +11,9 @@ namespace MES_EDWS.Services
         private const string DataSource = "MES-EDWS";
 
         // ── Table names ────────────────────────────────────────────────────────────
-        private const string MembersTable  = "HR1_DMAS_POC.HR1_MEDICALLY_FRAIL_MEMBERS";
-        private const string RequestTable  = "HR1_DMAS_POC.HR1_MEDICALLY_FRAIL_REQUEST";
-        private const string ResponseTable = "HR1_DMAS_POC.HR1_MEDICALLY_FRAIL_RESPONSE";
+        private const string MembersTable  = "HR1_DMAS_POC.HR1_MEDICALLY_FRAIL_MEMBERS_DEV";
+        private const string RequestTable  = "HR1_DMAS_POC.HR1_MEDICALLY_FRAIL_REQUEST_DEV";
+        private const string ResponseTable = "HR1_DMAS_POC.HR1_MEDICALLY_FRAIL_RESPONSE_DEV";
 
         // ── HR1_MEDICALLY_FRAIL_MEMBERS columns ────────────────────────────────────
         private const string MCol_MmisEnrolleeId   = "MMIS_ENROLLEE_ID";

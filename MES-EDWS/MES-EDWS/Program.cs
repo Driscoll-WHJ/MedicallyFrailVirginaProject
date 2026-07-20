@@ -24,9 +24,12 @@ builder.Services.AddDbContext<AuditDbContext>(options =>
 
 // Load the vendor-supplied DataPower SIT certificate chain from the SIT_DPCerts folder.
 // These certs authenticate inbound calls from DataPower (datapower.sit.va.healthinteractive.net).
+// These are public CA certificates (no private key), so they must be loaded with
+// CreateFromPem. CreateFromPemFile would fail because it also expects a PRIVATE KEY
+// block in the file ("The key contents do not contain a PEM...").
 var certsFolder = Path.Combine(AppContext.BaseDirectory, "SIT_DPCerts");
-var rootCert         = X509Certificate2.CreateFromPemFile(Path.Combine(certsFolder, "Root.txt"));
-var intermediateCert = X509Certificate2.CreateFromPemFile(Path.Combine(certsFolder, "Intermediate.txt"));
+var rootCert         = X509Certificate2.CreateFromPem(File.ReadAllText(Path.Combine(certsFolder, "Root.txt")));
+var intermediateCert = X509Certificate2.CreateFromPem(File.ReadAllText(Path.Combine(certsFolder, "Intermediate.txt")));
 
 // DataPower forwards the client cert as an inline PEM in the X-Client-Cert header:
 //   X-Client-Cert: -----BEGIN CERTIFICATE-----<base64>-----END CERTIFICATE-----

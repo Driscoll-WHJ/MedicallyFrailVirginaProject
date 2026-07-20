@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Teradata.Client.Provider</id>
+    <version>20.0.9</version>
+    <title>.NET Data Provider for Teradata</title>
+    <authors>Teradata Corporation</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="file">License.txt</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <icon>TeradataIcon.png</icon>
+    <readme>PACKAGE.md</readme>
+    <projectUrl>https://downloads.teradata.com/download/connectivity/net-data-provider-for-teradata</projectUrl>
+    <description>The .NET Data Provider for Teradata is an implementation of the Microsoft ADO.NET Data Provider specification. It provides direct access to the Teradata Database and integrates with the System.Data.DataSet class.</description>
+    <copyright>Copyright (C) 2005-2026 by Teradata Corporation. All rights reserved.</copyright>
+    <tags>Teradata Database Data Provider ADO.NET</tags>
+    <repository type="git" commit="7084fe6879855a1c47df75ae3329af7627b59077" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.6.2">
+        <dependency id="Duende.IdentityModel.OidcClient" version="6.0.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.IdentityModel.JsonWebTokens" version="8.12.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net6.0">
+        <dependency id="Duende.IdentityModel.OidcClient" version="6.0.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.IdentityModel.JsonWebTokens" version="8.12.0" exclude="Build,Analyzers" />
+        <dependency id="System.Security.Principal.Windows" version="5.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Encoding.CodePages" version="6.0.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Duende.IdentityModel.OidcClient" version="6.0.1" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.IdentityModel.JsonWebTokens" version="8.12.0" exclude="Build,Analyzers" />
+        <dependency id="System.Security.Principal.Windows" version="5.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Encoding.CodePages" version="6.0.1" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Configuration" targetFramework=".NETFramework4.6.2" />
+    </frameworkAssemblies>
+  </metadata>
+</package>
