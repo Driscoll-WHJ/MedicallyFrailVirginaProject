@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="10.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
@@ -22,14 +21,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
-    <!--
-      Pin Microsoft.OpenApi to 2.3.11 (latest stable 2.x).
-      The transitive dependency from Microsoft.AspNetCore.OpenApi 10.0.9 resolves to 2.0.0,
-      which carries vulnerability GHSA-v5pm-xwqc-g5wc. Version 2.3.11 fixes that while
-      staying on the 2.x API surface that the package's XmlCommentGenerator source generator
-      was written against. (3.x made IOpenApiMediaType.Example read-only, breaking CS0200.)
-    -->
-    <PackageReference Include="Microsoft.OpenApi" Version="2.3.11" />
     <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
     <PackageReference Include="Teradata.Client.Provider" Version="20.0.9" />
   </ItemGroup>

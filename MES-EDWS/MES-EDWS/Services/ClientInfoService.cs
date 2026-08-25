@@ -4,9 +4,17 @@ using Teradata.Client.Provider;
 namespace MES_EDWS.Services
 {
     /// <summary>
-    /// Persists CEP-ICD-003 CE verification result payloads to the HR1_MWR_* Teradata tables.
-    /// The whole payload is written inside one transaction so a partially-saved request
-    /// is never left behind.
+    /// Persists CEP-ICD-003 CE verification result payloads to the
+    /// HR1_DMAS_POC.MWRP_CE_* Teradata tables (see docs/TableDefinition.txt).
+    /// The whole payload is written inside one transaction so a partially-saved
+    /// request is never left behind.
+    ///
+    /// NOTE: TableDefinition.txt does not declare GENERATED ALWAYS AS IDENTITY on any
+    /// primary key, and the Teradata.Client.Provider ODBC driver has no reliable way to
+    /// read back a server-generated identity value from a plain INSERT. Surrogate keys
+    /// are therefore generated in application code (see <see cref="NewId"/>). If the
+    /// deployed DDL turns out to use IDENTITY columns, these inserts will need to omit
+    /// the *_ID columns and the ID retrieval strategy will need to be revisited with the DBA.
     /// </summary>
     public class ClientInfoService : IClientInfoService
     {
@@ -14,28 +22,40 @@ namespace MES_EDWS.Services
         private readonly ILogger<ClientInfoService> _logger;
 
         private const string DataSource = "MES-EDWS";
+        private const string Schema = "HR1_DMAS_POC";
 
         // ── Table names ────────────────────────────────────────────────────────────
-        private const string RequestTable          = "HR1_DMAS_POC.HR1_MWR_NVH_REQUEST_DEV";
-        private const string IndividualTable       = "HR1_DMAS_POC.HR1_MWR_NVH_INDIVIDUAL_DEV";
-        private const string ExemptionsTable       = "HR1_DMAS_POC.HR1_MWR_NVH_EXEMPTIONS_DEV";
-        private const string RefDocumentsTable     = "HR1_DMAS_POC.HR1_MWR_REF_DOCUMENTS_DEV";
-        private const string EmployerTable         = "HR1_DMAS_POC.HR1_MWR_EMPLOYER_DEV";
-        private const string PayrollProviderTable  = "HR1_DMAS_POC.HR1_MWR_PAYROLL_PROVIDER_DEV";
-        private const string EmploymentDetailTable = "HR1_DMAS_POC.HR1_MWR_EMPLOYMENT_DETAIL_DEV";
-        private const string PayStatementTable     = "HR1_DMAS_POC.HR1_MWR_PAY_STATEMENT_DEV";
-        private const string AnnualIncomeTable     = "HR1_DMAS_POC.HR1_MWR_ANNUAL_INCOME_DEV";
-        private const string JobTrainingTable      = "HR1_DMAS_POC.HR1_MWR_JOB_TRAINING_DEV";
-        private const string VolunteeringTable     = "HR1_DMAS_POC.HR1_MWR_VOLUNTEERING_DEV";
-        private const string EnrollmentTable       = "HR1_DMAS_POC.HR1_MWR_ENROLLEMENT_DEV";
-        private const string EnrollmentPeriodTable = "HR1_DMAS_POC.HR1_MWR_ENROLLEMENT_PERIOD_DEV";
-        private const string EducationManualTable  = "HR1_DMAS_POC.HR1_MWR_EDUCATION_MANUAL_DEV";
-
-        // ── Document categories used in HR1_MWR_REF_DOCUMENTS_DEV ──────────────────
-        private const string DocCategoryExemption       = "EXEMPTION";
-        private const string DocCategoryJobTraining     = "JOB_TRAINING";
-        private const string DocCategoryVolunteering    = "VOLUNTEERING";
-        private const string DocCategoryEducationManual = "EDUCATION_MANUAL";
+        private const string RequestTable                     = Schema + ".MWRP_CE_REQUEST";
+        private const string DocumentTable                    = Schema + ".MWRP_CE_DOCUMENT";
+        private const string VerifiedTable                    = Schema + ".MWRP_CE_VERIFIED";
+        private const string AidCategoryTable                 = Schema + ".MWRP_CE_AID_CATEGORY";
+        private const string PhoneTable                       = Schema + ".MWRP_CE_PHONE";
+        private const string AddressTable                     = Schema + ".MWRP_CE_ADDRESS";
+        private const string CircumstanceTable                = Schema + ".MWRP_CE_CIRCUMSTANCE";
+        private const string CircumstanceDetailTable           = Schema + ".MWRP_CE_CIRCUMSTANCE_DETAIL";
+        private const string ExclusionPregnancyTable           = Schema + ".MWRP_CE_EXCLUSION_PREGNANCY";
+        private const string ExclusionCaregiverTable           = Schema + ".MWRP_CE_EXCLUSION_CAREGIVER";
+        private const string ExclusionFosterCareTable          = Schema + ".MWRP_CE_EXCLUSION_FOSTER_CARE";
+        private const string ExclusionFormerFosterCareTable    = Schema + ".MWRP_CE_EXCLUSION_FORMER_FOSTER_CARE";
+        private const string IncarcerationTable                = Schema + ".MWRP_CE_INCARCERATION";
+        private const string MedicarePartAbTable                = Schema + ".MWRP_CE_MEDICARE_PART_AB";
+        private const string FrailtyTable                      = Schema + ".MWRP_CE_FRAILTY";
+        private const string EmploymentTable                   = Schema + ".MWRP_CE_EMPLOYMENT";
+        private const string IncomeBudgetTable                 = Schema + ".MWRP_CE_INCOME_BUDGET";
+        private const string EducationTable                    = Schema + ".MWRP_CE_EDUCATION";
+        private const string NscEnrollmentTable                = Schema + ".MWRP_CE_NSC_ENROLLMENT";
+        private const string NscEnrollmentDetailTable           = Schema + ".MWRP_CE_NSC_ENROLLMENT_DETAIL";
+        private const string CourseOfStudyTable                = Schema + ".MWRP_CE_COURSE_OF_STUDY";
+        private const string JobTrainingTable                  = Schema + ".MWRP_CE_JOB_TRAINING";
+        private const string VolunteerServiceTable              = Schema + ".MWRP_CE_VOLUNTEER_SERVICE";
+        private const string ElectronicallyVerifiedEmpTable    = Schema + ".MWRP_CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT";
+        private const string TruvEmployerTable                  = Schema + ".MWRP_CE_TRUV_EMPLOYER";
+        private const string TruvProviderTable                  = Schema + ".MWRP_CE_TRUV_PROVIDER";
+        private const string EmploymentDetailTable              = Schema + ".MWRP_CE_EMPLOYMENT_DETAIL";
+        private const string EmployeeProfileTable               = Schema + ".MWRP_CE_EMPLOYEE_PROFILE";
+        private const string PayStatementTable                  = Schema + ".MWRP_CE_PAY_STATEMENT";
+        private const string AnnualIncomeTable                  = Schema + ".MWRP_CE_ANNUAL_INCOME";
+        private const string RequestAckTable                    = Schema + ".MWRP_CE_REQUEST_ACK";
 
         public ClientInfoService(IConfiguration configuration, ILogger<ClientInfoService> logger)
         {
@@ -46,9 +66,9 @@ namespace MES_EDWS.Services
 
         // ── Entry point ────────────────────────────────────────────────────────────
 
-        public async Task<string> SaveCeVerificationResultsAsync(CepDWRequestDTO request)
+        public async Task<long> SaveCeVerificationResultsAsync(CepDWRequestDTO request)
         {
-            var nvhRequestId = GenerateNvhRequestId();
+            var requestRowId = NewId();
 
             await using var connection = new TdConnection(_connectionString);
             await connection.OpenAsync();
@@ -57,25 +77,22 @@ namespace MES_EDWS.Services
 
             try
             {
-                await InsertRequestAsync(connection, transaction, nvhRequestId, request);
+                await InsertRequestAsync(connection, transaction, requestRowId, request);
 
-                var individualSeq = 0;
-                foreach (var individual in request.NvhResponses)
-                {
-                    individualSeq++;
-                    await InsertIndividualTreeAsync(
-                        connection, transaction, nvhRequestId, request.RequestSequenceNumber,
-                        individual, individualSeq);
-                }
+                if (request.DocumentsUploadedInMwrp is { Count: > 0 } documents)
+                    await InsertDocumentsAsync(connection, transaction, requestRowId, documents);
+
+                await InsertVerifiedAsync(connection, transaction, requestRowId, request.CeVerified);
+
+                await InsertRequestAckAsync(connection, transaction, requestRowId, request);
 
                 transaction.Commit();
 
                 _logger.LogInformation(
-                    "CE verification results saved to Teradata. NvhRequestId: {NvhRequestId}, " +
-                    "NvhRefferenceId: {NvhRefferenceId}, Individuals: {IndividualCount}",
-                    nvhRequestId, request.NvhRefferenceId, request.NvhResponses.Count);
+                    "CE verification results saved to Teradata. RequestRowId: {RequestRowId}, " +
+                    "CaseNumber: {CaseNumber}", requestRowId, request.CaseNumber);
 
-                return nvhRequestId;
+                return requestRowId;
             }
             catch (Exception ex)
             {
@@ -83,475 +100,713 @@ namespace MES_EDWS.Services
                 catch (Exception rollbackEx)
                 {
                     _logger.LogError(rollbackEx,
-                        "Rollback failed after save error. NvhRequestId: {NvhRequestId}", nvhRequestId);
+                        "Rollback failed after save error. RequestRowId: {RequestRowId}", requestRowId);
                 }
 
                 _logger.LogError(ex,
-                    "Failed to save CE verification results. NvhRequestId: {NvhRequestId}, " +
-                    "NvhRefferenceId: {NvhRefferenceId}",
-                    nvhRequestId, request.NvhRefferenceId);
+                    "Failed to save CE verification results. RequestRowId: {RequestRowId}, " +
+                    "CaseNumber: {CaseNumber}", requestRowId, request.CaseNumber);
                 throw;
             }
         }
 
-        // ── HR1_MWR_NVH_REQUEST_DEV ────────────────────────────────────────────────
+        // ── MWRP_CE_REQUEST ────────────────────────────────────────────────────────
 
         private static async Task InsertRequestAsync(
-            TdConnection connection, TdTransaction transaction,
-            string nvhRequestId, CepDWRequestDTO request)
+            TdConnection connection, TdTransaction transaction, long requestRowId, CepDWRequestDTO request)
         {
             var sql =
                 $"INSERT INTO {RequestTable} " +
-                "(NVH_REQUEST_ID, NVH_REQUEST_SEQ_NUMB, NVH_REFERENCE_ID, STATE_ID, REQUEST_SOURCE, " +
-                "REQUEST_TIME_STAMP, RECEIVED_TIME_STAMP, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
-
-            await ExecuteAsync(connection, transaction, sql,
-                nvhRequestId,
-                request.RequestSequenceNumber,
-                request.NvhRefferenceId,
-                request.StateId,
-                request.RequestSource,
-                request.Timestamp,
-                DateTime.UtcNow,
-                DataSource,
-                DateTime.Today);
-        }
-
-        // ── HR1_MWR_NVH_INDIVIDUAL_DEV and everything hanging off an individual ────
-
-        private async Task InsertIndividualTreeAsync(
-            TdConnection connection, TdTransaction transaction,
-            string nvhRequestId, int requestSeqNumb,
-            NvhIndividualResponseDTO individual, int individualSeq)
-        {
-            var individualId = NewId();
-            var ceVerified   = individual.CeVerified;
-
-            var sql =
-                $"INSERT INTO {IndividualTable} " +
-                "(NVH_INDIVIDUAL_ID, NVH_INDIVIDUAL_SEQ_NUM, NVH_REQUEST_ID, NVH_REQUEST_SEQ_NUMB, " +
-                "NVH_INDV_REF_ID, EXEMPT_IND, COMPLAINT_IND, VERIFICATION_SOURCE, " +
+                "(REQUEST_ROW_ID, REQUEST_TIMESTAMP, REQUEST_SEQUENCE_NUMBER, STATE_ID, REQUEST_SOURCE_CD, " +
+                "CASE_NUMBER, SEND_EMAIL_TO_CUSTOMER_FLG, PREFERRED_COMM_LANGUAGE_CD, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             await ExecuteAsync(connection, transaction, sql,
-                individualId,
-                individualSeq,
-                nvhRequestId,
-                requestSeqNumb,
-                individual.NvhIndvRefId.ToString(),
-                ToYnChar(ceVerified.Exempt),
-                ToYnChar(ceVerified.Complaint),
-                ceVerified.Engagements?.VerificationSource,
+                requestRowId,
+                request.Timestamp,
+                request.RequestSequenceNumber,
+                request.State,
+                request.RequestSource,
+                request.CaseNumber,
+                ToYnChar(request.SendEmailToCustomer),
+                request.PreferredCommunicationLanguage,
                 DataSource,
                 DateTime.Today);
-
-            if (ceVerified.Exemptions is { Count: > 0 })
-                await InsertExemptionsAsync(connection, transaction, individualId, individualSeq, ceVerified.Exemptions);
-
-            if (ceVerified.Engagements != null)
-                await InsertEngagementsAsync(connection, transaction, individualId, individualSeq, ceVerified.Engagements);
         }
 
-        // ── HR1_MWR_NVH_EXEMPTIONS_DEV ─────────────────────────────────────────────
+        // ── MWRP_CE_DOCUMENT ───────────────────────────────────────────────────────
 
-        private async Task InsertExemptionsAsync(
-            TdConnection connection, TdTransaction transaction,
-            string individualId, int individualSeq, List<ExemptionResultDTO> exemptions)
+        private static async Task InsertDocumentsAsync(
+            TdConnection connection, TdTransaction transaction, long requestRowId, List<DocumentUploadDTO> documents)
         {
             var sql =
-                $"INSERT INTO {ExemptionsTable} " +
-                "(NVH_EXEMPTION_ID, NVH_EXEMPTION_SEQ_NUM, NVH_INDIVIDUAL_ID, NVH_INDIVIDUAL_SEQ_NUM, " +
-                "CIRCUMSTANCE_CODE, CIRCUMSTANCE_DESC, START_DATE, END_DATE, ONGOING_PERMANENT_IND, " +
-                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
-
-            var seq = 0;
-            foreach (var exemption in exemptions)
-            {
-                seq++;
-                var exemptionId = NewId();
-
-                // The exempt=Y payload variant uses reason/exemptionStartDate/exemptionEndDate
-                // instead of circumstanceCode/startDate/endDate — coalesce both shapes.
-                await ExecuteAsync(connection, transaction, sql,
-                    exemptionId,
-                    seq,
-                    individualId,
-                    individualSeq,
-                    exemption.CircumstanceCode ?? exemption.Reason,
-                    exemption.CircumstanceDescription,
-                    ToDbDate(exemption.StartDate ?? exemption.ExemptionStartDate),
-                    ToDbDate(exemption.EndDate ?? exemption.ExemptionEndDate),
-                    ToYnChar(exemption.OnGoingPermanent),
-                    DataSource,
-                    DateTime.Today);
-
-                var documents = exemption.Documents ?? exemption.SupportingDocuments;
-                await InsertDocumentsAsync(connection, transaction, DocCategoryExemption, exemptionId, documents);
-            }
-        }
-
-        // ── Engagements: employment, job training, volunteering, education ─────────
-
-        private async Task InsertEngagementsAsync(
-            TdConnection connection, TdTransaction transaction,
-            string individualId, int individualSeq, CeEngagementsDTO engagements)
-        {
-            if (engagements.Employment?.Employers is { Count: > 0 } employers)
-                await InsertEmployersAsync(connection, transaction, individualId, individualSeq, employers);
-
-            if (engagements.JobTraining is { Count: > 0 } jobTraining)
-                await InsertJobTrainingAsync(connection, transaction, individualId, individualSeq, jobTraining);
-
-            if (engagements.Volunteering is { Count: > 0 } volunteering)
-                await InsertVolunteeringAsync(connection, transaction, individualId, individualSeq, volunteering);
-
-            if (engagements.Education != null)
-                await InsertEducationAsync(connection, transaction, individualId, individualSeq, engagements.Education);
-        }
-
-        // ── HR1_MWR_EMPLOYER_DEV / HR1_MWR_PAYROLL_PROVIDER_DEV ────────────────────
-
-        private async Task InsertEmployersAsync(
-            TdConnection connection, TdTransaction transaction,
-            string individualId, int individualSeq, List<EmployerRecordDTO> employers)
-        {
-            var employerSql =
-                $"INSERT INTO {EmployerTable} " +
-                "(NVH_EMPLOYER_ID, NVH_EMPLOYER_SEQ_NUM, NVH_INDIVIDUAL_ID, NVH_INDIVIDUAL_SEQ_NUM, " +
-                "TRUV_EMPLOYER_ID, PRODUCT_TYPE, STATUS, DATA_SOURCE, COMPANY_NAME, IS_SUSPICIOUS, " +
+                $"INSERT INTO {DocumentTable} " +
+                "(DOCUMENT_ROW_ID, REQUEST_ROW_ID, DOCUMENT_TYPE_CD, DOCUMENT_SUBTYPE_CD, CLIENT_ID, DOCUMENT_ID, " +
+                "DOCUMENT_UPLOAD_TS, DOCUMENT_DELETED_TS, SOURCE_SYSTEM_CD, DOCUMENT_STATUS_CD, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
-            var providerSql =
-                $"INSERT INTO {PayrollProviderTable} " +
-                "(PAYROLL_PROVIDER_ID, PAYROLL_PROVIDER_SEQ_NUM, NVH_EMPLOYER_ID, NVH_EMPLOYER_SEQ_NUM, " +
-                "PAYROLL_PROVIDER_URL, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, 'Y', ?, ?)";
-
-            var employerSeq = 0;
-            foreach (var employer in employers)
+            foreach (var document in documents)
             {
-                employerSeq++;
-                var employerId = NewId();
-
-                await ExecuteAsync(connection, transaction, employerSql,
-                    employerId,
-                    employerSeq,
-                    individualId,
-                    individualSeq,
-                    employer.Id,
-                    employer.ProductType,
-                    employer.Status,
-                    employer.DataSource,
-                    employer.CompanyName,
-                    ToYnChar(employer.IsSuspicious),
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(),
+                    requestRowId,
+                    document.DocumentType,
+                    document.DocumentSubtype,
+                    document.ClientId,
+                    document.DocumentId,
+                    document.DocumentUploadTimestamp,
+                    document.DocumentDeletedTimestamp,
+                    document.SourceSystem,
+                    document.DocumentStatus,
                     DataSource,
                     DateTime.Today);
-
-                if (employer.Provider != null)
-                {
-                    await ExecuteAsync(connection, transaction, providerSql,
-                        employer.Provider.Id ?? NewId(),
-                        1,
-                        employerId,
-                        employerSeq,
-                        employer.Provider.LogoUrl,
-                        DataSource,
-                        DateTime.Today);
-                }
-
-                if (employer.Employments is { Count: > 0 } employments)
-                    await InsertEmploymentsAsync(connection, transaction, employerId, employerSeq, employments);
             }
         }
 
-        // ── HR1_MWR_EMPLOYMENT_DETAIL_DEV and its children ─────────────────────────
+        // ── MWRP_CE_VERIFIED and everything hanging off it ─────────────────────────
 
-        private async Task InsertEmploymentsAsync(
-            TdConnection connection, TdTransaction transaction,
-            string employerId, int employerSeq, List<EmploymentDetailDTO> employments)
+        private async Task InsertVerifiedAsync(
+            TdConnection connection, TdTransaction transaction, long requestRowId, CeVerifiedDTO verified)
+        {
+            var verifiedId = NewId();
+
+            var sql =
+                $"INSERT INTO {VerifiedTable} " +
+                "(CE_VERIFIED_ID, REQUEST_ROW_ID, CLIENT_IDENTIFICATION_NBR, MMIS_ENROLLEE_ID, SSN, MWR_STATUS_CD, " +
+                "MWR_START_DT, MWR_END_DT, PREV_ELIG_AUTH_DT, CURRENT_ELIGIBILITY_BEGIN_DT, APP_CHANGE_SUBMISSION_DT, " +
+                "RENEWAL_INITIATED_DT, CASE_ACTION_CD, DUE_DT, EMAIL_VERIFIED_FLG, EMAIL_ADDR, ALT_EMAIL_ADDR, " +
+                "PRIMARY_CONTACT_METHOD_CD, HEAD_OF_HOUSEHOLD_FLG, REQUIRES_CE_EVALUATION_FLG, RELATIONSHIP_TO_HOH_CD, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            await ExecuteAsync(connection, transaction, sql,
+                verifiedId,
+                requestRowId,
+                verified.ClientIdentificationNumber,
+                verified.MmisEnrolleeId,
+                verified.SocialSecurityNumber,
+                verified.MwrStatus,
+                ToDbDate(verified.MwrStartDate),
+                ToDbDate(verified.MwrEndDate),
+                ToDbDate(verified.PreviousEligibilityAuthorizationDate),
+                ToDbDate(verified.CurrentEligibilityBeginDate),
+                ToDbDate(verified.ApplicationChangeSubmissionDate),
+                ToDbDate(verified.RenewalInitiatedDate),
+                verified.CaseAction,
+                ToDbDate(verified.DueDate),
+                ToYnChar(verified.EmailVerifiedFlag),
+                verified.Email,
+                verified.AlternateEmail,
+                verified.PrimaryModeOfCommunication,
+                ToYnChar(verified.HeadOfHousehold),
+                ToYnChar(verified.RequiresCeEvaluation),
+                verified.RelationshipWithHoh,
+                DataSource,
+                DateTime.Today);
+
+            if (verified.AidCategory is { Count: > 0 } aidCategories)
+                await InsertAidCategoriesAsync(connection, transaction, verifiedId, aidCategories);
+
+            if (verified.PhoneData is { Count: > 0 } phones)
+                await InsertPhonesAsync(connection, transaction, verifiedId, phones);
+
+            if (verified.Addresses is { Count: > 0 } addresses)
+                await InsertAddressesAsync(connection, transaction, verifiedId, addresses);
+
+            if (verified.Exclusions != null)
+                await InsertExclusionsAsync(connection, transaction, verifiedId, verified.Exclusions);
+
+            if (verified.Exceptions?.CircumstanceForException != null)
+                await InsertCircumstanceAsync(
+                    connection, transaction, verifiedId, verified.Exceptions.CircumstanceForException);
+
+            if (verified.Engagements != null)
+                await InsertEngagementsAsync(connection, transaction, verifiedId, verified.Engagements);
+        }
+
+        // ── MWRP_CE_AID_CATEGORY ───────────────────────────────────────────────────
+
+        private static async Task InsertAidCategoriesAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<AidCategoryDTO> aidCategories)
+        {
+            var sql =
+                $"INSERT INTO {AidCategoryTable} " +
+                "(AID_CATEGORY_ID, CE_VERIFIED_ID, AID_CATEGORY_CD, START_DT, END_DT, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            foreach (var aidCategory in aidCategories)
+            {
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(),
+                    verifiedId,
+                    aidCategory.Code,
+                    ToDbDate(aidCategory.StartDate),
+                    ToDbDate(aidCategory.EndDate),
+                    DataSource,
+                    DateTime.Today);
+            }
+        }
+
+        // ── MWRP_CE_PHONE ──────────────────────────────────────────────────────────
+
+        private static async Task InsertPhonesAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<PhoneDataDTO> phones)
+        {
+            var sql =
+                $"INSERT INTO {PhoneTable} " +
+                "(PHONE_ID, CE_VERIFIED_ID, PHONE_TYPE_CD, PHONE_NBR, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
+
+            foreach (var phone in phones)
+            {
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(),
+                    verifiedId,
+                    phone.PhoneType,
+                    phone.PhoneNumber,
+                    DataSource,
+                    DateTime.Today);
+            }
+        }
+
+        // ── MWRP_CE_ADDRESS ────────────────────────────────────────────────────────
+
+        private static async Task InsertAddressesAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<AddressDTO> addresses)
+        {
+            var sql =
+                $"INSERT INTO {AddressTable} " +
+                "(ADDRESS_ID, CE_VERIFIED_ID, ADDRESS_TYPE_CD, ADDRESS_LINE1, ADDRESS_LINE2, COUNTY_NM, CITY_NM, " +
+                "ZIP_CD5, ZIP_CD4, STATE_ID, FIPS_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            foreach (var address in addresses)
+            {
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(),
+                    verifiedId,
+                    address.AddressType,
+                    address.AddressLine1,
+                    address.AddressLine2,
+                    address.County,
+                    address.City,
+                    address.ZipCode5,
+                    address.ZipCode4,
+                    address.State,
+                    address.FipsCode,
+                    DataSource,
+                    DateTime.Today);
+            }
+        }
+
+        // ── MWRP_CE_EXCLUSION_* ────────────────────────────────────────────────────
+
+        private async Task InsertExclusionsAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, ExclusionsDTO exclusions)
+        {
+            if (exclusions.Pregnancy is { } pregnancy)
+            {
+                var sql =
+                    $"INSERT INTO {ExclusionPregnancyTable} " +
+                    "(PREGNANCY_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, EXPECTED_DUE_DT, ACTUAL_PREGNANCY_END_DT, " +
+                    "EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, pregnancy.CircumstanceCode,
+                    ToDbDate(pregnancy.ExpectedDueDate), ToDbDate(pregnancy.ActualPregnancyEndDate),
+                    ToDbDate(pregnancy.EffectiveBeginDate), ToDbDate(pregnancy.EffectiveEndDate),
+                    DataSource, DateTime.Today);
+            }
+
+            if (exclusions.CareGiverCircumstance is { } caregiver)
+            {
+                var sql =
+                    $"INSERT INTO {ExclusionCaregiverTable} " +
+                    "(CAREGIVER_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, RELATIONSHIP_WITH_DEPENDENT_CD, DEPENDENT_DOB, " +
+                    "DEPENDENT_LIVES_SAME_HOME_FLG, DEPENDENT_DISABLED_FLG, CAREGIVING_HOURS_PER_WEEK, " +
+                    "EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, caregiver.CircumstanceCode, caregiver.RelationshipWithDependent,
+                    ToDbDate(caregiver.DependentDob), ToYnChar(caregiver.DependentLivesSameHome),
+                    ToYnChar(caregiver.DependentDisabled), caregiver.CaregivingHoursPerWeek,
+                    ToDbDate(caregiver.EffectiveBeginDate), ToDbDate(caregiver.EffectiveEndDate),
+                    DataSource, DateTime.Today);
+            }
+
+            if (exclusions.FosterCare is { } fosterCare)
+            {
+                var sql =
+                    $"INSERT INTO {ExclusionFosterCareTable} " +
+                    "(FOSTER_CARE_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, RECEIVING_IVE_FOSTER_CARE_FLG, " +
+                    "IN_STATE_CUSTODY_FLG, EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, " +
+                    "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, fosterCare.CircumstanceCode, ToYnChar(fosterCare.ReceivingIveFosterCare),
+                    ToYnChar(fosterCare.InStateCustody), ToDbDate(fosterCare.EffectiveBeginDate),
+                    ToDbDate(fosterCare.EffectiveEndDate), DataSource, DateTime.Today);
+            }
+
+            if (exclusions.FormerFosterCare is { } formerFosterCare)
+            {
+                var sql =
+                    $"INSERT INTO {ExclusionFormerFosterCareTable} " +
+                    "(FORMER_FOSTER_CARE_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, " +
+                    "ENROLLED_MEDICAID_FOSTERCARE_AGE18_FLG, EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, " +
+                    "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, formerFosterCare.CircumstanceCode,
+                    ToYnChar(formerFosterCare.EnrolledMedicaidFosterCareAge18),
+                    ToDbDate(formerFosterCare.EffectiveBeginDate), ToDbDate(formerFosterCare.EffectiveEndDate),
+                    DataSource, DateTime.Today);
+            }
+
+            if (exclusions.IncarceratedCircumstance is { } incarceration)
+            {
+                var sql =
+                    $"INSERT INTO {IncarcerationTable} " +
+                    "(INCARCERATION_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, TOA_CD, LIVING_ARRANGEMENT_TYPE_CD, " +
+                    "INCARCERATED_LAST_3_MONTHS_FLG, FACILITY_TYPE_CD, EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, " +
+                    "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, incarceration.CircumstanceCode, incarceration.Toa,
+                    incarceration.LivingArrangementType, ToYnChar(incarceration.IncarceratedLast3Months),
+                    incarceration.FacilityType, ToDbDate(incarceration.EffectiveBeginDate),
+                    ToDbDate(incarceration.EffectiveEndDate), DataSource, DateTime.Today);
+            }
+
+            if (exclusions.MedicarePartAB is { } medicare)
+            {
+                var sql =
+                    $"INSERT INTO {MedicarePartAbTable} " +
+                    "(MEDICARE_PART_AB_ID, CE_VERIFIED_ID, COVERAGE_TYPE_CD, MEDICARE_EXPENSE_TYPE_CD, SOLQ_FLG, " +
+                    "START_DT, END_DT, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, medicare.CoverageType, medicare.MedicareExpenseType,
+                    ToYnChar(medicare.Solq), ToDbDate(medicare.StartDate), ToDbDate(medicare.EndDate),
+                    DataSource, DateTime.Today);
+            }
+
+            if (exclusions.Frailty is { } frailty)
+            {
+                var sql =
+                    $"INSERT INTO {FrailtyTable} " +
+                    "(FRAILTY_ID, CE_VERIFIED_ID, SERIOUS_MEDICAL_CONDITION_TXT, " +
+                    "MENTAL_HEALTH_PHYSICAL_LIMITATION_TXT, SERIOUS_HEALTH_IMPACT_FLG, MENTAL_HEALTH_FLG, " +
+                    "PHYSICAL_DISABILITY_FLG, VERIFICATION_CD, EFFECTIVE_START_DT, EFFECTIVE_END_DT, " +
+                    "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, frailty.SeriousMedicalConditionText,
+                    frailty.MentalHealthPhysicalLimitationText, ToYnChar(frailty.SeriousHealthImpact),
+                    ToYnChar(frailty.MentalHealth), ToYnChar(frailty.PhysicalDisability), frailty.VerificationCode,
+                    ToDbDate(frailty.EffectiveStartDate), ToDbDate(frailty.EffectiveEndDate),
+                    DataSource, DateTime.Today);
+            }
+
+            if (exclusions.CircumstanceForExclusion != null)
+                await InsertCircumstanceAsync(connection, transaction, verifiedId, exclusions.CircumstanceForExclusion);
+        }
+
+        // ── MWRP_CE_CIRCUMSTANCE / MWRP_CE_CIRCUMSTANCE_DETAIL ────────────────────
+
+        private static async Task InsertCircumstanceAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, CircumstanceDTO circumstance)
+        {
+            var circumstanceId = NewId();
+
+            var circumstanceSql =
+                $"INSERT INTO {CircumstanceTable} " +
+                "(CIRCUMSTANCE_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, CIRCUMSTANCE_DESC, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
+
+            await ExecuteAsync(connection, transaction, circumstanceSql,
+                circumstanceId, verifiedId, circumstance.CircumstanceCode, circumstance.CircumstanceDescription,
+                DataSource, DateTime.Today);
+
+            var detailSql =
+                $"INSERT INTO {CircumstanceDetailTable} " +
+                "(DETAIL_ID, CIRCUMSTANCE_ID, START_DT, END_DT, ONGOING_PERMANENT_FLG, VERIFICATION_SOURCE_CD, " +
+                "VERIFICATION_DT, EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, AMERICAN_INDIAN_ALASKAN_NATIVE_FLG, " +
+                "HOSPITAL_CARE_FLG, EXTENDED_MEDICAL_TRAVEL_FLG, SUBSTANCE_USE_DISORDER_FLG, " +
+                "VETERAN_100_PERCENT_DISABLED_FLG, BLIND_OR_DISABLED_FLG, TANF_ENROLLED_FLG, SNAP_APPROVED_FLG, " +
+                "SNAP_WORK_REQ_NOT_EXEMPT_FLG, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            await ExecuteAsync(connection, transaction, detailSql,
+                NewId(), circumstanceId,
+                ToDbDate(circumstance.StartDate), ToDbDate(circumstance.EndDate),
+                ToYnChar(circumstance.OnGoingPermanent), circumstance.VerificationSource,
+                ToDbDate(circumstance.VerificationDate),
+                ToDbDate(circumstance.EffectiveBeginDate), ToDbDate(circumstance.EffectiveEndDate),
+                ToYnChar(circumstance.AmericanIndianAlaskanNative), ToYnChar(circumstance.HospitalCare),
+                ToYnChar(circumstance.ExtendedMedicalTravel), ToYnChar(circumstance.SubstanceUseDisorder),
+                ToYnChar(circumstance.Veteran100PercentDisabled), ToYnChar(circumstance.BlindOrDisabled),
+                ToYnChar(circumstance.TanfEnrolled), ToYnChar(circumstance.SnapApproved),
+                ToYnChar(circumstance.SnapWorkReqNotExempt),
+                DataSource, DateTime.Today);
+        }
+
+        // ── Engagements: employment, job training, education, volunteering ────────
+
+        private async Task InsertEngagementsAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, EngagementsDTO engagements)
+        {
+            if (engagements.Employment is { Count: > 0 } employments)
+                await InsertEmploymentAsync(connection, transaction, verifiedId, employments);
+
+            if (engagements.JobTraining is { Count: > 0 } jobTraining)
+                await InsertJobTrainingAsync(connection, transaction, verifiedId, jobTraining);
+
+            if (engagements.Education is { Count: > 0 } education)
+                await InsertEducationAsync(connection, transaction, verifiedId, education);
+
+            if (engagements.VolunteeringCommunityService is { Count: > 0 } volunteering)
+                await InsertVolunteeringAsync(connection, transaction, verifiedId, volunteering);
+
+            if (engagements.EvIndvIncomeBudget is { Count: > 0 } evIncomeBudgets)
+                await InsertElectronicallyVerifiedEmploymentAsync(connection, transaction, verifiedId, evIncomeBudgets);
+
+            // Truv/payroll-provider verified employers reference CE_EMPLOYMENT via EMPLOYMENT_ID.
+            // The payload carries this list as a sibling of the self-reported employment[] array
+            // rather than nested inside it, so a minimal CE_EMPLOYMENT row is created per verified
+            // employer purely to satisfy that foreign key.
+            if (engagements.ElectronicallyVerifiedEmployment is { Count: > 0 } truvEmployers)
+                await InsertTruvEmployersAsync(connection, transaction, verifiedId, truvEmployers);
+        }
+
+        // ── MWRP_CE_EMPLOYMENT / MWRP_CE_INCOME_BUDGET ─────────────────────────────
+
+        private static async Task InsertEmploymentAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<EmploymentEntryDTO> employments)
         {
             var employmentSql =
-                $"INSERT INTO {EmploymentDetailTable} " +
-                "(NVH_EMPLOYMENT_ID, NVH_EMPLOYMENT_SEQ_NUM, NVH_EMPLOYER_ID, NVH_EMPLOYER_SEQ_NUM, " +
-                "JOB_TITLE, JOB_TYPE, START_DATE, END_DATE, IS_ACTIVE, " +
-                "INCOME, INCOME_UNIT, PAY_RATE, PAY_FREQUENCY, " +
-                "EMP_FIRST_NAME, EMP_LAST_NAME, EMP_EMAIL, EMP_SSN, " +
-                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                $"INSERT INTO {EmploymentTable} " +
+                "(EMPLOYMENT_ID, CE_VERIFIED_ID, EMPLOYER_NM, EMPLOYER_EIN, EMPLOYMENT_TYPE_CD, " +
+                "SEASONAL_EMPLOYMENT_FLG, SEASONAL_EMPLOYMENT_TYPE_CD, PRIOR_EMPLOYMENT_FLG, START_DT, END_DT, " +
+                "EMPLOYMENT_ACTIVE_FLG, IN_KIND_UNPAID_FLG, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
-            var statementSql =
-                $"INSERT INTO {PayStatementTable} " +
-                "(NVH_PAY_STATEMENT_ID, NVH_PAY_STATEMENT_SEQ_NUM, NVH_EMPLOYMENT_ID, NVH_EMPLOYMENT_SEQ_NUM, " +
-                "PAY_DATE, GROSS_PAY, NET_PAY, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+            var budgetSql =
+                $"INSERT INTO {IncomeBudgetTable} " +
+                "(BUDGET_ID, EMPLOYMENT_ID, MONTHLY_INCOME_AMT, MONTHLY_HOURS_QTY, INCOME_MONTH_NBR, " +
+                "INCOME_YEAR_NBR, VERIFICATION_SOURCE_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
-            var annualIncomeSql =
-                $"INSERT INTO {AnnualIncomeTable} " +
-                "(NVH_ANNUAL_INCOME_ID, NVH_ANNUAL_INCOME_SEQ_NUM, NVH_EMPLOYMENT_ID, NVH_EMPLOYMENT_SEQ_NUM, " +
-                "INCOME_YEAR, INCOME_AMOUNT, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
-
-            var employmentSeq = 0;
             foreach (var employment in employments)
             {
-                employmentSeq++;
                 var employmentId = NewId();
 
                 await ExecuteAsync(connection, transaction, employmentSql,
-                    employmentId,
-                    employmentSeq,
-                    employerId,
-                    employerSeq,
-                    employment.JobTitle,
-                    employment.JobType,
-                    ToDbDate(employment.StartDate),
-                    ToDbDate(employment.EndDate),
-                    ToYnChar(employment.IsActive),
-                    employment.Income,
-                    employment.IncomeUnit,
-                    employment.PayRate,
-                    employment.PayFrequency,
-                    employment.Profile?.FirstName,
-                    employment.Profile?.LastName,
-                    employment.Profile?.Email,
-                    employment.Profile?.Ssn,
-                    DataSource,
-                    DateTime.Today);
+                    employmentId, verifiedId, employment.EmployerName, employment.EmployerEin,
+                    employment.EmploymentType, ToYnChar(employment.IsSeasonalEmployment),
+                    employment.SeasonalEmploymentType, ToYnChar(employment.IsPriorEmployment),
+                    ToDbDate(employment.StartDate), ToDbDate(employment.EndDate),
+                    ToYnChar(employment.IsEmploymentActive), ToYnChar(employment.IsInkindOrUnPaid),
+                    DataSource, DateTime.Today);
 
-                var statementSeq = 0;
-                foreach (var statement in employment.Statements ?? Enumerable.Empty<PayStatementDTO>())
+                if (employment.IncomeBudgetDetails is { } budget)
                 {
-                    statementSeq++;
-                    await ExecuteAsync(connection, transaction, statementSql,
-                        NewId(),
-                        statementSeq,
-                        employmentId,
-                        employmentSeq,
-                        ToDbDate(statement.PayDate),
-                        statement.GrossPay,
-                        statement.NetPay,
-                        DataSource,
-                        DateTime.Today);
-                }
-
-                var annualIncomeSeq = 0;
-                foreach (var annualIncome in employment.AnnualIncomeSummary ?? Enumerable.Empty<AnnualIncomeDTO>())
-                {
-                    annualIncomeSeq++;
-                    await ExecuteAsync(connection, transaction, annualIncomeSql,
-                        NewId(),
-                        annualIncomeSeq,
-                        employmentId,
-                        employmentSeq,
-                        annualIncome.Year?.ToString(),
-                        annualIncome.Income,
-                        DataSource,
-                        DateTime.Today);
+                    await ExecuteAsync(connection, transaction, budgetSql,
+                        NewId(), employmentId, budget.MonthlyIncome, budget.MonthlyHours,
+                        budget.IncomeMonth, budget.IncomeYear, budget.VerificationSource,
+                        DataSource, DateTime.Today);
                 }
             }
         }
 
-        // ── HR1_MWR_JOB_TRAINING_DEV ───────────────────────────────────────────────
+        // ── MWRP_CE_JOB_TRAINING ───────────────────────────────────────────────────
+        // NOTE: the payload's "programName" has no corresponding column and is not persisted.
 
-        private async Task InsertJobTrainingAsync(
-            TdConnection connection, TdTransaction transaction,
-            string individualId, int individualSeq, List<JobTrainingResultDTO> jobTrainings)
+        private static async Task InsertJobTrainingAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<JobTrainingEntryDTO> jobTrainings)
         {
-            // END-DATE is a quoted identifier in the table DDL, so it must stay quoted here.
             var sql =
                 $"INSERT INTO {JobTrainingTable} " +
-                "(NVH_JOB_TRAINING_ID, NVH_JOB_TRAINING_SEQ_NUM, NVH_INDIVIDUAL_ID, NVH_INDIVIDUAL_SEQ_NUM, " +
-                "ORGANIZATION_ID, ORGANIZATION_NAME, TRAINING_HOURS, START_DATE, \"END-DATE\", EFFECTIVE_PERIOD, " +
+                "(JOB_TRAINING_ID, CE_VERIFIED_ID, ORGANIZATION_ID, ORGANIZATION_NM, MONTHLY_HOURS_QTY, " +
+                "START_DT, END_DT, VERIFICATION_DT, VERIFICATION_SOURCE_CD, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
-            var seq = 0;
             foreach (var training in jobTrainings)
             {
-                seq++;
-                var trainingId = NewId();
-
                 await ExecuteAsync(connection, transaction, sql,
-                    trainingId,
-                    seq,
-                    individualId,
-                    individualSeq,
-                    training.OrganizationId,
-                    training.OrganizationName,
-                    training.Hours?.ToString(),
-                    ToDbDate(training.StartDate),
-                    ToDbDate(training.EndDate),
-                    training.EffectivePeriod,
-                    DataSource,
-                    DateTime.Today);
-
-                await InsertDocumentsAsync(connection, transaction, DocCategoryJobTraining, trainingId, training.Documents);
+                    NewId(), verifiedId, training.OrganizationId, training.OrganizationName, training.MonthlyHours,
+                    ToDbDate(training.StartDate), ToDbDate(training.EndDate), ToDbDate(training.VerificationDate),
+                    training.VerificationSource, DataSource, DateTime.Today);
             }
         }
 
-        // ── HR1_MWR_VOLUNTEERING_DEV ───────────────────────────────────────────────
+        // ── MWRP_CE_VOLUNTEER_SERVICE ──────────────────────────────────────────────
 
-        private async Task InsertVolunteeringAsync(
-            TdConnection connection, TdTransaction transaction,
-            string individualId, int individualSeq, List<VolunteeringResultDTO> volunteerings)
+        private static async Task InsertVolunteeringAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<VolunteeringEntryDTO> volunteerings)
         {
-            // END-DATE is a quoted identifier in the table DDL, so it must stay quoted here.
             var sql =
-                $"INSERT INTO {VolunteeringTable} " +
-                "(NVH_VOLUNTEERING_ID, NVH_VOLUNTEERING_SEQ_NUM, NVH_INDIVIDUAL_ID, NVH_INDIVIDUAL_SEQ_NUM, " +
-                "ORGANIZATION_ID, ORGANIZATION_NAME, VOLUNTEER_HOURS, START_DATE, \"END-DATE\", EFFECTIVE_PERIOD, " +
+                $"INSERT INTO {VolunteerServiceTable} " +
+                "(VOLUNTEER_SERVICE_ID, CE_VERIFIED_ID, ORGANIZATION_ID, ORGANIZATION_NM, MONTHLY_HOURS_QTY, " +
+                "START_DT, END_DT, VERIFICATION_SOURCE_CD, VERIFICATION_DT, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            foreach (var volunteering in volunteerings)
+            {
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, volunteering.OrganizationId, volunteering.OrganizationName,
+                    volunteering.MonthlyHours, ToDbDate(volunteering.StartDate), ToDbDate(volunteering.EndDate),
+                    volunteering.VerificationSource, ToDbDate(volunteering.VerificationDate),
+                    DataSource, DateTime.Today);
+            }
+        }
+
+        // ── MWRP_CE_EDUCATION / MWRP_CE_NSC_ENROLLMENT / MWRP_CE_NSC_ENROLLMENT_DETAIL /
+        //    MWRP_CE_COURSE_OF_STUDY ─────────────────────────────────────────────────
+
+        private static async Task InsertEducationAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<EducationEntryDTO> educationEntries)
+        {
+            var educationSql =
+                $"INSERT INTO {EducationTable} " +
+                "(EDUCATION_ID, CE_VERIFIED_ID, INSTITUTION_NM, INSTITUTION_TYPE_CD, VERIFICATION_DT, " +
+                "VERIFICATION_SOURCE_CD, ENROLLMENT_STATUS_CD, MONTHLY_HOURS_QTY, TERM_START_DT, TERM_END_DT, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
-            var seq = 0;
-            foreach (var volunteering in volunteerings)
+            var enrollmentSql =
+                $"INSERT INTO {NscEnrollmentTable} " +
+                "(NSC_ENROLLMENT_ID, EDUCATION_ID, OFFICIAL_SCHOOL_NM, SCHOOL_CD, BRANCH_CD, " +
+                "CURRENT_ENROLLMENT_STATUS_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            var enrollmentDetailSql =
+                $"INSERT INTO {NscEnrollmentDetailTable} " +
+                "(ENROLLMENT_DETAIL_ID, NSC_ENROLLMENT_ID, ENROLLMENT_STATUS_CD, TERM_BEGIN_DT, TERM_END_DT, " +
+                "SCHOOL_CERTIFIED_DT, ANTICIPATED_GRADUATION_DT, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            var courseOfStudySql =
+                $"INSERT INTO {CourseOfStudyTable} " +
+                "(COURSE_OF_STUDY_ID, ENROLLMENT_DETAIL_ID, COURSE_NM, NCES_CIP_CD, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
+
+            foreach (var education in educationEntries)
             {
-                seq++;
-                var volunteeringId = NewId();
+                var educationId = NewId();
 
-                await ExecuteAsync(connection, transaction, sql,
-                    volunteeringId,
-                    seq,
-                    individualId,
-                    individualSeq,
-                    volunteering.OrganizationId,
-                    volunteering.OrganizationName,
-                    volunteering.Hours?.ToString(),
-                    ToDbDate(volunteering.StartDate),
-                    ToDbDate(volunteering.EndDate),
-                    volunteering.EffectivePeriod,
-                    DataSource,
-                    DateTime.Today);
+                await ExecuteAsync(connection, transaction, educationSql,
+                    educationId, verifiedId, education.InstitutionName, education.InstitutionType,
+                    ToDbDate(education.VerificationDate), education.VerificationSource, education.EnrollmentStatus,
+                    education.MonthlyHours, ToDbDate(education.TermStartDate), ToDbDate(education.TermEndDate),
+                    DataSource, DateTime.Today);
 
-                await InsertDocumentsAsync(connection, transaction, DocCategoryVolunteering, volunteeringId, volunteering.Documents);
+                foreach (var nsc in education.ElectronicallyVerifiedData ?? Enumerable.Empty<NscEnrollmentDTO>())
+                {
+                    var nscId = NewId();
+
+                    await ExecuteAsync(connection, transaction, enrollmentSql,
+                        nscId, educationId, nsc.OfficialSchoolName, nsc.SchoolCode, nsc.BranchCode,
+                        nsc.CurrentEnrollmentStatus, DataSource, DateTime.Today);
+
+                    foreach (var period in nsc.EnrollmentData ?? Enumerable.Empty<NscEnrollmentDetailDTO>())
+                    {
+                        var periodId = NewId();
+
+                        await ExecuteAsync(connection, transaction, enrollmentDetailSql,
+                            periodId, nscId, period.EnrollmentStatus, ToDbDate(period.TermBeginDate),
+                            ToDbDate(period.TermEndDate), ToDbDate(period.SchoolCertifiedOnDate),
+                            ToDbDate(period.AnticipatedGraduationDate), DataSource, DateTime.Today);
+
+                        foreach (var course in period.MajorCoursesOfStudy ?? Enumerable.Empty<CourseOfStudyDTO>())
+                        {
+                            await ExecuteAsync(connection, transaction, courseOfStudySql,
+                                NewId(), periodId, course.Course, course.NcesCipCode, DataSource, DateTime.Today);
+                        }
+                    }
+                }
             }
         }
 
-        // ── HR1_MWR_ENROLLEMENT_DEV / HR1_MWR_ENROLLEMENT_PERIOD_DEV /
-        //    HR1_MWR_EDUCATION_MANUAL_DEV ──────────────────────────────────────────
+        // ── MWRP_CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT ─────────────────────────────
 
-        private async Task InsertEducationAsync(
-            TdConnection connection, TdTransaction transaction,
-            string individualId, int individualSeq, EducationVerifiedDTO education)
+        private static async Task InsertElectronicallyVerifiedEmploymentAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId,
+            List<ElectronicallyVerifiedEmploymentDTO> summaries)
         {
-            var enrollmentSql =
-                $"INSERT INTO {EnrollmentTable} " +
-                "(NVH_ENROLLEMENT_ID, NVH_ENROLLEMENT_SEQ_NUM, NVH_INDIVIDUAL_ID, NVH_INDIVIDUAL_SEQ_NUM, " +
-                "ELECTRONIC_SOURCE, OFFICIAL_SCHOOL_NAME, SCHOOL_CODE, BRANCH_CODE, CURRENT_ENRL_STATUS, " +
-                "EFFECTIVE_PERIOD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
-
-            var periodSql =
-                $"INSERT INTO {EnrollmentPeriodTable} " +
-                "(NVH_ENROLLEMENT_PERIOD_ID, NVH_ENROLLEMENT_PERIOD_SEQ_NUM, NVH_ENROLLEMENT_ID, NVH_ENROLLEMENT_SEQ_NUM, " +
-                "TERM_START_DATE, TERM_END_DATE, ANTICIPATED_GRAD_DATE, " +
+            var sql =
+                $"INSERT INTO {ElectronicallyVerifiedEmpTable} " +
+                "(VERIFIED_EMPLOYMENT_ID, CE_VERIFIED_ID, VERIFICATION_SOURCE_CD, MONTHLY_INCOME_AMT, " +
+                "MONTHLY_HOURS_QTY, INCOME_MONTH_NBR, INCOME_YEAR_NBR, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
-            var manualSql =
-                $"INSERT INTO {EducationManualTable} " +
-                "(NVH_EDUCATION_MANUAL_ID, NVH_EDUCATION_MANUAL_SEQ_NUM, NVH_INDIVIDUAL_ID, NVH_INDIVIDUAL_SEQ_NUM, " +
-                "SCHOOL_NAME, ENROLLEMENT_STATUS, START_DATE, END_DATE, " +
-                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
-
-            var enrollmentSeq = 0;
-            foreach (var enrollment in education.ElectronicallyVerifiedData ?? Enumerable.Empty<NscEnrollmentDTO>())
+            foreach (var summary in summaries)
             {
-                enrollmentSeq++;
-                var enrollmentId = NewId();
-
-                await ExecuteAsync(connection, transaction, enrollmentSql,
-                    enrollmentId,
-                    enrollmentSeq,
-                    individualId,
-                    individualSeq,
-                    enrollment.ElectronicSource,
-                    enrollment.OfficialSchoolName,
-                    enrollment.SchoolCode,
-                    enrollment.BranchCode,
-                    enrollment.CurrentEnrollmentStatus,
-                    null,   // EFFECTIVE_PERIOD is not present in the NSC payload
-                    DataSource,
-                    DateTime.Today);
-
-                var periodSeq = 0;
-                foreach (var period in enrollment.EnrollmentData ?? Enumerable.Empty<EnrollmentPeriodDTO>())
-                {
-                    periodSeq++;
-                    await ExecuteAsync(connection, transaction, periodSql,
-                        NewId(),
-                        periodSeq,
-                        enrollmentId,
-                        enrollmentSeq,
-                        ToDbDate(period.TermStartDate),
-                        ToDbDate(period.TermEndDate),
-                        ToDbDate(period.AnticipatedGraduationDate),
-                        DataSource,
-                        DateTime.Today);
-                }
-            }
-
-            var manualSeq = 0;
-            foreach (var manual in education.NonElectronicallyVerifiedData ?? Enumerable.Empty<EducationManualDTO>())
-            {
-                manualSeq++;
-                var manualId = NewId();
-
-                await ExecuteAsync(connection, transaction, manualSql,
-                    manualId,
-                    manualSeq,
-                    individualId,
-                    individualSeq,
-                    manual.SchoolName,
-                    manual.EnrollmentStatus,
-                    ToDbDate(manual.StartDate),
-                    ToDbDate(manual.EndDate),
-                    DataSource,
-                    DateTime.Today);
-
-                await InsertDocumentsAsync(connection, transaction, DocCategoryEducationManual, manualId, manual.Documents);
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, summary.VerificationSource, summary.MonthlyIncome, summary.MonthlyHours,
+                    summary.IncomeMonth, summary.IncomeYear, DataSource, DateTime.Today);
             }
         }
 
-        // ── HR1_MWR_REF_DOCUMENTS_DEV ──────────────────────────────────────────────
+        // ── MWRP_CE_TRUV_EMPLOYER / MWRP_CE_TRUV_PROVIDER / MWRP_CE_EMPLOYMENT_DETAIL /
+        //    MWRP_CE_EMPLOYEE_PROFILE / MWRP_CE_PAY_STATEMENT / MWRP_CE_ANNUAL_INCOME ──
 
-        /// <summary>
-        /// Documents from any part of the payload land in one reference table.
-        /// DOCUMENT_CATEGORY records where the document came from and
-        /// DOCUMENT_LINK_KEY holds the generated id of the owning row.
-        /// </summary>
-        private async Task InsertDocumentsAsync(
-            TdConnection connection, TdTransaction transaction,
-            string category, string linkKey, List<DocumentRefDTO>? documents)
+        private static async Task InsertTruvEmployersAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<TruvEmployerDTO> truvEmployers)
         {
-            if (documents == null || documents.Count == 0)
-                return;
+            var placeholderEmploymentSql =
+                $"INSERT INTO {EmploymentTable} " +
+                "(EMPLOYMENT_ID, CE_VERIFIED_ID, EMPLOYER_NM, EMPLOYMENT_TYPE_CD, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
+
+            var truvEmployerSql =
+                $"INSERT INTO {TruvEmployerTable} " +
+                "(TRUV_EMPLOYER_ID, EMPLOYMENT_ID, TRUV_EXTERNAL_ID, PRODUCT_TYPE_CD, STATUS_CD, DATA_SOURCE_CD, " +
+                "COMPANY_NM, SUSPICIOUS_FLG, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            var truvProviderSql =
+                $"INSERT INTO {TruvProviderTable} " +
+                "(PROVIDER_ROW_ID, TRUV_EMPLOYER_ID, PROVIDER_ID, PROVIDER_NM, PROVIDER_LOGO_URL, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            var employmentDetailSql =
+                $"INSERT INTO {EmploymentDetailTable} " +
+                "(EMPLOYMENT_DETAIL_ID, TRUV_EMPLOYER_ID, EMPLOYMENT_EXTERNAL_ID, JOB_TITLE, JOB_TYPE_CD, " +
+                "START_DT, END_DT, ACTIVE_FLG, ANNUAL_INCOME_AMT, INCOME_UNIT_CD, PAY_RATE_AMT, PAY_FREQUENCY_CD, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            var employeeProfileSql =
+                $"INSERT INTO {EmployeeProfileTable} " +
+                "(EMPLOYEE_PROFILE_ID, EMPLOYMENT_DETAIL_ID, EMPLOYEE_ID, EMPLOYEE_FULL_NM, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
+
+            var payStatementSql =
+                $"INSERT INTO {PayStatementTable} " +
+                "(PAY_STATEMENT_ID, EMPLOYMENT_DETAIL_ID, PAY_STATEMENT_EXT_ID, PAY_DT, NET_PAY_AMT, " +
+                "NET_PAY_YTD_AMT, GROSS_PAY_AMT, GROSS_PAY_YTD_AMT, BONUS_AMT, COMMISSION_AMT, HOURS_QTY, " +
+                "BASIS_OF_PAY_CD, PERIOD_START_DT, PERIOD_END_DT, REGULAR_PAY_AMT, REGULAR_PAY_YTD_AMT, " +
+                "OTHER_PAY_AMT, OTHER_PAY_YTD_AMT, BONUS_YTD_AMT, COMMISSION_YTD_AMT, OVERTIME_AMT, OVERTIME_YTD_AMT, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            var annualIncomeSql =
+                $"INSERT INTO {AnnualIncomeTable} " +
+                "(ANNUAL_INCOME_ID, EMPLOYMENT_DETAIL_ID, ANNUAL_INCOME_EXT_ID, REPORT_YEAR, REGULAR_AMT, " +
+                "BONUS_AMT, COMMISSION_AMT, OVERTIME_AMT, OTHER_PAY_AMT, NET_PAY_AMT, GROSS_PAY_AMT, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            foreach (var truvEmployer in truvEmployers)
+            {
+                var placeholderEmploymentId = NewId();
+                await ExecuteAsync(connection, transaction, placeholderEmploymentSql,
+                    placeholderEmploymentId, verifiedId, truvEmployer.CompanyName, "ELECTRONICALLY_VERIFIED",
+                    DataSource, DateTime.Today);
+
+                var truvEmployerId = NewId();
+                await ExecuteAsync(connection, transaction, truvEmployerSql,
+                    truvEmployerId, placeholderEmploymentId, truvEmployer.Id, truvEmployer.ProductType,
+                    truvEmployer.Status, truvEmployer.DataSource, truvEmployer.CompanyName,
+                    ToYnChar(truvEmployer.IsSuspicious), DataSource, DateTime.Today);
+
+                if (truvEmployer.Provider is { } provider)
+                {
+                    await ExecuteAsync(connection, transaction, truvProviderSql,
+                        NewId(), truvEmployerId, provider.Id, provider.Name, provider.LogoUrl,
+                        DataSource, DateTime.Today);
+                }
+
+                foreach (var detail in truvEmployer.Employments ?? Enumerable.Empty<TruvEmploymentDetailDTO>())
+                {
+                    var employmentDetailId = NewId();
+
+                    await ExecuteAsync(connection, transaction, employmentDetailSql,
+                        employmentDetailId, truvEmployerId, detail.EmploymentExternalId, detail.JobTitle,
+                        detail.JobType, ToDbDate(detail.StartDate), ToDbDate(detail.EndDate),
+                        ToYnChar(detail.IsActive), detail.AnnualIncome, detail.IncomeUnit, detail.PayRate,
+                        detail.PayFrequency, DataSource, DateTime.Today);
+
+                    if (detail.Profile is { } profile)
+                    {
+                        await ExecuteAsync(connection, transaction, employeeProfileSql,
+                            NewId(), employmentDetailId, profile.EmployeeId, profile.FullName,
+                            DataSource, DateTime.Today);
+                    }
+
+                    foreach (var statement in detail.Statements ?? Enumerable.Empty<TruvPayStatementDTO>())
+                    {
+                        await ExecuteAsync(connection, transaction, payStatementSql,
+                            NewId(), employmentDetailId, statement.PayStatementExternalId, ToDbDate(statement.PayDate),
+                            statement.NetPay, statement.NetPayYtd, statement.GrossPay, statement.GrossPayYtd,
+                            statement.Bonus, statement.Commission, statement.Hours, statement.BasisOfPay,
+                            ToDbDate(statement.PeriodStart), ToDbDate(statement.PeriodEnd), statement.Regular,
+                            statement.RegularYtd, statement.OtherPay, statement.OtherPayYtd, statement.BonusYtd,
+                            statement.CommissionYtd, statement.Overtime, statement.OvertimeYtd,
+                            DataSource, DateTime.Today);
+                    }
+
+                    foreach (var annualIncome in detail.AnnualIncomeSummary ?? Enumerable.Empty<TruvAnnualIncomeDTO>())
+                    {
+                        await ExecuteAsync(connection, transaction, annualIncomeSql,
+                            NewId(), employmentDetailId, annualIncome.AnnualIncomeExternalId, annualIncome.ReportYear,
+                            annualIncome.Regular, annualIncome.Bonus, annualIncome.Commission, annualIncome.Overtime,
+                            annualIncome.OtherPay, annualIncome.NetPay, annualIncome.GrossPay,
+                            DataSource, DateTime.Today);
+                    }
+                }
+            }
+        }
+
+        // ── MWRP_CE_REQUEST_ACK ────────────────────────────────────────────────────
+
+        private static async Task InsertRequestAckAsync(
+            TdConnection connection, TdTransaction transaction, long requestRowId, CepDWRequestDTO request)
+        {
+            // REQUEST_SEQUENCE_NUMBER is INTEGER here (unlike the VARCHAR column on MWRP_CE_REQUEST).
+            object requestSequenceNumber = int.TryParse(request.RequestSequenceNumber, out var seqNum)
+                ? seqNum
+                : DBNull.Value;
 
             var sql =
-                $"INSERT INTO {RefDocumentsTable} " +
-                "(DOCUMENT_ID, DOCUMENT_SEQ_NUM, DOCUMENT_CATEGORY, DOCUMENT_LINK_KEY, DOCUMENT_TYPE, FILE_NAME, " +
+                $"INSERT INTO {RequestAckTable} " +
+                "(ACK_ROW_ID, REQUEST_ROW_ID, REQUEST_SEQUENCE_NUMBER, STATE_ID, REQUEST_SOURCE_CD, " +
+                "ACKNOWLEDGEMENT_CD, PROCESSING_STATUS_CD, ACKNOWLEDGEMENT_MSG, NVH_REQUEST_ROW_ID, CREATED_TS, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
-            var seq = 0;
-            foreach (var document in documents)
-            {
-                seq++;
-                await ExecuteAsync(connection, transaction, sql,
-                    NewId(),
-                    seq,
-                    category,
-                    linkKey,
-                    document.DocumentType,
-                    document.FileName,
-                    DataSource,
-                    DateTime.Today);
-            }
+            await ExecuteAsync(connection, transaction, sql,
+                NewId(),
+                requestRowId,
+                requestSequenceNumber,
+                request.State,
+                request.RequestSource,
+                "REQUEST_CREATED",
+                "SUCCESS",
+                "Request has been created successfully",
+                requestRowId.ToString(),
+                DateTime.UtcNow,
+                DataSource,
+                DateTime.Today);
         }
 
         // ── Helpers ────────────────────────────────────────────────────────────────
@@ -567,23 +822,15 @@ namespace MES_EDWS.Services
             await command.ExecuteNonQueryAsync();
         }
 
-        /// <summary>Generated ids are GUID strings; every *_ID column is VARCHAR(50).</summary>
-        private static string NewId() => Guid.NewGuid().ToString("N");
-
         /// <summary>
-        /// Short numeric NVH request id matching the sample format in the ICD (e.g. "988862").
+        /// Monotonically increasing surrogate key generator (BIGINT-compatible). Seeded from
+        /// UTC ticks so values keep increasing across app restarts. See the class-level note
+        /// about why this is used instead of a Teradata IDENTITY column.
         /// </summary>
-        private static string GenerateNvhRequestId() =>
-            Random.Shared.Next(100_000, 999_999).ToString();
+        private static long _idSeed = DateTime.UtcNow.Ticks;
+        private static long NewId() => Interlocked.Increment(ref _idSeed);
 
-        /// <summary>Normalises "Y"/"Yes"/"true" style payload values to a single Y/N character.</summary>
-        private static object ToYnChar(string? value)
-        {
-            if (string.IsNullOrWhiteSpace(value)) return DBNull.Value;
-            var upper = value.Trim().ToUpperInvariant();
-            return upper is "Y" or "YES" or "TRUE" or "1" ? "Y" : "N";
-        }
-
+        /// <summary>Normalises a bool? payload value to a single Y/N character.</summary>
         private static object ToYnChar(bool? value)
         {
             if (value == null) return DBNull.Value;

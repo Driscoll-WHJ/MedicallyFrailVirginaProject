@@ -9,7 +9,7 @@ namespace MES_EDWS.Controllers
 {
     [ApiController]
     [Route("api/mes/medically-frail")]
-    [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
     public class MedicallyFrailController : ControllerBase
     {
         private readonly ILogger<MedicallyFrailController> _logger;
@@ -40,8 +40,8 @@ namespace MES_EDWS.Controllers
             {
                 return BadRequest(new
                 {
-                    errorCode = 4000,
-                    message   = "Either mmisEnrolleeId or ssn must be provided."
+                    Code    = 4000,
+                    Message = "Either mmisEnrolleeId or ssn must be provided."
                 });
             }
 
@@ -67,8 +67,8 @@ namespace MES_EDWS.Controllers
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
-                    errorCode = 5000,
-                    message   = "The system could not process your request at this time. Please try after some time. If the issue persists, please contact helpdesk."
+                    Code    = 5000,
+                    Message = "The system could not process your request at this time. Please try after some time. If the issue persists, please contact helpdesk."
                 });
             }
 
@@ -80,13 +80,17 @@ namespace MES_EDWS.Controllers
 
                 await _medicalFrailtyService.SaveResponseAsync(
                     request.RequestId, "N", null, null,
-                    errorCode: "8000",
-                    errorMessage: "No medical frailty record found for the provided identifiers.");
+                    errorCode: "200",
+                    errorMessage: "Success");
 
-                return NotFound(new
+                return Ok(new
                 {
-                    errorCode = 8000,
-                    message   = "No medical frailty record found for the provided identifiers."
+                    request               = request.RequestId,
+                    medicallyFrail        = "N",
+                    circumstanceStartDate = "",
+                    circumstanceEndDate   = "",
+                    Code                  = "200",
+                    Message               = "Success"
                 });
             }
 

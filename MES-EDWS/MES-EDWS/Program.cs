@@ -9,7 +9,6 @@ using System.Security.Cryptography.X509Certificates;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<MES_EDWS.Services.IMedicalFrailtyService, MES_EDWS.Services.MedicalFrailtyService>();
 builder.Services.AddScoped<MES_EDWS.Services.IClientInfoService, MES_EDWS.Services.ClientInfoService>();
@@ -56,6 +55,7 @@ builder.Services.AddCertificateForwarding(options =>
         }
     };
 });
+
 
 // Cookie authentication for the web UI (login screen / audit log viewer)
 builder.Services.AddAuthentication("CookieAuth")
@@ -161,11 +161,6 @@ using (var scope = app.Services.CreateScope())
         });
         auditDb.SaveChanges();
     }
-}
-
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
