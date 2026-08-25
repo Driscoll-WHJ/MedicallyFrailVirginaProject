@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authentication.Certificate;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MES_EDWS.Data;
 using MES_EDWS.Models;
@@ -9,7 +7,6 @@ namespace MES_EDWS.Controllers
 {
     [ApiController]
     [Route("api/mes/medically-frail")]
-    //[Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
     public class MedicallyFrailController : ControllerBase
     {
         private readonly ILogger<MedicallyFrailController> _logger;

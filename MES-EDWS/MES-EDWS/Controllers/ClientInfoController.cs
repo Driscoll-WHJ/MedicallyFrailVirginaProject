@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authentication.Certificate;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MES_EDWS.Models;
 using MES_EDWS.Services;
@@ -12,7 +10,6 @@ namespace MES_EDWS.Controllers
     /// </summary>
     [ApiController]
     [Route("api/nvh/verification-request")]
-    //[Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
     public class ClientInfoController : ControllerBase
     {
         private readonly ILogger<ClientInfoController> _logger;
