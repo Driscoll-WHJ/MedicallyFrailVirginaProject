@@ -432,3 +432,6 @@ FodyWeavers.xsd
 # project can be restored/built on servers with no internet connection.
 # The negation overrides the global *.nupkg / *.pdb ignore rules above.
 !offline-packages/**
+/offline-packages/microsoft.extensions.apidescription.server/10.0.0/tools
+/offline-packages/microsoft.extensions.apidescription.server/10.0.0/buildMultiTargeting
+/offline-packages/microsoft.extensions.apidescription.server/10.0.0/build
