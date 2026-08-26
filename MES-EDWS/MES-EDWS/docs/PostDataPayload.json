@@ -1,0 +1,4273 @@
+{
+  "timestamp": "2026-08-12T21:18:22.7422025-05:00",
+  "requestSequenceNumber": "953714",
+  "state": "VA",
+  "requestSource": "CEP",
+  "caseNumber": "745829311",
+  "sendEmailToCustomer": true,
+  "preferredCommunicationLanguage": "EN",
+  "documentsUploadedInMWRP": [],
+  "ceVerified": {
+    "clientIdentificationNumber": "A182992103",
+    "socialSecurityNumber": null,
+    "mwrStatus": "EU",
+    "mwrStartDate": null,
+    "mwrEndDate": null,
+    "lookbackMonth": null,
+    "rulesEvaluationResults": [
+      {
+        "ruleId": "CC01",
+        "ruleName": "CC01_EXCLUSION_AMERICAN_INDIAN_OR_ALASKAN_NATIVE",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC02",
+        "ruleName": "CC02_EXCLUSION_PARENT_CAREGIVER_DEPENDENT_CHILD_13_AND_YOUNGER",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC03",
+        "ruleName": "CC03_EXCLUSION_PREGNANT",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC04",
+        "ruleName": "CC04_EXCLUSION_POSTPARTUM_UP_TO_12_MONTHS",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC05",
+        "ruleName": "CC05_EXCLUSION_CURRENTLY_INCARCERATED",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC06",
+        "ruleName": "CC06_EXCLUSION_BLIND_OR_DISABLED",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC07",
+        "ruleName": "CC07_EXCLUSION_TANF_RECIPIENT",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC08",
+        "ruleName": "CC08_EXCLUSION_SNAP_WORK_REQUIREMENT",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC09",
+        "ruleName": "CC09_EXCLUSION_VETERAN_100_PERCENT_DISABILITY",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC10",
+        "ruleName": "CC10_EXCLUSION_FORMER_FOSTER_CARE_YOUTH_UNDER_AGE_26",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC11",
+        "ruleName": "CC11_EXCLUSION_CURRENTLY_IN_FOSTER_CARE",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC12",
+        "ruleName": "CC12_EXCLUSION_PARENT_CAREGIVER_DISABLED_DEPENDENT",
+        "result": "FAIL"
+      },
+      {
+        "ruleId": "CC14",
+        "ruleName": "CC14_EXCLUSION_MEDICALLY_FRAIL_ATTESTATION",
+        "result": "FAIL"
+      }
+    ],
+    "exemptOrExceptionOrExclusionPendingSw": null,
+    "previousEligibilityAuthorizationDate": null,
+    "currentEligibilityBeginDate": "08-12-2026",
+    "applicationChangeSubmissionDate": "08-12-2026",
+    "renewalInitiatedDate": null,
+    "caseAction": "COMMUNITY_ENGAGEMENT",
+    "aidCategory": null,
+    "dueDate": null,
+    "emailVerifiedFlag": true,
+    "primaryModeOfCommunication": "EMAIL",
+    "email": null,
+    "alternateEmail": null,
+    "phoneData": null,
+    "addresses": [
+      {
+        "addressType": "Residential",
+        "addressLine1": "6 NICHOLAS CT",
+        "addressLine2": "Apt 4B",
+        "county": null,
+        "city": "NESCONSET",
+        "zipCode5": "1059",
+        "zipCode4": "1059",
+        "state": "VA",
+        "fipsCode": null,
+        "source": null,
+        "updateSw": null
+      },
+      {
+        "addressType": "Mailing",
+        "addressLine1": "PO Box 999",
+        "addressLine2": "",
+        "county": null,
+        "city": "OCALA",
+        "zipCode5": "6440",
+        "zipCode4": "6440",
+        "state": "VA",
+        "fipsCode": null,
+        "source": null,
+        "updateSw": null
+      }
+    ],
+    "headOfHousehold": true,
+    "requiresCEEvaluation": true,
+    "relationshipWithHOH": "SELF",
+    "exclusions": {
+      "pregnancy": null,
+      "careGiverCircumstance": null,
+      "fosterCare": null,
+      "formerFosterCare": null,
+      "incarceratedCircumstance": null,
+      "medicarePartAB": null,
+      "frailty": null,
+      "circumstanceForExclusion": null,
+      "source": "CEP",
+      "updateSw": "No"
+    },
+    "exceptions": {
+      "circumstanceForException": null,
+      "source": "CEP",
+      "updateSw": "No"
+    },
+    "engagements": {
+      "employment": [
+        {
+          "employerName": "aaaaaabbb",
+          "employerEin": null,
+          "employmentType": "EMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": false,
+          "startDate": "08-04-2026",
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "EMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": false,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "PEMP",
+          "isSeasonalEmployment": false,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": true,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "SEMP",
+          "isSeasonalEmployment": true,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": false,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "SEMP",
+          "isSeasonalEmployment": true,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": false,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "SEMP",
+          "isSeasonalEmployment": true,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": false,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "SEMP",
+          "isSeasonalEmployment": true,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": false,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "SEMP",
+          "isSeasonalEmployment": true,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": false,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "SEMP",
+          "isSeasonalEmployment": true,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": false,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "SEMP",
+          "isSeasonalEmployment": true,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": false,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "employerName": null,
+          "employerEin": null,
+          "employmentType": "SEMP",
+          "isSeasonalEmployment": true,
+          "seasonalEmploymentType": null,
+          "isPriorEmployment": false,
+          "startDate": null,
+          "endDate": null,
+          "isEmploymentActive": true,
+          "isInkindOrUnPaid": false,
+          "incomeBudgetDetails": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        }
+      ],
+      "jobTraining": [
+        {
+          "organizationId": null,
+          "organizationName": "Universit",
+          "monthlyHours": 40,
+          "startDate": "06-01-2026",
+          "endDate": "06-30-2026",
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "programName": null,
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "organizationId": null,
+          "organizationName": "University Two",
+          "monthlyHours": 115,
+          "startDate": "06-29-2026",
+          "endDate": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "programName": null,
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "organizationId": null,
+          "organizationName": "ABCD",
+          "monthlyHours": 1,
+          "startDate": "07-04-2026",
+          "endDate": "07-04-2026",
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "programName": null,
+          "source": "CEP",
+          "updateSw": "No"
+        }
+      ],
+      "education": [
+        {
+          "institutionName": "abc testing",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 20,
+          "termStartDate": "01-01-2026",
+          "termEndDate": "06-29-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "Indian Institute Of Technology",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 0,
+          "termStartDate": "07-01-2025",
+          "termEndDate": "06-01-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "IIT",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 0,
+          "termStartDate": "06-15-2026",
+          "termEndDate": "06-23-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "Testyyyy",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 0,
+          "termStartDate": "06-01-2026",
+          "termEndDate": "06-30-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "Test2",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 0,
+          "termStartDate": "06-01-2026",
+          "termEndDate": "06-30-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "abc",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 15,
+          "termStartDate": "06-02-2026",
+          "termEndDate": "06-30-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "Edu1",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 56,
+          "termStartDate": "06-01-2026",
+          "termEndDate": "07-01-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "Educ11",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 0,
+          "termStartDate": "06-01-2026",
+          "termEndDate": "07-02-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "EDu22",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 0,
+          "termStartDate": "06-01-2026",
+          "termEndDate": null,
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "Inst1",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 80,
+          "termStartDate": "06-01-2026",
+          "termEndDate": "07-01-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "MIT",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 0,
+          "termStartDate": "01-01-2026",
+          "termEndDate": "06-30-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "Yale",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 0,
+          "termStartDate": "06-01-2026",
+          "termEndDate": "11-30-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "IIT Mumbai",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 80,
+          "termStartDate": "06-01-2024",
+          "termEndDate": "06-30-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "institutionName": "Test1",
+          "institutionType": null,
+          "verificationDate": null,
+          "verificationSource": "VERIFIED",
+          "enrollmentStatus": null,
+          "monthlyHours": 0,
+          "termStartDate": "06-03-2026",
+          "termEndDate": "07-02-2026",
+          "electronicallyVerifiedData": [
+            {
+              "officialSchoolName": "MIDWESTERN UNIVERSITY",
+              "schoolCode": "001657",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            },
+            {
+              "officialSchoolName": "North Texas UNIVERSITY",
+              "schoolCode": "001658",
+              "branchCode": "00",
+              "currentEnrollmentStatus": "CN",
+              "enrollmentData": [
+                {
+                  "enrollmentStatus": "F",
+                  "termBeginDate": "2024-06-14",
+                  "termEndDate": "2024-10-30",
+                  "anticipatedGraduationDate": "2027-05-19",
+                  "schoolCertifiedOnDate": "2024-07-29",
+                  "majorCoursesOfStudy": [
+                    {
+                      "course": "English Language and Literature, General",
+                      "ncesCIPCode": "230101",
+                      "source": "VaCMS",
+                      "updateSw": "No",
+                      "vaCMSSequenceNum": 1,
+                      "applicationSource": "MWRP"
+                    }
+                  ],
+                  "source": "VaCMS",
+                  "updateSw": "No",
+                  "vaCMSSequenceNum": 1,
+                  "applicationSource": "MWRP"
+                }
+              ],
+              "studentAddress": null
+            }
+          ],
+          "source": "CEP",
+          "updateSw": "No"
+        }
+      ],
+      "electronicallyVerifiedEmployment": null,
+      "evEdgIncomeBudget": null,
+      "evIndvIncomeBudget": null,
+      "budgetGroupMembers": null,
+      "magiIncomeBudget": null,
+      "source": "CEP",
+      "volunteeringCommunityService": [
+        {
+          "organizationId": null,
+          "organizationName": "Wipro",
+          "monthlyHours": 50,
+          "startDate": "07-10-2025",
+          "endDate": "01-04-2026",
+          "verificationSource": "VERIFIED",
+          "verificationDate": null,
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "organizationId": null,
+          "organizationName": "Test Org",
+          "monthlyHours": 10,
+          "startDate": "06-01-2026",
+          "endDate": "06-15-2026",
+          "verificationSource": "VERIFIED",
+          "verificationDate": null,
+          "source": "CEP",
+          "updateSw": "No"
+        },
+        {
+          "organizationId": null,
+          "organizationName": "Tata Foundation",
+          "monthlyHours": 20,
+          "startDate": "06-23-2026",
+          "endDate": null,
+          "verificationSource": "VERIFIED",
+          "verificationDate": null,
+          "source": "CEP",
+          "updateSw": "No"
+        }
+      ]
+    },
+    "source": "CEP",
+    "updateSw": "No",
+    "mmisEnrolleeID": null
+  }
+}

@@ -8,7 +8,7 @@ namespace MES_EDWS.Models
     public class CepDWAckResponseDTO
     {
         [JsonPropertyName("requestSequenceNumber")]
-        public int RequestSequenceNumber { get; set; }
+        public string RequestSequenceNumber { get; set; } = string.Empty;
 
         [JsonPropertyName("stateId")]
         public string StateId { get; set; } = string.Empty;

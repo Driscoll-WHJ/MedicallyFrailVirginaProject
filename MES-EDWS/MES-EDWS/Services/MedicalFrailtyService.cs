@@ -75,6 +75,11 @@ namespace MES_EDWS.Services
             // SSN lookup — used when MMIS ID was absent or returned no match
             if (!string.IsNullOrWhiteSpace(ssn))
             {
+                if (!IsValidSsnFormat(ssn))
+                {
+                    throw new SsnValidationException("SSN failed validation requirements");
+                }
+
                 var bySsn = await QueryMembersAsync(MCol_Ssn, ssn);
 
                 if (bySsn != null)
@@ -217,6 +222,10 @@ namespace MES_EDWS.Services
             if (value == null || value == DBNull.Value) return false;
             return value.ToString()?.Trim().ToUpperInvariant() == "Y";
         }
+
+        // Must be exactly 9 digits, numeric only, no dashes (leading zero allowed, e.g. 096224256).
+        private static bool IsValidSsnFormat(string ssn) =>
+            ssn.Length == 9 && ssn.All(char.IsDigit);
 
         private static string? FormatDate(object value)
         {
