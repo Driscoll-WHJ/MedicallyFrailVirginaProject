@@ -53,6 +53,22 @@ namespace MES_EDWS.Controllers
                 record = await _medicalFrailtyService.GetByMmisEnrolleeIdOrSsnAsync(
                     request.RequestId, request.MmisEnrolleeId, request.Ssn);
             }
+            catch (SsnValidationException ex)
+            {
+                _logger.LogWarning(
+                    "SSN validation failed for RequestId: {RequestId}", request.RequestId);
+
+                await _medicalFrailtyService.SaveResponseAsync(
+                    request.RequestId, "N", null, null,
+                    errorCode: SsnValidationException.ErrorCode,
+                    errorMessage: ex.Message);
+
+                return BadRequest(new
+                {
+                    Code    = 8000,
+                    Message = ex.Message
+                });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Teradata lookup failed for RequestId: {RequestId}", request.RequestId);
