@@ -37,8 +37,8 @@ namespace MES_EDWS.Controllers
             {
                 return BadRequest(new
                 {
-                    Code    = 4000,
-                    Message = "Either mmisEnrolleeId or ssn must be provided."
+                    errorCode    = 4000,
+                    errorMessage = "Either mmisEnrolleeId or ssn must be provided."
                 });
             }
 
@@ -65,8 +65,8 @@ namespace MES_EDWS.Controllers
 
                 return BadRequest(new
                 {
-                    Code    = 8000,
-                    Message = ex.Message
+                    errorCode    = 8000,
+                    errorMessage = ex.Message
                 });
             }
             catch (Exception ex)
@@ -80,8 +80,8 @@ namespace MES_EDWS.Controllers
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
-                    Code    = 5000,
-                    Message = "The system could not process your request at this time. Please try after some time. If the issue persists, please contact helpdesk."
+                    errorCode    = 5000,
+                    errorMessage = "The system could not process your request at this time. Please try after some time. If the issue persists, please contact helpdesk."
                 });
             }
 
