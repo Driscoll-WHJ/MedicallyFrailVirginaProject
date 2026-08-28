@@ -37,8 +37,8 @@ namespace MES_EDWS.Controllers
             {
                 return BadRequest(new
                 {
-                    errorCode    = 4000,
-                    errorMessage = "Either mmisEnrolleeId or ssn must be provided."
+                    Code    = 4000,
+                    Message = "Either mmisEnrolleeId or ssn must be provided."
                 });
             }
 
@@ -53,22 +53,6 @@ namespace MES_EDWS.Controllers
                 record = await _medicalFrailtyService.GetByMmisEnrolleeIdOrSsnAsync(
                     request.RequestId, request.MmisEnrolleeId, request.Ssn);
             }
-            catch (SsnValidationException ex)
-            {
-                _logger.LogWarning(
-                    "SSN validation failed for RequestId: {RequestId}", request.RequestId);
-
-                await _medicalFrailtyService.SaveResponseAsync(
-                    request.RequestId, "N", null, null,
-                    errorCode: SsnValidationException.ErrorCode,
-                    errorMessage: ex.Message);
-
-                return BadRequest(new
-                {
-                    errorCode    = 8000,
-                    errorMessage = ex.Message
-                });
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Teradata lookup failed for RequestId: {RequestId}", request.RequestId);
@@ -80,8 +64,8 @@ namespace MES_EDWS.Controllers
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
-                    errorCode    = 5000,
-                    errorMessage = "The system could not process your request at this time. Please try after some time. If the issue persists, please contact helpdesk."
+                    Code    = 5000,
+                    Message = "The system could not process your request at this time. Please try after some time. If the issue persists, please contact helpdesk."
                 });
             }
 
