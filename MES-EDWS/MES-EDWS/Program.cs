@@ -5,7 +5,15 @@ using MES_EDWS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        // The CEP-ICD-003 2026-08 payload sends some Truv/payroll numeric values
+        // (e.g. income, netPay, hours) as quoted JSON strings. Allow those to bind
+        // to decimal?/int? DTO properties without a custom converter.
+        options.JsonSerializerOptions.NumberHandling =
+            System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
+    });
 
 builder.Services.AddScoped<MES_EDWS.Services.IMedicalFrailtyService, MES_EDWS.Services.MedicalFrailtyService>();
 builder.Services.AddScoped<MES_EDWS.Services.IClientInfoService, MES_EDWS.Services.ClientInfoService>();

@@ -4,8 +4,9 @@ using System.Text.Json.Serialization;
 namespace MES_EDWS.Models
 {
     // ─── Root Request ────────────────────────────────────────────────────────────
-    // Shape rebuilt to match docs/PostDataPayload.json exactly (CEP-ICD-003) and to
-    // feed the HR1_DMAS_POC.MWRP_CE_* tables described in docs/TableDefinition.txt.
+    // Shape rebuilt to match docs/NewPayloadPost.json (CEP-ICD-003, 2026-08 revision)
+    // and to feed the HR1_DMAS_POC.MWRP_CE_* tables described in docs/TableDefinition.txt
+    // plus docs/SchemaChanges_NewPayload.sql (new tables/columns added for this revision).
 
     public class CepDWRequestDTO
     {
@@ -17,8 +18,9 @@ namespace MES_EDWS.Models
         [JsonPropertyName("requestSequenceNumber")]
         public string RequestSequenceNumber { get; set; } = string.Empty;
 
+        /// <summary>Renamed from "state" to "stateId" in the 2026-08 ICD revision.</summary>
         [Required]
-        [JsonPropertyName("state")]
+        [JsonPropertyName("stateId")]
         public string State { get; set; } = string.Empty;
 
         [Required]
@@ -43,15 +45,13 @@ namespace MES_EDWS.Models
     }
 
     // ─── Documents (CE_DOCUMENT) ─────────────────────────────────────────────────
-    // Field names inferred from TableDefinition.txt — the sample payload's array is
-    // empty, so verify these against the CEP ICD before relying on them in production.
 
     public class DocumentUploadDTO
     {
         [JsonPropertyName("documentType")]
         public string? DocumentType { get; set; }
 
-        [JsonPropertyName("documentSubtype")]
+        [JsonPropertyName("documentSubType")]
         public string? DocumentSubtype { get; set; }
 
         [JsonPropertyName("clientId")]
@@ -60,16 +60,16 @@ namespace MES_EDWS.Models
         [JsonPropertyName("documentId")]
         public long? DocumentId { get; set; }
 
-        [JsonPropertyName("documentUploadTimestamp")]
+        [JsonPropertyName("documentUploadDate")]
         public DateTime? DocumentUploadTimestamp { get; set; }
 
-        [JsonPropertyName("documentDeletedTimestamp")]
+        [JsonPropertyName("documentDeletedDate")]
         public DateTime? DocumentDeletedTimestamp { get; set; }
 
-        [JsonPropertyName("sourceSystem")]
+        [JsonPropertyName("source")]
         public string? SourceSystem { get; set; }
 
-        [JsonPropertyName("documentStatus")]
+        [JsonPropertyName("status")]
         public string? DocumentStatus { get; set; }
     }
 
@@ -92,11 +92,11 @@ namespace MES_EDWS.Models
         [JsonPropertyName("mwrEndDate")]
         public string? MwrEndDate { get; set; }
 
-        /// <summary>No corresponding column in TableDefinition.txt — parsed but not persisted.</summary>
-        [JsonPropertyName("lookbackMonth")]
-        public string? LookbackMonth { get; set; }
+        /// <summary>New in the 2026-08 revision (replaces the old "lookbackMonth" field). Persisted to CE_VERIFIED.REVIEW_MONTH_DT.</summary>
+        [JsonPropertyName("reviewMonth")]
+        public string? ReviewMonth { get; set; }
 
-        /// <summary>No matching table yet — persistence pending a dedicated rules-evaluation table.</summary>
+        /// <summary>Persisted to the new MWRP_CE_RULES_EVALUATION_RESULT table.</summary>
         [JsonPropertyName("rulesEvaluationResults")]
         public List<RuleEvaluationResultDTO>? RulesEvaluationResults { get; set; }
 
@@ -119,7 +119,6 @@ namespace MES_EDWS.Models
         [JsonPropertyName("caseAction")]
         public string? CaseAction { get; set; }
 
-        /// <summary>Sample payload only shows a null scalar — modelled as a list since CE_AID_CATEGORY supports multiple rows per member.</summary>
         [JsonPropertyName("aidCategory")]
         public List<AidCategoryDTO>? AidCategory { get; set; }
 
@@ -138,7 +137,6 @@ namespace MES_EDWS.Models
         [JsonPropertyName("alternateEmail")]
         public string? AlternateEmail { get; set; }
 
-        /// <summary>Sample payload only shows a null scalar — modelled as a list since CE_PHONE supports multiple rows per member.</summary>
         [JsonPropertyName("phoneData")]
         public List<PhoneDataDTO>? PhoneData { get; set; }
 
@@ -154,23 +152,15 @@ namespace MES_EDWS.Models
         [JsonPropertyName("relationshipWithHOH")]
         public string? RelationshipWithHoh { get; set; }
 
-        [JsonPropertyName("exclusions")]
-        public ExclusionsDTO? Exclusions { get; set; }
-
-        [JsonPropertyName("exceptions")]
-        public ExceptionsDTO? Exceptions { get; set; }
+        /// <summary>Replaces the old separate "exclusions"/"exceptions" objects in the 2026-08 revision.</summary>
+        [JsonPropertyName("exemptions")]
+        public ExemptionsDTO? Exemptions { get; set; }
 
         [JsonPropertyName("engagements")]
         public EngagementsDTO? Engagements { get; set; }
 
-        [JsonPropertyName("source")]
-        public string? Source { get; set; }
-
-        [JsonPropertyName("updateSw")]
-        public string? UpdateSw { get; set; }
-
         [JsonPropertyName("mmisEnrolleeID")]
-        public string? MmisEnrolleeId { get; set; }
+        public long? MmisEnrolleeId { get; set; }
     }
 
     public class RuleEvaluationResultDTO
@@ -183,14 +173,17 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("result")]
         public string? Result { get; set; }
+
+        [JsonPropertyName("activityType")]
+        public string? ActivityType { get; set; }
     }
 
     // ─── Aid Category (CE_AID_CATEGORY) ──────────────────────────────────────────
-    // Field names inferred from TableDefinition.txt — sample payload shows null.
 
     public class AidCategoryDTO
     {
-        [JsonPropertyName("code")]
+        /// <summary>JSON field is named "aidCategory" (not "code") in the 2026-08 revision.</summary>
+        [JsonPropertyName("aidCategory")]
         public int? Code { get; set; }
 
         [JsonPropertyName("startDate")]
@@ -198,10 +191,21 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("endDate")]
         public string? EndDate { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updatesw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
     // ─── Phone (CE_PHONE) ─────────────────────────────────────────────────────────
-    // Field names inferred from TableDefinition.txt — sample payload shows null.
 
     public class PhoneDataDTO
     {
@@ -210,6 +214,18 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("phoneNumber")]
         public string? PhoneNumber { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updatesw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
     // ─── Address (CE_ADDRESS) ─────────────────────────────────────────────────────
@@ -242,119 +258,79 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("fipsCode")]
         public int? FipsCode { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updatesw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
-    // ─── Exclusions (CE_EXCLUSION_*) ──────────────────────────────────────────────
+    // ─── Exemptions (CE_EXCLUSION_* / CE_VETERAN_DISABILITY) ─────────────────────
+    // Replaces the old ExclusionsDTO/ExceptionsDTO split — the 2026-08 payload nests
+    // everything under a single "exemptions" object.
 
-    public class ExclusionsDTO
+    public class ExemptionsDTO
     {
         [JsonPropertyName("pregnancy")]
-        public PregnancyExclusionDTO? Pregnancy { get; set; }
+        public PregnancyExemptionDTO? Pregnancy { get; set; }
 
+        /// <summary>Now an array in the 2026-08 revision (was a single object).</summary>
         [JsonPropertyName("careGiverCircumstance")]
-        public CaregiverExclusionDTO? CareGiverCircumstance { get; set; }
-
-        [JsonPropertyName("fosterCare")]
-        public FosterCareExclusionDTO? FosterCare { get; set; }
+        public List<CaregiverExemptionDTO>? CareGiverCircumstance { get; set; }
 
         [JsonPropertyName("formerFosterCare")]
-        public FormerFosterCareExclusionDTO? FormerFosterCare { get; set; }
+        public FormerFosterCareExemptionDTO? FormerFosterCare { get; set; }
 
-        [JsonPropertyName("incarceratedCircumstance")]
-        public IncarcerationExclusionDTO? IncarceratedCircumstance { get; set; }
+        /// <summary>Renamed from "incarceratedCircumstance" to "currentlyIncarcerated".</summary>
+        [JsonPropertyName("currentlyIncarcerated")]
+        public IncarcerationExemptionDTO? CurrentlyIncarcerated { get; set; }
 
-        [JsonPropertyName("medicarePartAB")]
-        public MedicarePartAbExclusionDTO? MedicarePartAB { get; set; }
+        /// <summary>Renamed from "medicarePartAB" to "receivingMedicaidPartAB" and is now an array.</summary>
+        [JsonPropertyName("receivingMedicaidPartAB")]
+        public List<MedicarePartAbExemptionDTO>? ReceivingMedicaidPartAb { get; set; }
 
-        [JsonPropertyName("frailty")]
-        public FrailtyExclusionDTO? Frailty { get; set; }
+        /// <summary>Renamed from "frailty" to "medicallyFrail".</summary>
+        [JsonPropertyName("medicallyFrail")]
+        public FrailtyExemptionDTO? MedicallyFrail { get; set; }
 
-        [JsonPropertyName("circumstanceForExclusion")]
-        public CircumstanceDTO? CircumstanceForExclusion { get; set; }
+        /// <summary>New in the 2026-08 revision — persisted to the new MWRP_CE_VETERAN_DISABILITY table.</summary>
+        [JsonPropertyName("veteranWith100PercentDisability")]
+        public VeteranDisabilityExemptionDTO? VeteranWith100PercentDisability { get; set; }
 
-        [JsonPropertyName("source")]
-        public string? Source { get; set; }
-
-        [JsonPropertyName("updateSw")]
-        public string? UpdateSw { get; set; }
+        /// <summary>Only carries lineage fields in the sample payload — persisted directly on CE_VERIFIED.</summary>
+        [JsonPropertyName("circumstances")]
+        public LineageDTO? Circumstances { get; set; }
     }
 
-    public class ExceptionsDTO
+    /// <summary>Shared source/update-tracking fields that appear on most exemption/engagement objects.</summary>
+    public class LineageDTO
     {
-        [JsonPropertyName("circumstanceForException")]
-        public CircumstanceDTO? CircumstanceForException { get; set; }
-
         [JsonPropertyName("source")]
         public string? Source { get; set; }
 
-        [JsonPropertyName("updateSw")]
+        [JsonPropertyName("updatesw")]
         public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
-    /// <summary>Backs both CE_CIRCUMSTANCE and CE_CIRCUMSTANCE_DETAIL. Field names inferred from TableDefinition.txt — sample payload shows null.</summary>
-    public class CircumstanceDTO
+    public class PregnancyExemptionDTO
     {
         [JsonPropertyName("circumstanceCode")]
         public string? CircumstanceCode { get; set; }
 
-        [JsonPropertyName("circumstanceDescription")]
-        public string? CircumstanceDescription { get; set; }
-
-        [JsonPropertyName("startDate")]
-        public string? StartDate { get; set; }
-
-        [JsonPropertyName("endDate")]
-        public string? EndDate { get; set; }
-
-        [JsonPropertyName("onGoingPermanent")]
-        public bool? OnGoingPermanent { get; set; }
-
-        [JsonPropertyName("verificationSource")]
-        public string? VerificationSource { get; set; }
-
-        [JsonPropertyName("verificationDate")]
-        public string? VerificationDate { get; set; }
-
-        [JsonPropertyName("effectiveBeginDate")]
-        public string? EffectiveBeginDate { get; set; }
-
-        [JsonPropertyName("effectiveEndDate")]
-        public string? EffectiveEndDate { get; set; }
-
-        [JsonPropertyName("americanIndianAlaskanNative")]
-        public bool? AmericanIndianAlaskanNative { get; set; }
-
-        [JsonPropertyName("hospitalCare")]
-        public bool? HospitalCare { get; set; }
-
-        [JsonPropertyName("extendedMedicalTravel")]
-        public bool? ExtendedMedicalTravel { get; set; }
-
-        [JsonPropertyName("substanceUseDisorder")]
-        public bool? SubstanceUseDisorder { get; set; }
-
-        [JsonPropertyName("veteran100PercentDisabled")]
-        public bool? Veteran100PercentDisabled { get; set; }
-
-        [JsonPropertyName("blindOrDisabled")]
-        public bool? BlindOrDisabled { get; set; }
-
-        [JsonPropertyName("tanfEnrolled")]
-        public bool? TanfEnrolled { get; set; }
-
-        [JsonPropertyName("snapApproved")]
-        public bool? SnapApproved { get; set; }
-
-        [JsonPropertyName("snapWorkReqNotExempt")]
-        public bool? SnapWorkReqNotExempt { get; set; }
-    }
-
-    public class PregnancyExclusionDTO
-    {
-        [JsonPropertyName("circumstanceCode")]
-        public string? CircumstanceCode { get; set; }
-
-        [JsonPropertyName("expectedDueDate")]
+        [JsonPropertyName("expectedPregnancyDueDate")]
         public string? ExpectedDueDate { get; set; }
 
         [JsonPropertyName("actualPregnancyEndDate")]
@@ -365,9 +341,21 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("effectiveEndDate")]
         public string? EffectiveEndDate { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updatesw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
-    public class CaregiverExclusionDTO
+    public class CaregiverExemptionDTO
     {
         [JsonPropertyName("circumstanceCode")]
         public string? CircumstanceCode { get; set; }
@@ -375,59 +363,85 @@ namespace MES_EDWS.Models
         [JsonPropertyName("relationshipWithDependent")]
         public string? RelationshipWithDependent { get; set; }
 
-        [JsonPropertyName("dependentDob")]
-        public string? DependentDob { get; set; }
-
-        [JsonPropertyName("dependentLivesSameHome")]
+        [JsonPropertyName("dependentLiveInTheSameHome")]
         public bool? DependentLivesSameHome { get; set; }
 
-        [JsonPropertyName("dependentDisabled")]
-        public bool? DependentDisabled { get; set; }
+        [JsonPropertyName("dependentDOB")]
+        public string? DependentDob { get; set; }
 
-        [JsonPropertyName("caregivingHoursPerWeek")]
-        public decimal? CaregivingHoursPerWeek { get; set; }
+        /// <summary>New in the 2026-08 revision — replaces the old scalar "caregivingHoursPerWeek" field.
+        /// Persisted to the new MWRP_CE_CAREGIVER_MONTHLY_HOURS child table.</summary>
+        [JsonPropertyName("hoursOfCaregivingPerWeekMonth")]
+        public List<CaregiverMonthlyHoursDTO>? HoursOfCaregivingPerWeekMonth { get; set; }
 
-        [JsonPropertyName("effectiveBeginDate")]
-        public string? EffectiveBeginDate { get; set; }
-
-        [JsonPropertyName("effectiveEndDate")]
-        public string? EffectiveEndDate { get; set; }
-    }
-
-    public class FosterCareExclusionDTO
-    {
-        [JsonPropertyName("circumstanceCode")]
-        public string? CircumstanceCode { get; set; }
-
-        [JsonPropertyName("receivingIVEFosterCare")]
-        public bool? ReceivingIveFosterCare { get; set; }
-
-        [JsonPropertyName("inStateCustody")]
-        public bool? InStateCustody { get; set; }
+        [JsonPropertyName("isDependentDisabled")]
+        public bool? IsDependentDisabled { get; set; }
 
         [JsonPropertyName("effectiveBeginDate")]
         public string? EffectiveBeginDate { get; set; }
 
         [JsonPropertyName("effectiveEndDate")]
         public string? EffectiveEndDate { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updatesw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
-    public class FormerFosterCareExclusionDTO
+    public class CaregiverMonthlyHoursDTO
+    {
+        [JsonPropertyName("monthAndYear")]
+        public string? MonthAndYear { get; set; }
+
+        [JsonPropertyName("monthlyHours")]
+        public decimal? MonthlyHours { get; set; }
+    }
+
+    public class FormerFosterCareExemptionDTO
     {
         [JsonPropertyName("circumstanceCode")]
         public string? CircumstanceCode { get; set; }
 
-        [JsonPropertyName("enrolledMedicaidFosterCareAge18")]
+        [JsonPropertyName("enrolledInMedicaidAndFosterCareAtAge18")]
         public bool? EnrolledMedicaidFosterCareAge18 { get; set; }
 
+        /// <summary>New in the 2026-08 revision — persisted to CE_EXCLUSION_FORMER_FOSTER_CARE.AGE_QTY.</summary>
+        [JsonPropertyName("age")]
+        public int? Age { get; set; }
+
         [JsonPropertyName("effectiveBeginDate")]
         public string? EffectiveBeginDate { get; set; }
 
         [JsonPropertyName("effectiveEndDate")]
         public string? EffectiveEndDate { get; set; }
+
+        /// <summary>New in the 2026-08 revision — persisted to CE_EXCLUSION_FORMER_FOSTER_CARE.AID_CATEGORY_WHEN_TURNED18_CD.</summary>
+        [JsonPropertyName("aidCategoryWhenTurned18")]
+        public int? AidCategoryWhenTurned18 { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updatesw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
-    public class IncarcerationExclusionDTO
+    /// <summary>Backs the "currentlyIncarcerated" exemption (was "incarceratedCircumstance").</summary>
+    public class IncarcerationExemptionDTO
     {
         [JsonPropertyName("circumstanceCode")]
         public string? CircumstanceCode { get; set; }
@@ -449,17 +463,37 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("effectiveEndDate")]
         public string? EffectiveEndDate { get; set; }
+
+        /// <summary>New in the 2026-08 revision — persisted to CE_INCARCERATION.RELEASED_DT.</summary>
+        [JsonPropertyName("releasedDate")]
+        public string? ReleasedDate { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updatesw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
-    public class MedicarePartAbExclusionDTO
+    /// <summary>Item of the "receivingMedicaidPartAB" array (was a single "medicarePartAB" object).</summary>
+    public class MedicarePartAbExemptionDTO
     {
-        [JsonPropertyName("coverageType")]
+        [JsonPropertyName("circumstanceCode")]
+        public string? CircumstanceCode { get; set; }
+
+        [JsonPropertyName("typeOfCoverage")]
         public string? CoverageType { get; set; }
 
         [JsonPropertyName("medicareExpenseType")]
         public string? MedicareExpenseType { get; set; }
 
-        [JsonPropertyName("solq")]
+        [JsonPropertyName("isSOLQ")]
         public bool? Solq { get; set; }
 
         [JsonPropertyName("startDate")]
@@ -467,17 +501,33 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("endDate")]
         public string? EndDate { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updatesw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
-    public class FrailtyExclusionDTO
+    /// <summary>Backs the "medicallyFrail" exemption (was "frailty").</summary>
+    public class FrailtyExemptionDTO
     {
-        [JsonPropertyName("seriousMedicalConditionText")]
+        [JsonPropertyName("circumstanceCode")]
+        public string? CircumstanceCode { get; set; }
+
+        [JsonPropertyName("seriousMedicalCondition")]
         public string? SeriousMedicalConditionText { get; set; }
 
-        [JsonPropertyName("mentalHealthPhysicalLimitationText")]
+        [JsonPropertyName("mentalHealthOrPhysicalLimitation")]
         public string? MentalHealthPhysicalLimitationText { get; set; }
 
-        [JsonPropertyName("seriousHealthImpact")]
+        [JsonPropertyName("seriousHealthProblemImpactsYourLife")]
         public bool? SeriousHealthImpact { get; set; }
 
         [JsonPropertyName("mentalHealth")]
@@ -486,7 +536,7 @@ namespace MES_EDWS.Models
         [JsonPropertyName("physicalDisability")]
         public bool? PhysicalDisability { get; set; }
 
-        [JsonPropertyName("verificationCode")]
+        [JsonPropertyName("verification")]
         public string? VerificationCode { get; set; }
 
         [JsonPropertyName("effectiveStartDate")]
@@ -494,6 +544,68 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("effectiveEndDate")]
         public string? EffectiveEndDate { get; set; }
+
+        /// <summary>New in the 2026-08 revision — persisted to CE_FRAILTY.DRUG_ALCOHOL_USE_DISORDER_FLG.</summary>
+        [JsonPropertyName("drugOrAlcoholUseDisorder")]
+        public bool? DrugOrAlcoholUseDisorder { get; set; }
+
+        /// <summary>New in the 2026-08 revision — persisted to CE_FRAILTY.FREQUENT_MEDICAL_CARE_FLG.</summary>
+        [JsonPropertyName("frequentMedicalCare")]
+        public bool? FrequentMedicalCare { get; set; }
+
+        /// <summary>New in the 2026-08 revision — persisted to CE_FRAILTY.RELIED_ON_MEDICAL_EQUIPMENT_FLG.</summary>
+        [JsonPropertyName("reliedOnMedicalEquipment")]
+        public bool? ReliedOnMedicalEquipment { get; set; }
+
+        /// <summary>New in the 2026-08 revision — persisted to CE_FRAILTY.BLIND_OR_LIMITED_VISION_FLG.</summary>
+        [JsonPropertyName("blindOrHaveLimitedVision")]
+        public bool? BlindOrHaveLimitedVision { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updatesw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
+    }
+
+    /// <summary>New in the 2026-08 revision — persisted to the new MWRP_CE_VETERAN_DISABILITY table.</summary>
+    public class VeteranDisabilityExemptionDTO
+    {
+        [JsonPropertyName("circumstanceCode")]
+        public string? CircumstanceCode { get; set; }
+
+        [JsonPropertyName("verificationSource")]
+        public string? VerificationSource { get; set; }
+
+        [JsonPropertyName("verificationDate")]
+        public string? VerificationDate { get; set; }
+
+        [JsonPropertyName("veteranWith100PercentDisability")]
+        public bool? VeteranWith100PercentDisability { get; set; }
+
+        [JsonPropertyName("effectiveBeginDate")]
+        public string? EffectiveBeginDate { get; set; }
+
+        [JsonPropertyName("effectiveEndDate")]
+        public string? EffectiveEndDate { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updatesw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
     // ─── Engagements ──────────────────────────────────────────────────────────────
@@ -509,31 +621,36 @@ namespace MES_EDWS.Models
         [JsonPropertyName("education")]
         public List<EducationEntryDTO>? Education { get; set; }
 
-        /// <summary>Truv/payroll-provider verified employer tree — feeds CE_TRUV_EMPLOYER and its children.</summary>
+        /// <summary>Simple verified income/hours summary — feeds MWRP_CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT.
+        /// (Not to be confused with the richer Truv tree, which now lives at employment[].electronicallyVerifiedData.)</summary>
         [JsonPropertyName("electronicallyVerifiedEmployment")]
-        public List<TruvEmployerDTO>? ElectronicallyVerifiedEmployment { get; set; }
+        public List<ElectronicallyVerifiedEmploymentDTO>? ElectronicallyVerifiedEmployment { get; set; }
 
-        /// <summary>Maps to CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT (monthly income/hours summary at the member level).</summary>
+        /// <summary>New shape in the 2026-08 revision — persisted to the new MWRP_CE_INDV_INCOME_BUDGET table.</summary>
         [JsonPropertyName("evIndvIncomeBudget")]
-        public List<ElectronicallyVerifiedEmploymentDTO>? EvIndvIncomeBudget { get; set; }
+        public List<IndvIncomeBudgetDTO>? EvIndvIncomeBudget { get; set; }
 
-        /// <summary>No corresponding table in TableDefinition.txt — parsed but not persisted.</summary>
+        /// <summary>Persisted to the new MWRP_CE_EDG_INCOME_BUDGET table.</summary>
         [JsonPropertyName("evEdgIncomeBudget")]
-        public object? EvEdgIncomeBudget { get; set; }
+        public List<EdgIncomeBudgetDTO>? EvEdgIncomeBudget { get; set; }
 
-        /// <summary>No corresponding table in TableDefinition.txt — parsed but not persisted.</summary>
+        /// <summary>Persisted to the new MWRP_CE_BUDGET_GROUP_MEMBER table.</summary>
         [JsonPropertyName("budgetGroupMembers")]
-        public object? BudgetGroupMembers { get; set; }
+        public List<BudgetGroupMemberDTO>? BudgetGroupMembers { get; set; }
 
-        /// <summary>No corresponding table in TableDefinition.txt — parsed but not persisted.</summary>
+        /// <summary>Same shape as evEdgIncomeBudget — persisted to the new MWRP_CE_MAGI_INCOME_BUDGET table.</summary>
         [JsonPropertyName("magiIncomeBudget")]
-        public object? MagiIncomeBudget { get; set; }
-
-        [JsonPropertyName("source")]
-        public string? Source { get; set; }
+        public List<EdgIncomeBudgetDTO>? MagiIncomeBudget { get; set; }
 
         [JsonPropertyName("volunteeringCommunityService")]
         public List<VolunteeringEntryDTO>? VolunteeringCommunityService { get; set; }
+
+        /// <summary>New in the 2026-08 revision — persisted to the new MWRP_CE_INKIND_UNPAID_WORK table.</summary>
+        [JsonPropertyName("inKindOrUnpaidWork")]
+        public List<JobTrainingEntryDTO>? InKindOrUnpaidWork { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
 
         [JsonPropertyName("updateSw")]
         public string? UpdateSw { get; set; }
@@ -573,17 +690,28 @@ namespace MES_EDWS.Models
         [JsonPropertyName("isInkindOrUnPaid")]
         public bool? IsInkindOrUnPaid { get; set; }
 
+        /// <summary>Now an array in the 2026-08 revision (was a single object).</summary>
         [JsonPropertyName("incomeBudgetDetails")]
-        public IncomeBudgetDetailsDTO? IncomeBudgetDetails { get; set; }
+        public List<IncomeBudgetDetailsDTO>? IncomeBudgetDetails { get; set; }
+
+        /// <summary>New in the 2026-08 revision — the Truv/payroll-provider verified employer tree now
+        /// nests here (per employment entry) instead of at the top level of "engagements".</summary>
+        [JsonPropertyName("electronicallyVerifiedData")]
+        public List<TruvEmployerDTO>? ElectronicallyVerifiedData { get; set; }
 
         [JsonPropertyName("source")]
         public string? Source { get; set; }
 
         [JsonPropertyName("updateSw")]
         public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
-    /// <summary>Field names inferred from TableDefinition.txt — sample payload shows null.</summary>
     public class IncomeBudgetDetailsDTO
     {
         [JsonPropertyName("monthlyIncome")]
@@ -600,9 +728,21 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("verificationSource")]
         public string? VerificationSource { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updatesw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
-    /// <summary>Field names inferred from TableDefinition.txt — sample payload shows null.</summary>
+    /// <summary>Simple verified income/hours summary item — feeds MWRP_CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT.</summary>
     public class ElectronicallyVerifiedEmploymentDTO
     {
         [JsonPropertyName("verificationSource")]
@@ -621,12 +761,65 @@ namespace MES_EDWS.Models
         public int? IncomeYear { get; set; }
     }
 
-    // ─── Job Training (CE_JOB_TRAINING) ──────────────────────────────────────────
+    /// <summary>engagements.evIndvIncomeBudget[] — persisted to the new MWRP_CE_INDV_INCOME_BUDGET table.</summary>
+    public class IndvIncomeBudgetDTO
+    {
+        [JsonPropertyName("clientId")]
+        public long? ClientId { get; set; }
+
+        [JsonPropertyName("ein")]
+        public string? Ein { get; set; }
+
+        [JsonPropertyName("budgetBeginDt")]
+        public string? BudgetBeginDate { get; set; }
+
+        [JsonPropertyName("budgetEndDt")]
+        public string? BudgetEndDate { get; set; }
+
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("totalBudgetAmount")]
+        public decimal? TotalBudgetAmount { get; set; }
+    }
+
+    /// <summary>engagements.evEdgIncomeBudget[] and engagements.magiIncomeBudget[] (same shape) — persisted
+    /// to the new MWRP_CE_EDG_INCOME_BUDGET / MWRP_CE_MAGI_INCOME_BUDGET tables respectively.</summary>
+    public class EdgIncomeBudgetDTO
+    {
+        [JsonPropertyName("edgNum")]
+        public int? EdgNum { get; set; }
+
+        [JsonPropertyName("eligBeginDt")]
+        public string? EligBeginDate { get; set; }
+
+        [JsonPropertyName("eligEndDt")]
+        public string? EligEndDate { get; set; }
+
+        [JsonPropertyName("totalBudgetAmount")]
+        public decimal? TotalBudgetAmount { get; set; }
+    }
+
+    /// <summary>engagements.budgetGroupMembers[] — persisted to the new MWRP_CE_BUDGET_GROUP_MEMBER table.</summary>
+    public class BudgetGroupMemberDTO
+    {
+        [JsonPropertyName("edgNum")]
+        public int? EdgNum { get; set; }
+
+        [JsonPropertyName("clientId")]
+        public long? ClientId { get; set; }
+
+        [JsonPropertyName("EligParfStatusCd")]
+        public string? EligParfStatusCd { get; set; }
+    }
+
+    // ─── Job Training / In-Kind or Unpaid Work (CE_JOB_TRAINING / CE_INKIND_UNPAID_WORK) ─────
 
     public class JobTrainingEntryDTO
     {
+        /// <summary>Sent as a JSON number in the 2026-08 revision.</summary>
         [JsonPropertyName("organizationId")]
-        public string? OrganizationId { get; set; }
+        public long? OrganizationId { get; set; }
 
         [JsonPropertyName("organizationName")]
         public string? OrganizationName { get; set; }
@@ -654,13 +847,19 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("updateSw")]
         public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
     // ─── Volunteering (CE_VOLUNTEER_SERVICE) ─────────────────────────────────────
 
     public class VolunteeringEntryDTO
     {
-        [JsonPropertyName("organizationId")]
+        [JsonPropertyName("organizationID")]
         public string? OrganizationId { get; set; }
 
         [JsonPropertyName("organizationName")]
@@ -684,8 +883,14 @@ namespace MES_EDWS.Models
         [JsonPropertyName("source")]
         public string? Source { get; set; }
 
-        [JsonPropertyName("updateSw")]
+        [JsonPropertyName("updatesw")]
         public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
     // ─── Education (CE_EDUCATION / CE_NSC_ENROLLMENT / CE_NSC_ENROLLMENT_DETAIL /
@@ -725,6 +930,12 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("updateSw")]
         public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
     }
 
     public class NscEnrollmentDTO
@@ -778,29 +989,38 @@ namespace MES_EDWS.Models
     // ─── Truv Verified Employment (CE_TRUV_EMPLOYER / CE_TRUV_PROVIDER /
     //    CE_EMPLOYMENT_DETAIL / CE_EMPLOYEE_PROFILE / CE_PAY_STATEMENT /
     //    CE_ANNUAL_INCOME) ─────────────────────────────────────────────────────────
-    // Null in the sample payload — field names carried over from the prior DTO
-    // version (Truv's standard payroll-verification shape) and expanded to cover
-    // every CE_PAY_STATEMENT / CE_ANNUAL_INCOME column.
+    // Field names updated to the camelCase shape observed nested under
+    // employment[].electronicallyVerifiedData in the 2026-08 revision (previously
+    // this tree was expected — incorrectly — as a snake_case top-level array).
+    // Several numeric fields (income, payRate, pay-statement amounts) arrive as
+    // quoted JSON strings; Program.cs enables JsonNumberHandling.AllowReadingFromString
+    // so they still bind to decimal/int properties without a custom converter.
 
     public class TruvEmployerDTO
     {
         [JsonPropertyName("id")]
-        public string? Id { get; set; }
+        public long? Id { get; set; }
 
-        [JsonPropertyName("product_type")]
+        [JsonPropertyName("productType")]
         public string? ProductType { get; set; }
 
         [JsonPropertyName("status")]
         public string? Status { get; set; }
 
-        [JsonPropertyName("data_source")]
+        [JsonPropertyName("dataSource")]
         public string? DataSource { get; set; }
 
-        [JsonPropertyName("company_name")]
+        [JsonPropertyName("companyName")]
         public string? CompanyName { get; set; }
 
-        [JsonPropertyName("is_suspicious")]
+        [JsonPropertyName("isSuspicious")]
         public bool? IsSuspicious { get; set; }
+
+        [JsonPropertyName("startDate")]
+        public string? StartDate { get; set; }
+
+        [JsonPropertyName("endDate")]
+        public string? EndDate { get; set; }
 
         [JsonPropertyName("provider")]
         public TruvProviderDTO? Provider { get; set; }
@@ -812,84 +1032,88 @@ namespace MES_EDWS.Models
     public class TruvProviderDTO
     {
         [JsonPropertyName("id")]
-        public string? Id { get; set; }
+        public long? Id { get; set; }
 
         [JsonPropertyName("name")]
         public string? Name { get; set; }
 
-        [JsonPropertyName("logo_url")]
+        [JsonPropertyName("logoUrl")]
         public string? LogoUrl { get; set; }
     }
 
     public class TruvEmploymentDetailDTO
     {
-        [JsonPropertyName("employment_external_id")]
-        public string? EmploymentExternalId { get; set; }
+        [JsonPropertyName("id")]
+        public long? Id { get; set; }
 
-        [JsonPropertyName("job_title")]
+        [JsonPropertyName("jobTitle")]
         public string? JobTitle { get; set; }
 
-        [JsonPropertyName("job_type")]
+        [JsonPropertyName("jobType")]
         public string? JobType { get; set; }
 
-        [JsonPropertyName("start_date")]
+        [JsonPropertyName("startDate")]
         public string? StartDate { get; set; }
 
-        [JsonPropertyName("end_date")]
+        [JsonPropertyName("endDate")]
         public string? EndDate { get; set; }
 
-        [JsonPropertyName("is_active")]
+        [JsonPropertyName("isActive")]
         public bool? IsActive { get; set; }
 
-        [JsonPropertyName("annual_income")]
-        public decimal? AnnualIncome { get; set; }
+        [JsonPropertyName("income")]
+        public decimal? Income { get; set; }
 
-        [JsonPropertyName("income_unit")]
+        [JsonPropertyName("incomeUnit")]
         public string? IncomeUnit { get; set; }
 
-        [JsonPropertyName("pay_rate")]
+        [JsonPropertyName("payRate")]
         public decimal? PayRate { get; set; }
 
-        [JsonPropertyName("pay_frequency")]
+        [JsonPropertyName("payFrequency")]
         public string? PayFrequency { get; set; }
 
         [JsonPropertyName("profile")]
         public TruvEmployeeProfileDTO? Profile { get; set; }
 
-        [JsonPropertyName("statements")]
-        public List<TruvPayStatementDTO>? Statements { get; set; }
+        /// <summary>JSON key is singular ("statement") in the 2026-08 revision.</summary>
+        [JsonPropertyName("statement")]
+        public List<TruvPayStatementDTO>? Statement { get; set; }
 
-        [JsonPropertyName("annual_income_summary")]
+        [JsonPropertyName("annualIncomeSummary")]
         public List<TruvAnnualIncomeDTO>? AnnualIncomeSummary { get; set; }
     }
 
     public class TruvEmployeeProfileDTO
     {
-        [JsonPropertyName("employee_id")]
+        [JsonPropertyName("employeeId")]
         public string? EmployeeId { get; set; }
 
-        [JsonPropertyName("full_name")]
+        [JsonPropertyName("fullName")]
         public string? FullName { get; set; }
+
+        [JsonPropertyName("logoUrl")]
+        public string? LogoUrl { get; set; }
     }
 
     public class TruvPayStatementDTO
     {
-        [JsonPropertyName("pay_statement_external_id")]
-        public string? PayStatementExternalId { get; set; }
+        [JsonPropertyName("id")]
+        public long? Id { get; set; }
 
-        [JsonPropertyName("pay_date")]
+        [JsonPropertyName("payDate")]
         public string? PayDate { get; set; }
 
-        [JsonPropertyName("net_pay")]
+        [JsonPropertyName("netPay")]
         public decimal? NetPay { get; set; }
 
-        [JsonPropertyName("net_pay_ytd")]
+        [JsonPropertyName("netPayYtd")]
         public decimal? NetPayYtd { get; set; }
 
-        [JsonPropertyName("gross_pay")]
+        [JsonPropertyName("grossPay")]
         public decimal? GrossPay { get; set; }
 
-        [JsonPropertyName("gross_pay_ytd")]
+        [JsonPropertyName("grossPayYtd")]
         public decimal? GrossPayYtd { get; set; }
 
         [JsonPropertyName("bonus")]
@@ -901,47 +1125,47 @@ namespace MES_EDWS.Models
         [JsonPropertyName("hours")]
         public decimal? Hours { get; set; }
 
-        [JsonPropertyName("basis_of_pay")]
+        [JsonPropertyName("basisOfPay")]
         public string? BasisOfPay { get; set; }
 
-        [JsonPropertyName("period_start")]
+        [JsonPropertyName("periodStart")]
         public string? PeriodStart { get; set; }
 
-        [JsonPropertyName("period_end")]
+        [JsonPropertyName("periodEnd")]
         public string? PeriodEnd { get; set; }
 
         [JsonPropertyName("regular")]
         public decimal? Regular { get; set; }
 
-        [JsonPropertyName("regular_ytd")]
+        [JsonPropertyName("regularYtd")]
         public decimal? RegularYtd { get; set; }
 
-        [JsonPropertyName("other_pay")]
+        [JsonPropertyName("otherPay")]
         public decimal? OtherPay { get; set; }
 
-        [JsonPropertyName("other_pay_ytd")]
+        [JsonPropertyName("otherPayYtd")]
         public decimal? OtherPayYtd { get; set; }
 
-        [JsonPropertyName("bonus_ytd")]
+        [JsonPropertyName("bonusYtd")]
         public decimal? BonusYtd { get; set; }
 
-        [JsonPropertyName("commission_ytd")]
+        [JsonPropertyName("commissionYtd")]
         public decimal? CommissionYtd { get; set; }
 
-        [JsonPropertyName("overtime")]
-        public decimal? Overtime { get; set; }
+        [JsonPropertyName("overTime")]
+        public decimal? OverTime { get; set; }
 
-        [JsonPropertyName("overtime_ytd")]
-        public decimal? OvertimeYtd { get; set; }
+        [JsonPropertyName("overTimeYtd")]
+        public decimal? OverTimeYtd { get; set; }
     }
 
     public class TruvAnnualIncomeDTO
     {
-        [JsonPropertyName("annual_income_external_id")]
-        public string? AnnualIncomeExternalId { get; set; }
+        [JsonPropertyName("id")]
+        public long? Id { get; set; }
 
-        [JsonPropertyName("report_year")]
-        public int? ReportYear { get; set; }
+        [JsonPropertyName("year")]
+        public int? Year { get; set; }
 
         [JsonPropertyName("regular")]
         public decimal? Regular { get; set; }
@@ -952,16 +1176,16 @@ namespace MES_EDWS.Models
         [JsonPropertyName("commission")]
         public decimal? Commission { get; set; }
 
-        [JsonPropertyName("overtime")]
-        public decimal? Overtime { get; set; }
+        [JsonPropertyName("overTime")]
+        public decimal? OverTime { get; set; }
 
-        [JsonPropertyName("other_pay")]
+        [JsonPropertyName("otherPay")]
         public decimal? OtherPay { get; set; }
 
-        [JsonPropertyName("net_pay")]
+        [JsonPropertyName("netPay")]
         public decimal? NetPay { get; set; }
 
-        [JsonPropertyName("gross_pay")]
+        [JsonPropertyName("grossPay")]
         public decimal? GrossPay { get; set; }
     }
 

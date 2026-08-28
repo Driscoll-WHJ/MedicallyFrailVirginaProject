@@ -5,7 +5,8 @@ namespace MES_EDWS.Services
 {
     /// <summary>
     /// Persists CEP-ICD-003 CE verification result payloads to the
-    /// HR1_DMAS_POC.MWRP_CE_* Teradata tables (see docs/TableDefinition.txt).
+    /// HR1_DMAS_POC.MWRP_CE_* Teradata tables (see docs/TableDefinition.txt and
+    /// docs/SchemaChanges_NewPayload.sql for the 2026-08 revision additions).
     /// The whole payload is written inside one transaction so a partially-saved
     /// request is never left behind.
     ///
@@ -25,37 +26,42 @@ namespace MES_EDWS.Services
         private const string Schema = "HR1_DMAS_POC";
 
         // ── Table names ────────────────────────────────────────────────────────────
-        private const string RequestTable                     = Schema + ".MWRP_CE_REQUEST";
-        private const string DocumentTable                    = Schema + ".MWRP_CE_DOCUMENT";
-        private const string VerifiedTable                    = Schema + ".MWRP_CE_VERIFIED";
-        private const string AidCategoryTable                 = Schema + ".MWRP_CE_AID_CATEGORY";
-        private const string PhoneTable                       = Schema + ".MWRP_CE_PHONE";
-        private const string AddressTable                     = Schema + ".MWRP_CE_ADDRESS";
-        private const string CircumstanceTable                = Schema + ".MWRP_CE_CIRCUMSTANCE";
-        private const string CircumstanceDetailTable           = Schema + ".MWRP_CE_CIRCUMSTANCE_DETAIL";
-        private const string ExclusionPregnancyTable           = Schema + ".MWRP_CE_EXCLUSION_PREGNANCY";
-        private const string ExclusionCaregiverTable           = Schema + ".MWRP_CE_EXCLUSION_CAREGIVER";
-        private const string ExclusionFosterCareTable          = Schema + ".MWRP_CE_EXCLUSION_FOSTER_CARE";
-        private const string ExclusionFormerFosterCareTable    = Schema + ".MWRP_CE_EXCLUSION_FORMER_FOSTER_CARE";
-        private const string IncarcerationTable                = Schema + ".MWRP_CE_INCARCERATION";
-        private const string MedicarePartAbTable                = Schema + ".MWRP_CE_MEDICARE_PART_AB";
-        private const string FrailtyTable                      = Schema + ".MWRP_CE_FRAILTY";
-        private const string EmploymentTable                   = Schema + ".MWRP_CE_EMPLOYMENT";
-        private const string IncomeBudgetTable                 = Schema + ".MWRP_CE_INCOME_BUDGET";
-        private const string EducationTable                    = Schema + ".MWRP_CE_EDUCATION";
-        private const string NscEnrollmentTable                = Schema + ".MWRP_CE_NSC_ENROLLMENT";
-        private const string NscEnrollmentDetailTable           = Schema + ".MWRP_CE_NSC_ENROLLMENT_DETAIL";
-        private const string CourseOfStudyTable                = Schema + ".MWRP_CE_COURSE_OF_STUDY";
-        private const string JobTrainingTable                  = Schema + ".MWRP_CE_JOB_TRAINING";
-        private const string VolunteerServiceTable              = Schema + ".MWRP_CE_VOLUNTEER_SERVICE";
-        private const string ElectronicallyVerifiedEmpTable    = Schema + ".MWRP_CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT";
-        private const string TruvEmployerTable                  = Schema + ".MWRP_CE_TRUV_EMPLOYER";
-        private const string TruvProviderTable                  = Schema + ".MWRP_CE_TRUV_PROVIDER";
-        private const string EmploymentDetailTable              = Schema + ".MWRP_CE_EMPLOYMENT_DETAIL";
-        private const string EmployeeProfileTable               = Schema + ".MWRP_CE_EMPLOYEE_PROFILE";
-        private const string PayStatementTable                  = Schema + ".MWRP_CE_PAY_STATEMENT";
-        private const string AnnualIncomeTable                  = Schema + ".MWRP_CE_ANNUAL_INCOME";
-        private const string RequestAckTable                    = Schema + ".MWRP_CE_REQUEST_ACK";
+        private const string RequestTable                   = Schema + ".MWRP_CE_REQUEST";
+        private const string DocumentTable                  = Schema + ".MWRP_CE_DOCUMENT";
+        private const string VerifiedTable                  = Schema + ".MWRP_CE_VERIFIED";
+        private const string RulesEvaluationResultTable     = Schema + ".MWRP_CE_RULES_EVALUATION_RESULT";
+        private const string AidCategoryTable               = Schema + ".MWRP_CE_AID_CATEGORY";
+        private const string PhoneTable                     = Schema + ".MWRP_CE_PHONE";
+        private const string AddressTable                   = Schema + ".MWRP_CE_ADDRESS";
+        private const string ExclusionPregnancyTable        = Schema + ".MWRP_CE_EXCLUSION_PREGNANCY";
+        private const string ExclusionCaregiverTable        = Schema + ".MWRP_CE_EXCLUSION_CAREGIVER";
+        private const string CaregiverMonthlyHoursTable     = Schema + ".MWRP_CE_CAREGIVER_MONTHLY_HOURS";
+        private const string ExclusionFormerFosterCareTable = Schema + ".MWRP_CE_EXCLUSION_FORMER_FOSTER_CARE";
+        private const string IncarcerationTable             = Schema + ".MWRP_CE_INCARCERATION";
+        private const string MedicarePartAbTable            = Schema + ".MWRP_CE_MEDICARE_PART_AB";
+        private const string FrailtyTable                   = Schema + ".MWRP_CE_FRAILTY";
+        private const string VeteranDisabilityTable         = Schema + ".MWRP_CE_VETERAN_DISABILITY";
+        private const string EmploymentTable                = Schema + ".MWRP_CE_EMPLOYMENT";
+        private const string IncomeBudgetTable               = Schema + ".MWRP_CE_INCOME_BUDGET";
+        private const string EducationTable                 = Schema + ".MWRP_CE_EDUCATION";
+        private const string NscEnrollmentTable             = Schema + ".MWRP_CE_NSC_ENROLLMENT";
+        private const string NscEnrollmentDetailTable        = Schema + ".MWRP_CE_NSC_ENROLLMENT_DETAIL";
+        private const string CourseOfStudyTable             = Schema + ".MWRP_CE_COURSE_OF_STUDY";
+        private const string JobTrainingTable               = Schema + ".MWRP_CE_JOB_TRAINING";
+        private const string InKindUnpaidWorkTable          = Schema + ".MWRP_CE_INKIND_UNPAID_WORK";
+        private const string VolunteerServiceTable          = Schema + ".MWRP_CE_VOLUNTEER_SERVICE";
+        private const string ElectronicallyVerifiedEmpTable = Schema + ".MWRP_CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT";
+        private const string EdgIncomeBudgetTable           = Schema + ".MWRP_CE_EDG_INCOME_BUDGET";
+        private const string MagiIncomeBudgetTable          = Schema + ".MWRP_CE_MAGI_INCOME_BUDGET";
+        private const string IndvIncomeBudgetTable          = Schema + ".MWRP_CE_INDV_INCOME_BUDGET";
+        private const string BudgetGroupMemberTable         = Schema + ".MWRP_CE_BUDGET_GROUP_MEMBER";
+        private const string TruvEmployerTable              = Schema + ".MWRP_CE_TRUV_EMPLOYER";
+        private const string TruvProviderTable              = Schema + ".MWRP_CE_TRUV_PROVIDER";
+        private const string EmploymentDetailTable          = Schema + ".MWRP_CE_EMPLOYMENT_DETAIL";
+        private const string EmployeeProfileTable           = Schema + ".MWRP_CE_EMPLOYEE_PROFILE";
+        private const string PayStatementTable              = Schema + ".MWRP_CE_PAY_STATEMENT";
+        private const string AnnualIncomeTable              = Schema + ".MWRP_CE_ANNUAL_INCOME";
+        private const string RequestAckTable                = Schema + ".MWRP_CE_REQUEST_ACK";
 
         public ClientInfoService(IConfiguration configuration, ILogger<ClientInfoService> logger)
         {
@@ -171,25 +177,29 @@ namespace MES_EDWS.Services
             TdConnection connection, TdTransaction transaction, long requestRowId, CeVerifiedDTO verified)
         {
             var verifiedId = NewId();
+            var circumstancesLineage = verified.Exemptions?.Circumstances;
 
             var sql =
                 $"INSERT INTO {VerifiedTable} " +
                 "(CE_VERIFIED_ID, REQUEST_ROW_ID, CLIENT_IDENTIFICATION_NBR, MMIS_ENROLLEE_ID, SSN, MWR_STATUS_CD, " +
-                "MWR_START_DT, MWR_END_DT, PREV_ELIG_AUTH_DT, CURRENT_ELIGIBILITY_BEGIN_DT, APP_CHANGE_SUBMISSION_DT, " +
-                "RENEWAL_INITIATED_DT, CASE_ACTION_CD, DUE_DT, EMAIL_VERIFIED_FLG, EMAIL_ADDR, ALT_EMAIL_ADDR, " +
-                "PRIMARY_CONTACT_METHOD_CD, HEAD_OF_HOUSEHOLD_FLG, REQUIRES_CE_EVALUATION_FLG, RELATIONSHIP_TO_HOH_CD, " +
+                "MWR_START_DT, MWR_END_DT, REVIEW_MONTH_DT, PREV_ELIG_AUTH_DT, CURRENT_ELIGIBILITY_BEGIN_DT, " +
+                "APP_CHANGE_SUBMISSION_DT, RENEWAL_INITIATED_DT, CASE_ACTION_CD, DUE_DT, EMAIL_VERIFIED_FLG, " +
+                "EMAIL_ADDR, ALT_EMAIL_ADDR, PRIMARY_CONTACT_METHOD_CD, HEAD_OF_HOUSEHOLD_FLG, " +
+                "REQUIRES_CE_EVALUATION_FLG, RELATIONSHIP_TO_HOH_CD, EXEMPTIONS_SOURCE_SYSTEM_CD, " +
+                "EXEMPTIONS_UPDATE_SW_FLG, EXEMPTIONS_VACMS_SEQUENCE_NBR, EXEMPTIONS_APPLICATION_SOURCE_CD, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             await ExecuteAsync(connection, transaction, sql,
                 verifiedId,
                 requestRowId,
                 verified.ClientIdentificationNumber,
-                verified.MmisEnrolleeId,
+                verified.MmisEnrolleeId?.ToString(),
                 verified.SocialSecurityNumber,
                 verified.MwrStatus,
                 ToDbDate(verified.MwrStartDate),
                 ToDbDate(verified.MwrEndDate),
+                ToDbDate(verified.ReviewMonth),
                 ToDbDate(verified.PreviousEligibilityAuthorizationDate),
                 ToDbDate(verified.CurrentEligibilityBeginDate),
                 ToDbDate(verified.ApplicationChangeSubmissionDate),
@@ -203,8 +213,15 @@ namespace MES_EDWS.Services
                 ToYnChar(verified.HeadOfHousehold),
                 ToYnChar(verified.RequiresCeEvaluation),
                 verified.RelationshipWithHoh,
+                circumstancesLineage?.Source,
+                circumstancesLineage?.UpdateSw,
+                circumstancesLineage?.VaCmsSequenceNumber,
+                circumstancesLineage?.ApplicationSource,
                 DataSource,
                 DateTime.Today);
+
+            if (verified.RulesEvaluationResults is { Count: > 0 } rules)
+                await InsertRulesEvaluationResultsAsync(connection, transaction, verifiedId, rules);
 
             if (verified.AidCategory is { Count: > 0 } aidCategories)
                 await InsertAidCategoriesAsync(connection, transaction, verifiedId, aidCategories);
@@ -215,15 +232,30 @@ namespace MES_EDWS.Services
             if (verified.Addresses is { Count: > 0 } addresses)
                 await InsertAddressesAsync(connection, transaction, verifiedId, addresses);
 
-            if (verified.Exclusions != null)
-                await InsertExclusionsAsync(connection, transaction, verifiedId, verified.Exclusions);
-
-            if (verified.Exceptions?.CircumstanceForException != null)
-                await InsertCircumstanceAsync(
-                    connection, transaction, verifiedId, verified.Exceptions.CircumstanceForException);
+            if (verified.Exemptions != null)
+                await InsertExemptionsAsync(connection, transaction, verifiedId, verified.Exemptions);
 
             if (verified.Engagements != null)
                 await InsertEngagementsAsync(connection, transaction, verifiedId, verified.Engagements);
+        }
+
+        // ── MWRP_CE_RULES_EVALUATION_RESULT ───────────────────────────────────────
+
+        private static async Task InsertRulesEvaluationResultsAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<RuleEvaluationResultDTO> rules)
+        {
+            var sql =
+                $"INSERT INTO {RulesEvaluationResultTable} " +
+                "(RULE_RESULT_ID, CE_VERIFIED_ID, RULE_ID, RULE_NM, RESULT_CD, ACTIVITY_TYPE_CD, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            foreach (var rule in rules)
+            {
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, rule.RuleId, rule.RuleName, rule.Result, rule.ActivityType,
+                    DataSource, DateTime.Today);
+            }
         }
 
         // ── MWRP_CE_AID_CATEGORY ───────────────────────────────────────────────────
@@ -234,8 +266,9 @@ namespace MES_EDWS.Services
             var sql =
                 $"INSERT INTO {AidCategoryTable} " +
                 "(AID_CATEGORY_ID, CE_VERIFIED_ID, AID_CATEGORY_CD, START_DT, END_DT, " +
+                "SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, APPLICATION_SOURCE_CD, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             foreach (var aidCategory in aidCategories)
             {
@@ -245,6 +278,10 @@ namespace MES_EDWS.Services
                     aidCategory.Code,
                     ToDbDate(aidCategory.StartDate),
                     ToDbDate(aidCategory.EndDate),
+                    aidCategory.Source,
+                    aidCategory.UpdateSw,
+                    aidCategory.VaCmsSequenceNumber,
+                    aidCategory.ApplicationSource,
                     DataSource,
                     DateTime.Today);
             }
@@ -257,8 +294,10 @@ namespace MES_EDWS.Services
         {
             var sql =
                 $"INSERT INTO {PhoneTable} " +
-                "(PHONE_ID, CE_VERIFIED_ID, PHONE_TYPE_CD, PHONE_NBR, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
+                "(PHONE_ID, CE_VERIFIED_ID, PHONE_TYPE_CD, PHONE_NBR, " +
+                "SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, APPLICATION_SOURCE_CD, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             foreach (var phone in phones)
             {
@@ -267,6 +306,10 @@ namespace MES_EDWS.Services
                     verifiedId,
                     phone.PhoneType,
                     phone.PhoneNumber,
+                    phone.Source,
+                    phone.UpdateSw,
+                    phone.VaCmsSequenceNumber,
+                    phone.ApplicationSource,
                     DataSource,
                     DateTime.Today);
             }
@@ -280,8 +323,9 @@ namespace MES_EDWS.Services
             var sql =
                 $"INSERT INTO {AddressTable} " +
                 "(ADDRESS_ID, CE_VERIFIED_ID, ADDRESS_TYPE_CD, ADDRESS_LINE1, ADDRESS_LINE2, COUNTY_NM, CITY_NM, " +
-                "ZIP_CD5, ZIP_CD4, STATE_ID, FIPS_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "ZIP_CD5, ZIP_CD4, STATE_ID, FIPS_CD, SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, " +
+                "APPLICATION_SOURCE_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             foreach (var address in addresses)
             {
@@ -297,172 +341,186 @@ namespace MES_EDWS.Services
                     address.ZipCode4,
                     address.State,
                     address.FipsCode,
+                    address.Source,
+                    address.UpdateSw,
+                    address.VaCmsSequenceNumber,
+                    address.ApplicationSource,
                     DataSource,
                     DateTime.Today);
             }
         }
 
-        // ── MWRP_CE_EXCLUSION_* ────────────────────────────────────────────────────
+        // ── MWRP_CE_EXCLUSION_* / MWRP_CE_VETERAN_DISABILITY (ceVerified.exemptions) ──
 
-        private async Task InsertExclusionsAsync(
-            TdConnection connection, TdTransaction transaction, long verifiedId, ExclusionsDTO exclusions)
+        private static async Task InsertExemptionsAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, ExemptionsDTO exemptions)
         {
-            if (exclusions.Pregnancy is { } pregnancy)
+            if (exemptions.Pregnancy is { } pregnancy)
             {
                 var sql =
                     $"INSERT INTO {ExclusionPregnancyTable} " +
                     "(PREGNANCY_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, EXPECTED_DUE_DT, ACTUAL_PREGNANCY_END_DT, " +
-                    "EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                    "EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, " +
+                    "APPLICATION_SOURCE_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
                 await ExecuteAsync(connection, transaction, sql,
                     NewId(), verifiedId, pregnancy.CircumstanceCode,
                     ToDbDate(pregnancy.ExpectedDueDate), ToDbDate(pregnancy.ActualPregnancyEndDate),
                     ToDbDate(pregnancy.EffectiveBeginDate), ToDbDate(pregnancy.EffectiveEndDate),
+                    pregnancy.Source, pregnancy.UpdateSw, pregnancy.VaCmsSequenceNumber, pregnancy.ApplicationSource,
                     DataSource, DateTime.Today);
             }
 
-            if (exclusions.CareGiverCircumstance is { } caregiver)
-            {
-                var sql =
-                    $"INSERT INTO {ExclusionCaregiverTable} " +
-                    "(CAREGIVER_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, RELATIONSHIP_WITH_DEPENDENT_CD, DEPENDENT_DOB, " +
-                    "DEPENDENT_LIVES_SAME_HOME_FLG, DEPENDENT_DISABLED_FLG, CAREGIVING_HOURS_PER_WEEK, " +
-                    "EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+            if (exemptions.CareGiverCircumstance is { Count: > 0 } caregivers)
+                await InsertCaregiversAsync(connection, transaction, verifiedId, caregivers);
 
-                await ExecuteAsync(connection, transaction, sql,
-                    NewId(), verifiedId, caregiver.CircumstanceCode, caregiver.RelationshipWithDependent,
-                    ToDbDate(caregiver.DependentDob), ToYnChar(caregiver.DependentLivesSameHome),
-                    ToYnChar(caregiver.DependentDisabled), caregiver.CaregivingHoursPerWeek,
-                    ToDbDate(caregiver.EffectiveBeginDate), ToDbDate(caregiver.EffectiveEndDate),
-                    DataSource, DateTime.Today);
-            }
-
-            if (exclusions.FosterCare is { } fosterCare)
-            {
-                var sql =
-                    $"INSERT INTO {ExclusionFosterCareTable} " +
-                    "(FOSTER_CARE_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, RECEIVING_IVE_FOSTER_CARE_FLG, " +
-                    "IN_STATE_CUSTODY_FLG, EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, " +
-                    "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
-
-                await ExecuteAsync(connection, transaction, sql,
-                    NewId(), verifiedId, fosterCare.CircumstanceCode, ToYnChar(fosterCare.ReceivingIveFosterCare),
-                    ToYnChar(fosterCare.InStateCustody), ToDbDate(fosterCare.EffectiveBeginDate),
-                    ToDbDate(fosterCare.EffectiveEndDate), DataSource, DateTime.Today);
-            }
-
-            if (exclusions.FormerFosterCare is { } formerFosterCare)
+            if (exemptions.FormerFosterCare is { } formerFosterCare)
             {
                 var sql =
                     $"INSERT INTO {ExclusionFormerFosterCareTable} " +
                     "(FORMER_FOSTER_CARE_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, " +
-                    "ENROLLED_MEDICAID_FOSTERCARE_AGE18_FLG, EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, " +
-                    "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                    "ENROLLED_MEDICAID_FOSTERCARE_AGE18_FLG, AGE_QTY, EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, " +
+                    "AID_CATEGORY_WHEN_TURNED18_CD, SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, " +
+                    "APPLICATION_SOURCE_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
                 await ExecuteAsync(connection, transaction, sql,
                     NewId(), verifiedId, formerFosterCare.CircumstanceCode,
-                    ToYnChar(formerFosterCare.EnrolledMedicaidFosterCareAge18),
+                    ToYnChar(formerFosterCare.EnrolledMedicaidFosterCareAge18), formerFosterCare.Age,
                     ToDbDate(formerFosterCare.EffectiveBeginDate), ToDbDate(formerFosterCare.EffectiveEndDate),
+                    formerFosterCare.AidCategoryWhenTurned18, formerFosterCare.Source, formerFosterCare.UpdateSw,
+                    formerFosterCare.VaCmsSequenceNumber, formerFosterCare.ApplicationSource,
                     DataSource, DateTime.Today);
             }
 
-            if (exclusions.IncarceratedCircumstance is { } incarceration)
+            if (exemptions.CurrentlyIncarcerated is { } incarceration)
             {
                 var sql =
                     $"INSERT INTO {IncarcerationTable} " +
                     "(INCARCERATION_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, TOA_CD, LIVING_ARRANGEMENT_TYPE_CD, " +
                     "INCARCERATED_LAST_3_MONTHS_FLG, FACILITY_TYPE_CD, EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, " +
+                    "RELEASED_DT, SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, APPLICATION_SOURCE_CD, " +
                     "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
                 await ExecuteAsync(connection, transaction, sql,
                     NewId(), verifiedId, incarceration.CircumstanceCode, incarceration.Toa,
                     incarceration.LivingArrangementType, ToYnChar(incarceration.IncarceratedLast3Months),
                     incarceration.FacilityType, ToDbDate(incarceration.EffectiveBeginDate),
-                    ToDbDate(incarceration.EffectiveEndDate), DataSource, DateTime.Today);
+                    ToDbDate(incarceration.EffectiveEndDate), ToDbDate(incarceration.ReleasedDate),
+                    incarceration.Source, incarceration.UpdateSw, incarceration.VaCmsSequenceNumber,
+                    incarceration.ApplicationSource, DataSource, DateTime.Today);
             }
 
-            if (exclusions.MedicarePartAB is { } medicare)
+            if (exemptions.ReceivingMedicaidPartAb is { Count: > 0 } medicareEntries)
             {
                 var sql =
                     $"INSERT INTO {MedicarePartAbTable} " +
                     "(MEDICARE_PART_AB_ID, CE_VERIFIED_ID, COVERAGE_TYPE_CD, MEDICARE_EXPENSE_TYPE_CD, SOLQ_FLG, " +
-                    "START_DT, END_DT, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                    "START_DT, END_DT, SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, APPLICATION_SOURCE_CD, " +
+                    "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
-                await ExecuteAsync(connection, transaction, sql,
-                    NewId(), verifiedId, medicare.CoverageType, medicare.MedicareExpenseType,
-                    ToYnChar(medicare.Solq), ToDbDate(medicare.StartDate), ToDbDate(medicare.EndDate),
-                    DataSource, DateTime.Today);
+                foreach (var medicare in medicareEntries)
+                {
+                    await ExecuteAsync(connection, transaction, sql,
+                        NewId(), verifiedId, medicare.CoverageType, medicare.MedicareExpenseType,
+                        ToYnChar(medicare.Solq), ToDbDate(medicare.StartDate), ToDbDate(medicare.EndDate),
+                        medicare.Source, medicare.UpdateSw, medicare.VaCmsSequenceNumber, medicare.ApplicationSource,
+                        DataSource, DateTime.Today);
+                }
             }
 
-            if (exclusions.Frailty is { } frailty)
+            if (exemptions.MedicallyFrail is { } frailty)
             {
                 var sql =
                     $"INSERT INTO {FrailtyTable} " +
                     "(FRAILTY_ID, CE_VERIFIED_ID, SERIOUS_MEDICAL_CONDITION_TXT, " +
                     "MENTAL_HEALTH_PHYSICAL_LIMITATION_TXT, SERIOUS_HEALTH_IMPACT_FLG, MENTAL_HEALTH_FLG, " +
                     "PHYSICAL_DISABILITY_FLG, VERIFICATION_CD, EFFECTIVE_START_DT, EFFECTIVE_END_DT, " +
-                    "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                    "DRUG_ALCOHOL_USE_DISORDER_FLG, FREQUENT_MEDICAL_CARE_FLG, RELIED_ON_MEDICAL_EQUIPMENT_FLG, " +
+                    "BLIND_OR_LIMITED_VISION_FLG, SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, " +
+                    "APPLICATION_SOURCE_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
                 await ExecuteAsync(connection, transaction, sql,
                     NewId(), verifiedId, frailty.SeriousMedicalConditionText,
                     frailty.MentalHealthPhysicalLimitationText, ToYnChar(frailty.SeriousHealthImpact),
                     ToYnChar(frailty.MentalHealth), ToYnChar(frailty.PhysicalDisability), frailty.VerificationCode,
                     ToDbDate(frailty.EffectiveStartDate), ToDbDate(frailty.EffectiveEndDate),
+                    ToYnChar(frailty.DrugOrAlcoholUseDisorder), ToYnChar(frailty.FrequentMedicalCare),
+                    ToYnChar(frailty.ReliedOnMedicalEquipment), ToYnChar(frailty.BlindOrHaveLimitedVision),
+                    frailty.Source, frailty.UpdateSw, frailty.VaCmsSequenceNumber, frailty.ApplicationSource,
                     DataSource, DateTime.Today);
             }
 
-            if (exclusions.CircumstanceForExclusion != null)
-                await InsertCircumstanceAsync(connection, transaction, verifiedId, exclusions.CircumstanceForExclusion);
+            if (exemptions.VeteranWith100PercentDisability is { } veteran)
+            {
+                var sql =
+                    $"INSERT INTO {VeteranDisabilityTable} " +
+                    "(VETERAN_DISABILITY_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, VERIFICATION_SOURCE_CD, " +
+                    "VERIFICATION_DT, VETERAN_100_PCT_DISABLED_FLG, EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, " +
+                    "SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, APPLICATION_SOURCE_CD, " +
+                    "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, veteran.CircumstanceCode, veteran.VerificationSource,
+                    ToDbDate(veteran.VerificationDate), ToYnChar(veteran.VeteranWith100PercentDisability),
+                    ToDbDate(veteran.EffectiveBeginDate), ToDbDate(veteran.EffectiveEndDate),
+                    veteran.Source, veteran.UpdateSw, veteran.VaCmsSequenceNumber, veteran.ApplicationSource,
+                    DataSource, DateTime.Today);
+            }
         }
 
-        // ── MWRP_CE_CIRCUMSTANCE / MWRP_CE_CIRCUMSTANCE_DETAIL ────────────────────
+        // ── MWRP_CE_EXCLUSION_CAREGIVER / MWRP_CE_CAREGIVER_MONTHLY_HOURS ─────────
 
-        private static async Task InsertCircumstanceAsync(
-            TdConnection connection, TdTransaction transaction, long verifiedId, CircumstanceDTO circumstance)
+        private static async Task InsertCaregiversAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<CaregiverExemptionDTO> caregivers)
         {
-            var circumstanceId = NewId();
+            var sql =
+                $"INSERT INTO {ExclusionCaregiverTable} " +
+                "(CAREGIVER_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, RELATIONSHIP_WITH_DEPENDENT_CD, DEPENDENT_DOB, " +
+                "DEPENDENT_LIVES_SAME_HOME_FLG, DEPENDENT_DISABLED_FLG, EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, " +
+                "SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, APPLICATION_SOURCE_CD, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
-            var circumstanceSql =
-                $"INSERT INTO {CircumstanceTable} " +
-                "(CIRCUMSTANCE_ID, CE_VERIFIED_ID, CIRCUMSTANCE_CD, CIRCUMSTANCE_DESC, " +
+            foreach (var caregiver in caregivers)
+            {
+                var caregiverId = NewId();
+
+                await ExecuteAsync(connection, transaction, sql,
+                    caregiverId, verifiedId, caregiver.CircumstanceCode, caregiver.RelationshipWithDependent,
+                    ToDbDate(caregiver.DependentDob), ToYnChar(caregiver.DependentLivesSameHome),
+                    ToYnChar(caregiver.IsDependentDisabled),
+                    ToDbDate(caregiver.EffectiveBeginDate), ToDbDate(caregiver.EffectiveEndDate),
+                    caregiver.Source, caregiver.UpdateSw, caregiver.VaCmsSequenceNumber, caregiver.ApplicationSource,
+                    DataSource, DateTime.Today);
+
+                if (caregiver.HoursOfCaregivingPerWeekMonth is { Count: > 0 } monthlyHours)
+                    await InsertCaregiverMonthlyHoursAsync(connection, transaction, caregiverId, monthlyHours);
+            }
+        }
+
+        private static async Task InsertCaregiverMonthlyHoursAsync(
+            TdConnection connection, TdTransaction transaction, long caregiverId, List<CaregiverMonthlyHoursDTO> monthlyHours)
+        {
+            var sql =
+                $"INSERT INTO {CaregiverMonthlyHoursTable} " +
+                "(CAREGIVER_MONTHLY_HOURS_ID, CAREGIVER_ID, MONTH_YEAR, MONTHLY_HOURS_QTY, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
 
-            await ExecuteAsync(connection, transaction, circumstanceSql,
-                circumstanceId, verifiedId, circumstance.CircumstanceCode, circumstance.CircumstanceDescription,
-                DataSource, DateTime.Today);
-
-            var detailSql =
-                $"INSERT INTO {CircumstanceDetailTable} " +
-                "(DETAIL_ID, CIRCUMSTANCE_ID, START_DT, END_DT, ONGOING_PERMANENT_FLG, VERIFICATION_SOURCE_CD, " +
-                "VERIFICATION_DT, EFFECTIVE_BEGIN_DT, EFFECTIVE_END_DT, AMERICAN_INDIAN_ALASKAN_NATIVE_FLG, " +
-                "HOSPITAL_CARE_FLG, EXTENDED_MEDICAL_TRAVEL_FLG, SUBSTANCE_USE_DISORDER_FLG, " +
-                "VETERAN_100_PERCENT_DISABLED_FLG, BLIND_OR_DISABLED_FLG, TANF_ENROLLED_FLG, SNAP_APPROVED_FLG, " +
-                "SNAP_WORK_REQ_NOT_EXEMPT_FLG, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
-
-            await ExecuteAsync(connection, transaction, detailSql,
-                NewId(), circumstanceId,
-                ToDbDate(circumstance.StartDate), ToDbDate(circumstance.EndDate),
-                ToYnChar(circumstance.OnGoingPermanent), circumstance.VerificationSource,
-                ToDbDate(circumstance.VerificationDate),
-                ToDbDate(circumstance.EffectiveBeginDate), ToDbDate(circumstance.EffectiveEndDate),
-                ToYnChar(circumstance.AmericanIndianAlaskanNative), ToYnChar(circumstance.HospitalCare),
-                ToYnChar(circumstance.ExtendedMedicalTravel), ToYnChar(circumstance.SubstanceUseDisorder),
-                ToYnChar(circumstance.Veteran100PercentDisabled), ToYnChar(circumstance.BlindOrDisabled),
-                ToYnChar(circumstance.TanfEnrolled), ToYnChar(circumstance.SnapApproved),
-                ToYnChar(circumstance.SnapWorkReqNotExempt),
-                DataSource, DateTime.Today);
+            foreach (var hours in monthlyHours)
+            {
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), caregiverId, hours.MonthAndYear, hours.MonthlyHours, DataSource, DateTime.Today);
+            }
         }
 
-        // ── Engagements: employment, job training, education, volunteering ────────
+        // ── Engagements: employment, job training, education, volunteering, budgets ──
 
         private async Task InsertEngagementsAsync(
             TdConnection connection, TdTransaction transaction, long verifiedId, EngagementsDTO engagements)
@@ -471,7 +529,12 @@ namespace MES_EDWS.Services
                 await InsertEmploymentAsync(connection, transaction, verifiedId, employments);
 
             if (engagements.JobTraining is { Count: > 0 } jobTraining)
-                await InsertJobTrainingAsync(connection, transaction, verifiedId, jobTraining);
+                await InsertJobTrainingLikeAsync(
+                    connection, transaction, JobTrainingTable, "JOB_TRAINING_ID", verifiedId, jobTraining);
+
+            if (engagements.InKindOrUnpaidWork is { Count: > 0 } inKind)
+                await InsertJobTrainingLikeAsync(
+                    connection, transaction, InKindUnpaidWorkTable, "INKIND_UNPAID_WORK_ID", verifiedId, inKind);
 
             if (engagements.Education is { Count: > 0 } education)
                 await InsertEducationAsync(connection, transaction, verifiedId, education);
@@ -479,18 +542,23 @@ namespace MES_EDWS.Services
             if (engagements.VolunteeringCommunityService is { Count: > 0 } volunteering)
                 await InsertVolunteeringAsync(connection, transaction, verifiedId, volunteering);
 
-            if (engagements.EvIndvIncomeBudget is { Count: > 0 } evIncomeBudgets)
-                await InsertElectronicallyVerifiedEmploymentAsync(connection, transaction, verifiedId, evIncomeBudgets);
+            if (engagements.ElectronicallyVerifiedEmployment is { Count: > 0 } summaries)
+                await InsertElectronicallyVerifiedEmploymentAsync(connection, transaction, verifiedId, summaries);
 
-            // Truv/payroll-provider verified employers reference CE_EMPLOYMENT via EMPLOYMENT_ID.
-            // The payload carries this list as a sibling of the self-reported employment[] array
-            // rather than nested inside it, so a minimal CE_EMPLOYMENT row is created per verified
-            // employer purely to satisfy that foreign key.
-            if (engagements.ElectronicallyVerifiedEmployment is { Count: > 0 } truvEmployers)
-                await InsertTruvEmployersAsync(connection, transaction, verifiedId, truvEmployers);
+            if (engagements.EvIndvIncomeBudget is { Count: > 0 } indvBudgets)
+                await InsertIndvIncomeBudgetAsync(connection, transaction, verifiedId, indvBudgets);
+
+            if (engagements.EvEdgIncomeBudget is { Count: > 0 } edgBudgets)
+                await InsertEdgIncomeBudgetAsync(connection, transaction, EdgIncomeBudgetTable, "EDG_BUDGET_ID", verifiedId, edgBudgets);
+
+            if (engagements.MagiIncomeBudget is { Count: > 0 } magiBudgets)
+                await InsertEdgIncomeBudgetAsync(connection, transaction, MagiIncomeBudgetTable, "MAGI_BUDGET_ID", verifiedId, magiBudgets);
+
+            if (engagements.BudgetGroupMembers is { Count: > 0 } groupMembers)
+                await InsertBudgetGroupMembersAsync(connection, transaction, verifiedId, groupMembers);
         }
 
-        // ── MWRP_CE_EMPLOYMENT / MWRP_CE_INCOME_BUDGET ─────────────────────────────
+        // ── MWRP_CE_EMPLOYMENT / MWRP_CE_INCOME_BUDGET / nested Truv tree ──────────
 
         private static async Task InsertEmploymentAsync(
             TdConnection connection, TdTransaction transaction, long verifiedId, List<EmploymentEntryDTO> employments)
@@ -499,14 +567,16 @@ namespace MES_EDWS.Services
                 $"INSERT INTO {EmploymentTable} " +
                 "(EMPLOYMENT_ID, CE_VERIFIED_ID, EMPLOYER_NM, EMPLOYER_EIN, EMPLOYMENT_TYPE_CD, " +
                 "SEASONAL_EMPLOYMENT_FLG, SEASONAL_EMPLOYMENT_TYPE_CD, PRIOR_EMPLOYMENT_FLG, START_DT, END_DT, " +
-                "EMPLOYMENT_ACTIVE_FLG, IN_KIND_UNPAID_FLG, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "EMPLOYMENT_ACTIVE_FLG, IN_KIND_UNPAID_FLG, SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, " +
+                "APPLICATION_SOURCE_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             var budgetSql =
                 $"INSERT INTO {IncomeBudgetTable} " +
                 "(BUDGET_ID, EMPLOYMENT_ID, MONTHLY_INCOME_AMT, MONTHLY_HOURS_QTY, INCOME_MONTH_NBR, " +
-                "INCOME_YEAR_NBR, VERIFICATION_SOURCE_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "INCOME_YEAR_NBR, VERIFICATION_SOURCE_CD, SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, " +
+                "APPLICATION_SOURCE_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             foreach (var employment in employments)
             {
@@ -518,37 +588,46 @@ namespace MES_EDWS.Services
                     employment.SeasonalEmploymentType, ToYnChar(employment.IsPriorEmployment),
                     ToDbDate(employment.StartDate), ToDbDate(employment.EndDate),
                     ToYnChar(employment.IsEmploymentActive), ToYnChar(employment.IsInkindOrUnPaid),
-                    DataSource, DateTime.Today);
+                    employment.Source, employment.UpdateSw, employment.VaCmsSequenceNumber,
+                    employment.ApplicationSource, DataSource, DateTime.Today);
 
-                if (employment.IncomeBudgetDetails is { } budget)
+                foreach (var budget in employment.IncomeBudgetDetails ?? Enumerable.Empty<IncomeBudgetDetailsDTO>())
                 {
                     await ExecuteAsync(connection, transaction, budgetSql,
                         NewId(), employmentId, budget.MonthlyIncome, budget.MonthlyHours,
                         budget.IncomeMonth, budget.IncomeYear, budget.VerificationSource,
+                        budget.Source, budget.UpdateSw, budget.VaCmsSequenceNumber, budget.ApplicationSource,
                         DataSource, DateTime.Today);
                 }
+
+                if (employment.ElectronicallyVerifiedData is { Count: > 0 } truvEmployers)
+                    await InsertTruvEmployersAsync(connection, transaction, employmentId, truvEmployers);
             }
         }
 
-        // ── MWRP_CE_JOB_TRAINING ───────────────────────────────────────────────────
-        // NOTE: the payload's "programName" has no corresponding column and is not persisted.
+        // ── MWRP_CE_JOB_TRAINING / MWRP_CE_INKIND_UNPAID_WORK ─────────────────────
+        // Both tables share an identical shape, so a single helper handles either
+        // one based on the table/id-column names passed in.
 
-        private static async Task InsertJobTrainingAsync(
-            TdConnection connection, TdTransaction transaction, long verifiedId, List<JobTrainingEntryDTO> jobTrainings)
+        private static async Task InsertJobTrainingLikeAsync(
+            TdConnection connection, TdTransaction transaction, string table, string idColumn,
+            long verifiedId, List<JobTrainingEntryDTO> entries)
         {
             var sql =
-                $"INSERT INTO {JobTrainingTable} " +
-                "(JOB_TRAINING_ID, CE_VERIFIED_ID, ORGANIZATION_ID, ORGANIZATION_NM, MONTHLY_HOURS_QTY, " +
-                "START_DT, END_DT, VERIFICATION_DT, VERIFICATION_SOURCE_CD, " +
+                $"INSERT INTO {table} " +
+                $"({idColumn}, CE_VERIFIED_ID, ORGANIZATION_ID, ORGANIZATION_NM, MONTHLY_HOURS_QTY, " +
+                "START_DT, END_DT, VERIFICATION_DT, VERIFICATION_SOURCE_CD, PROGRAM_NM, " +
+                "SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, APPLICATION_SOURCE_CD, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
-            foreach (var training in jobTrainings)
+            foreach (var entry in entries)
             {
                 await ExecuteAsync(connection, transaction, sql,
-                    NewId(), verifiedId, training.OrganizationId, training.OrganizationName, training.MonthlyHours,
-                    ToDbDate(training.StartDate), ToDbDate(training.EndDate), ToDbDate(training.VerificationDate),
-                    training.VerificationSource, DataSource, DateTime.Today);
+                    NewId(), verifiedId, entry.OrganizationId?.ToString(), entry.OrganizationName, entry.MonthlyHours,
+                    ToDbDate(entry.StartDate), ToDbDate(entry.EndDate), ToDbDate(entry.VerificationDate),
+                    entry.VerificationSource, entry.ProgramName, entry.Source, entry.UpdateSw,
+                    entry.VaCmsSequenceNumber, entry.ApplicationSource, DataSource, DateTime.Today);
             }
         }
 
@@ -560,9 +639,9 @@ namespace MES_EDWS.Services
             var sql =
                 $"INSERT INTO {VolunteerServiceTable} " +
                 "(VOLUNTEER_SERVICE_ID, CE_VERIFIED_ID, ORGANIZATION_ID, ORGANIZATION_NM, MONTHLY_HOURS_QTY, " +
-                "START_DT, END_DT, VERIFICATION_SOURCE_CD, VERIFICATION_DT, " +
-                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "START_DT, END_DT, VERIFICATION_SOURCE_CD, VERIFICATION_DT, SOURCE_SYSTEM_CD, UPDATE_SW_FLG, " +
+                "VACMS_SEQUENCE_NBR, APPLICATION_SOURCE_CD, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             foreach (var volunteering in volunteerings)
             {
@@ -570,7 +649,8 @@ namespace MES_EDWS.Services
                     NewId(), verifiedId, volunteering.OrganizationId, volunteering.OrganizationName,
                     volunteering.MonthlyHours, ToDbDate(volunteering.StartDate), ToDbDate(volunteering.EndDate),
                     volunteering.VerificationSource, ToDbDate(volunteering.VerificationDate),
-                    DataSource, DateTime.Today);
+                    volunteering.Source, volunteering.UpdateSw, volunteering.VaCmsSequenceNumber,
+                    volunteering.ApplicationSource, DataSource, DateTime.Today);
             }
         }
 
@@ -584,8 +664,9 @@ namespace MES_EDWS.Services
                 $"INSERT INTO {EducationTable} " +
                 "(EDUCATION_ID, CE_VERIFIED_ID, INSTITUTION_NM, INSTITUTION_TYPE_CD, VERIFICATION_DT, " +
                 "VERIFICATION_SOURCE_CD, ENROLLMENT_STATUS_CD, MONTHLY_HOURS_QTY, TERM_START_DT, TERM_END_DT, " +
+                "SOURCE_SYSTEM_CD, UPDATE_SW_FLG, VACMS_SEQUENCE_NBR, APPLICATION_SOURCE_CD, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             var enrollmentSql =
                 $"INSERT INTO {NscEnrollmentTable} " +
@@ -613,6 +694,7 @@ namespace MES_EDWS.Services
                     educationId, verifiedId, education.InstitutionName, education.InstitutionType,
                     ToDbDate(education.VerificationDate), education.VerificationSource, education.EnrollmentStatus,
                     education.MonthlyHours, ToDbDate(education.TermStartDate), ToDbDate(education.TermEndDate),
+                    education.Source, education.UpdateSw, education.VaCmsSequenceNumber, education.ApplicationSource,
                     DataSource, DateTime.Today);
 
                 foreach (var nsc in education.ElectronicallyVerifiedData ?? Enumerable.Empty<NscEnrollmentDTO>())
@@ -663,23 +745,79 @@ namespace MES_EDWS.Services
             }
         }
 
+        // ── MWRP_CE_INDV_INCOME_BUDGET ─────────────────────────────────────────────
+
+        private static async Task InsertIndvIncomeBudgetAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<IndvIncomeBudgetDTO> budgets)
+        {
+            var sql =
+                $"INSERT INTO {IndvIncomeBudgetTable} " +
+                "(INDV_BUDGET_ID, CE_VERIFIED_ID, CLIENT_ID, EIN, BUDGET_BEGIN_DT, BUDGET_END_DT, " +
+                "SOURCE_SYSTEM_CD, TOTAL_BUDGET_AMT, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            foreach (var budget in budgets)
+            {
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, budget.ClientId, budget.Ein, ToDbDate(budget.BudgetBeginDate),
+                    ToDbDate(budget.BudgetEndDate), budget.Source, budget.TotalBudgetAmount,
+                    DataSource, DateTime.Today);
+            }
+        }
+
+        // ── MWRP_CE_EDG_INCOME_BUDGET / MWRP_CE_MAGI_INCOME_BUDGET (identical shape) ─
+
+        private static async Task InsertEdgIncomeBudgetAsync(
+            TdConnection connection, TdTransaction transaction, string table, string idColumn,
+            long verifiedId, List<EdgIncomeBudgetDTO> budgets)
+        {
+            var sql =
+                $"INSERT INTO {table} " +
+                $"({idColumn}, CE_VERIFIED_ID, EDG_NBR, ELIG_BEGIN_DT, ELIG_END_DT, TOTAL_BUDGET_AMT, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            foreach (var budget in budgets)
+            {
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, budget.EdgNum, ToDbDate(budget.EligBeginDate),
+                    ToDbDate(budget.EligEndDate), budget.TotalBudgetAmount, DataSource, DateTime.Today);
+            }
+        }
+
+        // ── MWRP_CE_BUDGET_GROUP_MEMBER ────────────────────────────────────────────
+
+        private static async Task InsertBudgetGroupMembersAsync(
+            TdConnection connection, TdTransaction transaction, long verifiedId, List<BudgetGroupMemberDTO> members)
+        {
+            var sql =
+                $"INSERT INTO {BudgetGroupMemberTable} " +
+                "(BUDGET_GROUP_MEMBER_ID, CE_VERIFIED_ID, EDG_NBR, CLIENT_ID, ELIG_PARF_STATUS_CD, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            foreach (var member in members)
+            {
+                await ExecuteAsync(connection, transaction, sql,
+                    NewId(), verifiedId, member.EdgNum, member.ClientId, member.EligParfStatusCd,
+                    DataSource, DateTime.Today);
+            }
+        }
+
         // ── MWRP_CE_TRUV_EMPLOYER / MWRP_CE_TRUV_PROVIDER / MWRP_CE_EMPLOYMENT_DETAIL /
         //    MWRP_CE_EMPLOYEE_PROFILE / MWRP_CE_PAY_STATEMENT / MWRP_CE_ANNUAL_INCOME ──
+        // Nests under a real CE_EMPLOYMENT row (employment[].electronicallyVerifiedData
+        // in the 2026-08 revision) instead of the placeholder employment rows the old
+        // code created for the previously-mistaken top-level binding.
 
         private static async Task InsertTruvEmployersAsync(
-            TdConnection connection, TdTransaction transaction, long verifiedId, List<TruvEmployerDTO> truvEmployers)
+            TdConnection connection, TdTransaction transaction, long employmentId, List<TruvEmployerDTO> truvEmployers)
         {
-            var placeholderEmploymentSql =
-                $"INSERT INTO {EmploymentTable} " +
-                "(EMPLOYMENT_ID, CE_VERIFIED_ID, EMPLOYER_NM, EMPLOYMENT_TYPE_CD, " +
-                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
-
             var truvEmployerSql =
                 $"INSERT INTO {TruvEmployerTable} " +
                 "(TRUV_EMPLOYER_ID, EMPLOYMENT_ID, TRUV_EXTERNAL_ID, PRODUCT_TYPE_CD, STATUS_CD, DATA_SOURCE_CD, " +
-                "COMPANY_NM, SUSPICIOUS_FLG, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "COMPANY_NM, SUSPICIOUS_FLG, START_DT, END_DT, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             var truvProviderSql =
                 $"INSERT INTO {TruvProviderTable} " +
@@ -696,9 +834,9 @@ namespace MES_EDWS.Services
 
             var employeeProfileSql =
                 $"INSERT INTO {EmployeeProfileTable} " +
-                "(EMPLOYEE_PROFILE_ID, EMPLOYMENT_DETAIL_ID, EMPLOYEE_ID, EMPLOYEE_FULL_NM, " +
+                "(EMPLOYEE_PROFILE_ID, EMPLOYMENT_DETAIL_ID, EMPLOYEE_ID, EMPLOYEE_FULL_NM, PROFILE_LOGO_URL, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             var payStatementSql =
                 $"INSERT INTO {PayStatementTable} " +
@@ -718,21 +856,17 @@ namespace MES_EDWS.Services
 
             foreach (var truvEmployer in truvEmployers)
             {
-                var placeholderEmploymentId = NewId();
-                await ExecuteAsync(connection, transaction, placeholderEmploymentSql,
-                    placeholderEmploymentId, verifiedId, truvEmployer.CompanyName, "ELECTRONICALLY_VERIFIED",
-                    DataSource, DateTime.Today);
-
                 var truvEmployerId = NewId();
                 await ExecuteAsync(connection, transaction, truvEmployerSql,
-                    truvEmployerId, placeholderEmploymentId, truvEmployer.Id, truvEmployer.ProductType,
+                    truvEmployerId, employmentId, truvEmployer.Id?.ToString(), truvEmployer.ProductType,
                     truvEmployer.Status, truvEmployer.DataSource, truvEmployer.CompanyName,
-                    ToYnChar(truvEmployer.IsSuspicious), DataSource, DateTime.Today);
+                    ToYnChar(truvEmployer.IsSuspicious), ToDbDate(truvEmployer.StartDate),
+                    ToDbDate(truvEmployer.EndDate), DataSource, DateTime.Today);
 
                 if (truvEmployer.Provider is { } provider)
                 {
                     await ExecuteAsync(connection, transaction, truvProviderSql,
-                        NewId(), truvEmployerId, provider.Id, provider.Name, provider.LogoUrl,
+                        NewId(), truvEmployerId, provider.Id?.ToString(), provider.Name, provider.LogoUrl,
                         DataSource, DateTime.Today);
                 }
 
@@ -741,35 +875,35 @@ namespace MES_EDWS.Services
                     var employmentDetailId = NewId();
 
                     await ExecuteAsync(connection, transaction, employmentDetailSql,
-                        employmentDetailId, truvEmployerId, detail.EmploymentExternalId, detail.JobTitle,
+                        employmentDetailId, truvEmployerId, detail.Id?.ToString(), detail.JobTitle,
                         detail.JobType, ToDbDate(detail.StartDate), ToDbDate(detail.EndDate),
-                        ToYnChar(detail.IsActive), detail.AnnualIncome, detail.IncomeUnit, detail.PayRate,
+                        ToYnChar(detail.IsActive), detail.Income, detail.IncomeUnit, detail.PayRate,
                         detail.PayFrequency, DataSource, DateTime.Today);
 
                     if (detail.Profile is { } profile)
                     {
                         await ExecuteAsync(connection, transaction, employeeProfileSql,
-                            NewId(), employmentDetailId, profile.EmployeeId, profile.FullName,
+                            NewId(), employmentDetailId, profile.EmployeeId, profile.FullName, profile.LogoUrl,
                             DataSource, DateTime.Today);
                     }
 
-                    foreach (var statement in detail.Statements ?? Enumerable.Empty<TruvPayStatementDTO>())
+                    foreach (var statement in detail.Statement ?? Enumerable.Empty<TruvPayStatementDTO>())
                     {
                         await ExecuteAsync(connection, transaction, payStatementSql,
-                            NewId(), employmentDetailId, statement.PayStatementExternalId, ToDbDate(statement.PayDate),
+                            NewId(), employmentDetailId, statement.Id?.ToString(), ToDbDate(statement.PayDate),
                             statement.NetPay, statement.NetPayYtd, statement.GrossPay, statement.GrossPayYtd,
                             statement.Bonus, statement.Commission, statement.Hours, statement.BasisOfPay,
                             ToDbDate(statement.PeriodStart), ToDbDate(statement.PeriodEnd), statement.Regular,
                             statement.RegularYtd, statement.OtherPay, statement.OtherPayYtd, statement.BonusYtd,
-                            statement.CommissionYtd, statement.Overtime, statement.OvertimeYtd,
+                            statement.CommissionYtd, statement.OverTime, statement.OverTimeYtd,
                             DataSource, DateTime.Today);
                     }
 
                     foreach (var annualIncome in detail.AnnualIncomeSummary ?? Enumerable.Empty<TruvAnnualIncomeDTO>())
                     {
                         await ExecuteAsync(connection, transaction, annualIncomeSql,
-                            NewId(), employmentDetailId, annualIncome.AnnualIncomeExternalId, annualIncome.ReportYear,
-                            annualIncome.Regular, annualIncome.Bonus, annualIncome.Commission, annualIncome.Overtime,
+                            NewId(), employmentDetailId, annualIncome.Id?.ToString(), annualIncome.Year,
+                            annualIncome.Regular, annualIncome.Bonus, annualIncome.Commission, annualIncome.OverTime,
                             annualIncome.OtherPay, annualIncome.NetPay, annualIncome.GrossPay,
                             DataSource, DateTime.Today);
                     }
