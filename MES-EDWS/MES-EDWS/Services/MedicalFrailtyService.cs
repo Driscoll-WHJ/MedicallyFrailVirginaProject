@@ -9,11 +9,13 @@ namespace MES_EDWS.Services
         private readonly ILogger<MedicalFrailtyService> _logger;
 
         private const string DataSource = "MES-EDWS";
+        //private const string Schema = "HR1_DMAS_POC";
+        private const string Schema = "HR1_DMAS_SIT";
 
         // ── Table names ────────────────────────────────────────────────────────────
-        private const string MembersTable  = "HR1_DMAS_POC.HR1_MEDICALLY_FRAIL_MEMBERS_DEV";
-        private const string RequestTable  = "HR1_DMAS_POC.HR1_MEDICALLY_FRAIL_REQUEST_DEV";
-        private const string ResponseTable = "HR1_DMAS_POC.HR1_MEDICALLY_FRAIL_RESPONSE_DEV";
+        private const string MembersTable  = Schema + ".HR1_MEDICALLY_FRAIL_MEMBERS";
+        private const string RequestTable  = Schema + ".HR1_MEDICALLY_FRAIL_REQUEST";
+        private const string ResponseTable = Schema + ".HR1_MEDICALLY_FRAIL_RESPONSE";
 
         // ── HR1_MEDICALLY_FRAIL_MEMBERS columns ────────────────────────────────────
         private const string MCol_MmisEnrolleeId   = "MMIS_ENROLLEE_ID";

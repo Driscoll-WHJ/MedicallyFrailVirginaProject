@@ -13,6 +13,12 @@ builder.Services.AddControllersWithViews()
         // to decimal?/int? DTO properties without a custom converter.
         options.JsonSerializerOptions.NumberHandling =
             System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
+
+        // docs/SamplePayload.json uses inconsistent casing for some fields across the
+        // payload (e.g. "updateSw" vs. the DTOs' historical "updatesw" attribute,
+        // "organizationID" vs. "organizationId"). Case-insensitive matching lets all of
+        // these bind correctly without hunting down every casing variant by hand.
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
 
 builder.Services.AddScoped<MES_EDWS.Services.IMedicalFrailtyService, MES_EDWS.Services.MedicalFrailtyService>();

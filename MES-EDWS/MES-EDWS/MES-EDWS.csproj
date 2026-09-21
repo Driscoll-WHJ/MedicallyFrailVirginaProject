@@ -5,6 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MES_EDWS</RootNamespace>
+    <!-- The Web SDK's implicit OpenAPI document-generation build step launches this app's
+         compiled assembly out-of-process; that invocation fails with a SQLitePCLRaw native
+         library load error from AuditDbContext's EnsureCreated() call, aborting build/publish
+         with exit code 10. This project does not use Swagger/OpenAPI (no AddOpenApi/
+         AddSwaggerGen calls), so the generated document isn't needed — disable the step. -->
+    <OpenApiGenerateDocumentsOnBuild>false</OpenApiGenerateDocumentsOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

@@ -38,7 +38,7 @@ namespace MES_EDWS.Controllers
                 request.RequestSequenceNumber,
                 request.State,
                 request.RequestSource,
-                request.CeVerified.ClientIdentificationNumber);
+                request.CeVerified.Count > 0 ? request.CeVerified[0].ClientIdentificationNumber : null);
 
             // Parse the payload and persist it to the HR1_DMAS_POC.MWRP_CE_* Teradata tables.
             var requestRowId = await _clientInfoService.SaveCeVerificationResultsAsync(request);
