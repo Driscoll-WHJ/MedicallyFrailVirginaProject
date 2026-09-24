@@ -5,14 +5,14 @@ namespace MES_EDWS.Services
 {
     /// <summary>
     /// Persists CEP-ICD-003 CE verification result payloads to the HR1_DMAS_POC.MWRP_CE_*
-    /// Teradata tables defined in docs/Table_v17.txt. Rows are correlated by
+    /// Teradata tables defined in docs/table_v17_updated.txt. Rows are correlated by
     /// CLIENT_IDENTIFICATION_NBR rather than a surrogate request/verified FK chain, matching
     /// the v17 schema's flat, per-client table design. The whole payload is written inside
     /// one transaction so a partially-saved request is never left behind.
     ///
-    /// NOTE: docs/Table_v17.txt does not declare GENERATED ALWAYS AS IDENTITY on any primary
-    /// key, and the Teradata.Client.Provider ODBC driver has no reliable way to read back a
-    /// server-generated identity value from a plain INSERT. Surrogate keys used only to
+    /// NOTE: docs/table_v17_updated.txt does not declare GENERATED ALWAYS AS IDENTITY on any
+    /// primary key, and the Teradata.Client.Provider ODBC driver has no reliable way to read
+    /// back a server-generated identity value from a plain INSERT. Surrogate keys used only to
     /// correlate rows within a single request (e.g. TRUV_EMPLOYER_ID, EMPLOYMENT_DETAIL_ID,
     /// CARE_GIVER_ID, FRAILTY_ID, SUD_TREATMENT_ID, CIRCUMSTANCE_ID, INCARCERATION_ID) are
     /// generated in application code (see <see cref="NewId"/>) and are not persisted back
@@ -22,6 +22,11 @@ namespace MES_EDWS.Services
     /// PACE indicator (renamed PACE_CBC_TYPE) were both widened to VARCHAR(50) so the
     /// status/code strings sent by docs/SamplePayload.json (e.g. "ACTIVE", "PACE") persist
     /// as-is; no conversion helper is applied to either value.
+    ///
+    /// NOTE: the v17 update to MWRP_CE_VERIFIED added LAST_APPROVED_PERIOD_BEGIN_DT,
+    /// APPLICATION_DT, and CHANGE_DT (mapped from CeVerifiedDTO.LastApprovedPeriodBeginDate,
+    /// ApplicationDate, and ChangeDate) and dropped CUR_ELIG_BEG_DT/PRIMARY_COMM_METHOD_CD,
+    /// which are no longer referenced in the INSERT below.
     /// </summary>
     public class ClientInfoService : IClientInfoService
     {
@@ -29,8 +34,8 @@ namespace MES_EDWS.Services
         private readonly ILogger<ClientInfoService> _logger;
 
         private const string DataSource = "MES-EDWS";
-        //private const string Schema = "HR1_DMAS_POC";
-        private const string Schema = "HR1_DMAS_SIT";
+        private const string Schema = "HR1_DMAS_POC";
+        //private const string Schema = "HR1_DMAS_SIT";
 
 
         // ── Table names (docs/Table_v17.txt) ────────────────────────────────────────
@@ -214,12 +219,13 @@ namespace MES_EDWS.Services
                 "(REQUEST_SEQ_NBR, FIRST_NAME, LAST_NAME, MIDDLE_NAME, SUFFIX, GENDER_CD, DATE_OF_BIRTH, " +
                 "CLIENT_IDENTIFICATION_NBR, MMIS_ENROLLEE_ID, SSN_NBR, MWR_STATUS_CD, " +
                 "MWR_START_DT, MWR_END_DT, REVIEW_MONTH_DT, EXEMPT_EXCL_PENDING_SW, PREV_ELIG_AUTH_DT, " +
-                "CURR_ELIG_BEGIN_DT, CUR_ELIG_BEG_DT, APP_CHG_SUBMIT_DT, RENEWAL_INITIATED_DT, CASE_ACTION_CD, DUE_DT, " +
+                "LAST_APPROVED_PERIOD_BEGIN_DT, APPLICATION_DT, RENEWAL_INITIATED_DT, CHANGE_DT, " +
+                "CURR_ELIG_BEGIN_DT, APP_CHG_SUBMIT_DT, CASE_ACTION_CD, DUE_DT, " +
                 "EMAIL_VERIFIED_FLG, EMAIL_ADDR, DRIVER_LICENSE_NUMBER, DRIVER_LICENSE_STATE, PASSPORT_NUMBER, " +
                 "PASSPORT_COUNTRY, NATIONALITY, MARITAL_STATUS, PRIMARY_MODE_OF_COMMUNICATION, VERIFICATION_TYPE, " +
                 "ALT_EMAIL_ADDR, HOH_FLG, REQUIRES_CE_EVAL_FLG, RELATIONSHIP_HOH_CD, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             await ExecuteAsync(connection, transaction, sql,
                 requestSequenceNumber,
@@ -238,11 +244,12 @@ namespace MES_EDWS.Services
                 ToDbDate(verified.ReviewMonth),
                 ToYnCharFromText(verified.ExemptOrExceptionOrExclusionPendingSw),
                 ToDbDate(verified.PreviousEligibilityAuthorizationDate),
-                ToDbDate(verified.CurrentEligibilityBeginDate),
-                // CUR_ELIG_BEG_DT (new column) mirrors CURR_ELIG_BEGIN_DT; both source from currentEligibilityBeginDate.
+                ToDbDate(verified.LastApprovedPeriodBeginDate),
+                ToDbDate(verified.ApplicationDate),
+                ToDbDate(verified.RenewalInitiatedDate),
+                ToDbDate(verified.ChangeDate),
                 ToDbDate(verified.CurrentEligibilityBeginDate),
                 ToDbDate(verified.ApplicationChangeSubmissionDate),
-                ToDbDate(verified.RenewalInitiatedDate),
                 verified.CaseAction,
                 ToDbDate(verified.DueDate),
                 ToYnChar(verified.EmailVerifiedFlag),
@@ -498,15 +505,15 @@ namespace MES_EDWS.Services
                 // column on MWRP_CE_INCARCERATED_CIRCUMSTANCE in docs/Table_v17.txt.
                 var sql =
                     $"INSERT INTO {IncarceratedCircumstanceTable} " +
-                    "(CLIENT_IDENTIFICATION_NBR, CIRCUMSTANCE_CODE, FACILITY_TYPE, EFFECTIVE_BEGIN_DATE, " +
+                    "(CLIENT_IDENTIFICATION_NBR, CIRCUMSTANCE_CODE, AID_CATEGORY, FACILITY_TYPE, EFFECTIVE_BEGIN_DATE, " +
                     "EFFECTIVE_END_DATE, RELEASE_DATE, SOURCE_SYSTEM, UPDATE_SW, VACMS_SEQUENCE_NUM, " +
                     "APPLICATION_SOURCE, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
                 foreach (var incarceration in incarcerations)
                 {
                     await ExecuteAsync(connection, transaction, sql,
-                        clientId, incarceration.CircumstanceCode, incarceration.FacilityType,
+                        clientId, incarceration.CircumstanceCode, incarceration.AidCategory, incarceration.FacilityType,
                         ToDbDate(incarceration.EffectiveBeginDate), ToDbDate(incarceration.EffectiveEndDate),
                         ToDbDate(incarceration.ReleasedDate),
                         incarceration.Source, incarceration.UpdateSw, incarceration.VaCmsSequenceNumber,
@@ -1295,10 +1302,10 @@ namespace MES_EDWS.Services
 
             var sql =
                 $"INSERT INTO {ResponseTable} " +
-                "(ACK_ROW_ID, REQUEST_SEQUENCE_NBR, STATE_ID, REQUEST_SOURCE_CD, SOURCE_SYS_NM, " +
-                "ACK_CODE, ACK_STATUS, ACK_MESSAGE_TXT, MWRP_CE_REQUEST_ID, ACK_SOURCE_SYS_NM, CREATED_TS, " +
+                "(ACK_ROW_ID, REQUEST_SEQUENCE_NBR, STATE_ID, REQUEST_SOURCE_CD, SOURCE_SYS_NM, UPDATE_SW, " +
+                "ACK_CODE, ACK_STATUS, ACK_MESSAGE_TXT, MWRP_CE_REQUEST_ID, ACK_SOURCE_SYS_NM, ACK_UPDATE_SW, CREATED_TS, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             await ExecuteAsync(connection, transaction, sql,
                 ackRowId,
@@ -1306,11 +1313,13 @@ namespace MES_EDWS.Services
                 request.State,
                 request.RequestSource,
                 DataSource,
+                "YES",
                 "REQUEST_CREATED",
                 "SUCCESS",
                 "Request has been created successfully",
                 ackRowId.ToString(),
                 DataSource,
+                "YES",
                 DateTime.UtcNow,
                 DataSource,
                 DateTime.Today);

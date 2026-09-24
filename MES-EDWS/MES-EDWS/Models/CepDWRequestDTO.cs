@@ -158,6 +158,10 @@ namespace MES_EDWS.Models
         [JsonPropertyName("previousEligibilityAuthorizationDate")]
         public string? PreviousEligibilityAuthorizationDate { get; set; }
 
+        /// <summary>New in the v17 update — persisted to CE_VERIFIED.LAST_APPROVED_PERIOD_BEGIN_DT.</summary>
+        [JsonPropertyName("lastApprovedPeriodBeginDate")]
+        public string? LastApprovedPeriodBeginDate { get; set; }
+
         [JsonPropertyName("currentEligibilityBeginDate")]
         public string? CurrentEligibilityBeginDate { get; set; }
 
@@ -166,6 +170,14 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("renewalInitiatedDate")]
         public string? RenewalInitiatedDate { get; set; }
+
+        /// <summary>New in the v17 update — persisted to CE_VERIFIED.CHANGE_DT.</summary>
+        [JsonPropertyName("changeDate")]
+        public string? ChangeDate { get; set; }
+
+        /// <summary>New in the v17 update — persisted to CE_VERIFIED.APPLICATION_DT.</summary>
+        [JsonPropertyName("applicationDate")]
+        public string? ApplicationDate { get; set; }
 
         [JsonPropertyName("caseAction")]
         public string? CaseAction { get; set; }

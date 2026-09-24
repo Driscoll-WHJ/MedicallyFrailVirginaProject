@@ -1,0 +1,671 @@
+{
+  "requestTimestamp": "2027-02-10T09:15:00-04:00",
+  "requestSequenceNumber": "EDWS-2027-10005",
+  "stateId": "VA",
+  "requestSource": "MWRP",
+  "caseNumber": "VA-2027005",
+  "sendEmailToCustomer": false,
+  "preferredCommunicationLanguage": "EN",
+  "documentsUploadedInMWRP": [
+    {
+      "documentType": "IDENTITY",
+      "documentSubType": "DRIVER_LICENSE",
+      "clientId": 1001001,
+      "mmisEnrolleeID": "351054078029",
+      "documentId": "900001",
+      "documentUploadDate": "2027-01-31",
+      "documentDeletedDate": null,
+      "source": "MWRP",
+      "status": "ADDED"
+    },
+    {
+      "documentType": "INCOME",
+      "documentSubType": "PAYSTUB",
+      "clientId": 1001001,
+      "documentId": "900002",
+      "documentUploadDate": "2027-01-31",
+      "documentDeletedDate": null,
+      "source": "MWRP",
+      "status": "ADDED"
+    }
+  ],
+  "ceVerified": [
+    {
+      "clientId": "7700005",
+      "firstName": "Priya",
+      "lastName": "Patel",
+      "middleName": "Renee",
+      "suffix": "Jr",
+      "gender": "F",
+      "dateOfBirth": "1987-04-22",
+      "socialSecurityNumber": "123-45-6789",
+      "mwrStatus": "ACTIVE",
+      "mwrStatusStartDate": "2027-02-01",
+      "mwrStatusEndDate": "2027-12-31",
+      "reviewMonth": "2027-02-01",
+      "rulesEvaluationResults": [
+        {
+          "ruleId": "CC01",
+          "ruleName": "Citizenship Verification Rule",
+          "result": "Pass",
+          "activityType": "AUTO"
+        },
+        {
+          "ruleId": "IN01",
+          "ruleName": "Income Validation Rule",
+          "result": "Fail",
+          "activityType": "MANUAL"
+        }
+      ],
+      "exemptOrExceptionOrExclusionPendingSw": "N",
+      "previousEligibilityAuthorizationDate": "2025-12-15",
+      "lastApprovedPeriodBeginDate": "2026-01-01",
+      "currentEligibilityBeginDate": "2027-02-01",
+      "applicationChangeSubmissionDate": "2027-01-26",
+      "renewalInitiatedDate": "2027-01-11",
+      "changeDate": "2027-01-26",
+      "applicationDate": "2027-01-21",
+      "caseAction": "PI",
+      "aidCategory": [
+        {
+          "aidCategory": 21,
+          "startDate": "2026-11-12",
+          "endDate": "2027-12-31",
+          "source": "VaCMS",
+          "updateSw": "Yes",
+          "vaCMSSequenceNum": "AC-001",
+          "applicationSource": "Paper"
+        }
+      ],
+      "dueDate": "2027-03-12",
+      "driverLicenseNumber": "D12345678",
+      "driverLicenseState": "VA",
+      "passportNumber": "P1234567",
+      "passportCountry": "USA",
+      "nationality": "US",
+      "maritalStatus": "SINGLE",
+      "emailVerifiedFlag": false,
+      "primaryModeOfCommunication": "Text",
+      "email": "",
+      "alternateEmail": "",
+      "verificationType": "EARNED_INCOME",
+      "phoneData": [
+        {
+          "phoneType": "Work",
+          "phoneNumber": "8045550005",
+          "source": "MWRP",
+          "updateSw": "Yes",
+          "vaCMSSequenceNum": "PH-001",
+          "applicationSource": "Paper"
+        },
+        {
+          "phoneType": "Work",
+          "phoneNumber": "8045550005",
+          "source": "MWRP",
+          "updateSw": "Yes",
+          "vaCMSSequenceNum": "PH-002",
+          "applicationSource": "Paper"
+        }
+      ],
+      "addresses": [
+        {
+          "addressType": "Physical",
+          "addressLine1": "418 East Main Street",
+          "addressLine2": "Apt 4B",
+          "county": "Richmond City",
+          "city": "Richmond",
+          "zipCode5": "23219",
+          "zipCode4": "1234",
+          "state": "VA",
+          "fipsCode": 51059,
+          "source": "MWRP",
+          "updateSw": "Yes",
+          "vaCMSSequenceNum": "ADDR-001",
+          "applicationSource": "Paper"
+        }
+      ],
+      "headOfHousehold": false,
+      "requiresCEEvaluation": true,
+      "relationshipDetails": [
+        {
+          "clientId": 1001001,
+          "reverseClientId": 1001002,
+          "relationType": "Spouse",
+          "effectiveBeginDate": "2026-11-12",
+          "effectiveEndDate": "2027-12-31",
+          "updateSw": "Yes",
+          "source": "VaCMS",
+          "vaCMSSequenceNum": "REL-001"
+        }
+      ],
+      "relationshipWithHOH": "Spouse",
+      "exemptions": {
+        "pregnancy": {
+          "circumstanceCode": "PREG",
+          "expectedPregnancyDueDate": "2026-11-15",
+          "actualPregnancyEndDate": "2026-11-20",
+          "effectiveBeginDate": "2026-11-12",
+          "effectiveEndDate": "2027-12-31",
+          "source": "MWRP",
+          "updateSw": "Yes",
+          "vaCMSSequenceNum": "PRG-001"
+        },
+        "americanIndianAlaskanNativeCircumstance": {
+          "circumstanceCode": "AIAN",
+          "americanIndianAlaskanNative": true,
+          "fedRecognizedTribe": true,
+          "tribeName": "Example Tribal Nation",
+          "effectiveBeginDate": "2026-11-12",
+          "effectiveEndDate": "2027-12-31",
+          "source": "MWRP",
+          "updateSw": "Yes",
+          "vaCMSSequenceNum": "AIAN-001",
+          "applicationSource": "Paper"
+        },
+        "careGiverCircumstance": [
+          {
+            "circumstanceCode": "CG01",
+            "relationshipWithDependent": "PA",
+            "dependentLiveInTheSameHome": true,
+            "dependentDOB": "2018-07-10",
+            "hoursOfCaregivingPerMonth": [
+              {
+                "monthAndYear": "2026-08",
+                "monthlyHours": 80
+              },
+              {
+                "monthAndYear": "2026-09",
+                "monthlyHours": 92
+              }
+            ],
+            "isDependentDisabled": false,
+            "effectiveBeginDate": "2026-11-12",
+            "effectiveEndDate": "2027-12-31",
+            "source": "MWRP",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "CG-001"
+          }
+        ],
+        "fosterCare": {
+          "circumstanceCode": "FC01",
+          "receivingIVEFosterCare": false,
+          "inStateCustody": false,
+          "effectiveBeginDate": "2026-11-12",
+          "effectiveEndDate": "2027-12-31",
+          "source": "VaCMS",
+          "updateSw": "Yes",
+          "vaCMSSequenceNum": "FC-001"
+        },
+        "formerFosterCare": {
+          "circumstanceCode": "FFC01",
+          "enrolledInMedicaidAndFosterCareAtAge18": true,
+          "effectiveBeginDate": "2026-11-12",
+          "effectiveEndDate": "2027-12-31",
+          "aidCategoryWhenTurned18": 21,
+          "clientReceivedFormerFosterCare": "Yes",
+          "source": "VaCMS",
+          "updateSw": "Yes",
+          "age": 26,
+          "vaCMSSequenceNum": "FFC-001"
+        },
+        "incarceratedCircumstance": [
+          {
+            "circumstanceCode": "CCAI",
+            "aidCategory": "Example value",
+            "facilityType": "CORRECTIONAL_FACILITY",
+            "effectiveBeginDate": "2026-11-12",
+            "effectiveEndDate": "2027-12-31",
+            "releaseDate": "2026-06-15",
+            "source": "MWRP",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "INC-001"
+          }
+        ],
+        "priorIncarcerationDetails": [
+          {
+            "wasThereIncarcerationInLast4Months": "Y",
+            "priorIncarcerationEndDate": "2026-04-15",
+            "priorIncarcerationType": "COUNTY_JAIL"
+          }
+        ],
+        "veteranWith100percentDisability": {
+          "circumstanceCode": "CCVET",
+          "verificationSource": "VA_RECORD",
+          "verificationDate": "2027-02-07",
+          "effectiveBeginDate": "2026-11-12",
+          "effectiveEndDate": "2027-12-31",
+          "veteranWith100percentDisability": true,
+          "veteranDisabilitySubtypes": "PERMANENT_TOTAL",
+          "source": "VA",
+          "updateSw": "Yes",
+          "vaCMSSequenceNum": "VET-001"
+        },
+        "medicallyFrail": [
+          {
+            "seriousMedicalCondition": true,
+            "seriousHealthProblemImpactsYourLife": true,
+            "mentalHealth": true,
+            "physicalDisability": true,
+            "cBCTypeDetails": [
+              {
+                "waiverSw": "Y",
+                "paceCbcType": "PACE",
+                "cbcType": "LTSS",
+                "maBeginDate": "2026-11-12",
+                "maEndDate": "2027-12-31",
+                "updateSw": "Yes",
+                "source": "VaCMS",
+                "vaCMSSequenceNum": "CBC-001"
+              }
+            ],
+            "verificationSource": "PROVIDER_STATEMENT",
+            "effectiveStartDate": "2026-11-12",
+            "effectiveEndDate": "2027-12-31",
+            "drugOrAlcoholUseDisorder": false,
+            "frequentMedicalCare": true,
+            "reliedOnMedicalEquipment": true,
+            "blindOrHaveLimitedVision": false,
+            "lTSSScreening": true,
+            "sOLQTitleIIDisabled": false,
+            "sOLQTitleXVIDisabled": true,
+            "source": "MWRP",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "FR-001"
+          }
+        ],
+        "circumstanceForExemption": [
+          {
+            "circumstanceCode": "CCAI",
+            "circumstanceDescription": "Exemption circumstance sample",
+            "circumstanceDetails": [
+              {
+                "verificationSource": "MWRP",
+                "verificationDate": "2027-02-07",
+                "effectiveBeginDate": "2026-11-12",
+                "effectiveEndDate": "2027-12-31",
+                "blindOrDisabled": false,
+                "enrolledForTANF": true,
+                "approvedForSNAPAndNotExemptFromSNAPWorkRequirement": false,
+                "source": "MWRP",
+                "updateSw": "Yes",
+                "vaCMSSequenceNum": "EXD-001"
+              }
+            ]
+          }
+        ],
+        "circumstances": [
+          {
+            "circumstanceCode": "CCAI",
+            "circumstanceDescription": "General circumstance sample",
+            "circumstanceDetails": [
+              {
+                "verificationSource": "MWRP",
+                "verificationDate": "2027-02-07",
+                "effectiveBeginDate": "2026-11-12",
+                "effectiveEndDate": "2027-12-31",
+                "blindOrDisabled": true,
+                "enrolledForTANF": false,
+                "approvedForSNAPAndNotExemptFromSNAPWorkRequirement": true,
+                "source": "MWRP",
+                "updateSw": "Yes",
+                "vaCMSSequenceNum": "CSD-001"
+              }
+            ]
+          }
+        ],
+        "receivingMedicarePartAB": [
+          {
+            "typeOfCoverage": "PART A",
+            "medicareExpenseType": "Maintaining Attendant Due to Age/Illness/Infirmity",
+            "overAllTypeOfCoverage": "MEDICARE_PART_A_B",
+            "isSOLQ": true,
+            "startDate": "2026-11-12",
+            "endDate": "2027-12-31",
+            "source": "VaCMS",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "MCAB-001"
+          }
+        ],
+        "receivingMedicarePartABTPL": [
+          {
+            "typeOfCoverage": "PART A",
+            "overAllTypeOfCoverage": "MEDICARE_PART_A_B",
+            "isSOLQ": true,
+            "startDate": "2026-11-12",
+            "endDate": "2027-12-31",
+            "source": "VaCMS",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "TPL-001"
+          }
+        ],
+        "medicalExemptions": [
+          {
+            "thisMonthOrLastMonthReceivedHospitalCare": true,
+            "effectiveBeginDate": "2026-11-12",
+            "effectiveEndDate": "2027-12-31",
+            "verificationSource": "VaCMS",
+            "verificationDate": "2027-02-07",
+            "careReceivedDetails": [
+              {
+                "typeOfCare": "INPATIENT_HOSPITAL",
+                "startDate": "2026-11-12",
+                "endDate": "2027-12-31",
+                "providerName": "Virginia General Hospital",
+                "providerAddress": "100 Health Ave, Richmond, VA 23219"
+              }
+            ],
+            "source": "VaCMS",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "MED-001"
+          }
+        ],
+        "travelingOutside": [
+          {
+            "travelingOutsideCommunityForExtendedPeriod": true,
+            "effectiveBeginDate": "2026-11-12",
+            "effectiveEndDate": "2027-12-31",
+            "verificationSource": "VaCMS",
+            "verificationDate": "2027-02-07",
+            "careReceivedDetails": [
+              {
+                "typeOfCare": "OUTPATIENT_VISIT",
+                "startDate": "2026-11-12",
+                "endDate": "2027-12-31",
+                "providerName": "Out of State Clinic",
+                "providerAddress": "500 Travel Rd, Charlotte, NC 28202"
+              }
+            ],
+            "source": "VaCMS",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "TRV-001"
+          }
+        ],
+        "substanceUseDisorderTreatment": [
+          {
+            "substanceUseDisorderTreatment": true,
+            "effectiveBeginDate": "2026-11-12",
+            "effectiveEndDate": "2027-12-31",
+            "verificationSource": "VaCMS",
+            "verificationDate": "2027-02-07",
+            "careReceivedDetails": [
+              {
+                "treatmentStartDate": "2026-11-12",
+                "treatmentEndDate": "2027-12-31"
+              }
+            ],
+            "source": "MWRP",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "SUD-001"
+          }
+        ],
+        "disabilityDetails": [
+          {
+            "typeOfDisability": "Blind",
+            "maVerification": "APPROVED",
+            "maDisabilityBeginDate": "2024-03-01",
+            "disbilityOutcomeDeterminedByDDS": "YES",
+            "updateSw": "Yes",
+            "source": "VaCMS",
+            "vaCMSSequenceNum": "DIS-001"
+          }
+        ],
+        "livingArrangementDetails": [
+          {
+            "livingArrangementType": "PRIVATE_RESIDENCE",
+            "effectiveBeginDate": "2026-11-12",
+            "effectiveEndDate": "2027-12-31",
+            "updateSw": "Yes",
+            "source": "MWRP",
+            "vaCMSSequenceNum": "LIV-001"
+          }
+        ]
+      },
+      "engagements": {
+        "incomeDetails": [
+          {
+            "employerName": "Richmond Community Services LLC",
+            "employerEin": "31-5000137",
+            "incomeType": "Earned",
+            "employmentType": "FULL_TIME",
+            "seasonalEmploymentType": "NON_SEASONAL",
+            "priorOrCurrentEmployment": true,
+            "startDate": "2026-11-12",
+            "endDate": "2027-12-31",
+            "incomeBudgetDetails": [
+              {
+                "monthlyIncome": 2025.0,
+                "monthlyHours": 80,
+                "incomeMonth": 2,
+                "incomeYear": 2027,
+                "verificationSource": "TRUV",
+                "source": "VaCMS",
+                "updateSw": "Yes",
+                "vaCMSSequenceNum": "VACMS-SEQ-000201",
+                "applicationSource": "Paper"
+              }
+            ],
+            "electronicallyVerifiedData": [
+              {
+                "id": "7001",
+                "product_type": "employment",
+                "status": "completed",
+                "data_source": "truv",
+                "company_name": "ABC Retail Inc",
+                "provider": {
+                  "id": "prov-001",
+                  "name": "Truv",
+                  "logo_url": "https://example.com/logo.png"
+                },
+                "is_suspicious": false,
+                "start_date": "2025-11-01",
+                "end_date": "2026-12-31",
+                "employments": [
+                  {
+                    "id": "emp-1001",
+                    "job_title": "Store Associate",
+                    "job_type": "F",
+                    "start_date": "2025-11-01",
+                    "end_date": "2026-12-31",
+                    "is_active": true,
+                    "income": "18.50",
+                    "income_unit": "YEARLY",
+                    "pay_rate": "18.50",
+                    "pay_frequency": "BW",
+                    "profile": {
+                      "employeeId": "E-12345",
+                      "fullName": "John Doe",
+                      "logo_url": "https://example.com/employee-logo.png"
+                    },
+                    "statements": [
+                      {
+                        "id": "81001",
+                        "pay_date": "2026-08-31",
+                        "net_pay": 1450.25,
+                        "net_pay_ytd": 11602.0,
+                        "gross_pay": 1800.5,
+                        "gross_pay_ytd": 14404.0,
+                        "bonus": 100.0,
+                        "commission": 0.0,
+                        "hours": 80.0,
+                        "basis_of_pay": "S",
+                        "period_start": "2027-02-01",
+                        "period_end": "2027-02-28",
+                        "regular": 1700.5,
+                        "regular_ytd": 13604.0,
+                        "other_pay_ytd": 200.0,
+                        "bonus_ytd": 500.0,
+                        "commission_ytd": 0.0,
+                        "overtime": 50.0,
+                        "overtime_ytd": 300.0,
+                        "other_pay": 0.0
+                      }
+                    ],
+                    "annual_income_summary": [
+                      {
+                        "id": "ais-2026",
+                        "year": 2026,
+                        "regular": 22000.0,
+                        "bonus": 500.0,
+                        "commission": 0.0,
+                        "overtime": 300.0,
+                        "other_pay": 200.0,
+                        "net_pay": 18000.0,
+                        "gross_pay": 23000.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "source": "MWRP",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "INC-EMP-001"
+          }
+        ],
+        "jobTraining": [
+          {
+            "organizationId": "ORG-JT-001",
+            "organizationName": "Virginia Workforce Center",
+            "monthlyHours": 40,
+            "startDate": "2026-11-12",
+            "endDate": "2027-12-31",
+            "verificationDate": "2027-02-07",
+            "verificationSource": "TRUV",
+            "programName": "Job Readiness Program",
+            "programType": "JOB_TRAINING",
+            "source": "MWRP",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "JT-001"
+          }
+        ],
+        "education": [
+          {
+            "institutionName": "Northern Virginia Community College",
+            "institutionType": "COMMUNITY_COLLEGE",
+            "verificationDate": "2027-02-07",
+            "verificationSource": "NSC",
+            "enrollmentStatus": "ENROLLED",
+            "monthlyHours": 60,
+            "termStartDate": "2027-02-01",
+            "termEndDate": "2027-05-31",
+            "electronicallyVerifiedData": [
+              {
+                "officialSchoolName": "Northern Virginia Community College",
+                "schoolCode": "003745",
+                "branchCode": "00",
+                "currentEnrollmentStatus": "CN",
+                "enrollmentData": [
+                  {
+                    "enrollmentStatus": "F",
+                    "termBeginDate": "2027-02-01",
+                    "termEndDate": "2027-05-31",
+                    "schoolCertifiedOnDate": "2026-08-18",
+                    "anticipatedGraduationDate": "2028-05-15",
+                    "majorCoursesOfStudy": [
+                      {
+                        "course": "Computer Science",
+                        "ncesCIPCode": 110701,
+                        "source": "NSC",
+                        "updateSw": "Yes",
+                        "vaCMSSequenceNum": "MC-001",
+                        "applicationSource": "Paper"
+                      }
+                    ],
+                    "source": "NSC",
+                    "updateSw": "Yes",
+                    "vaCMSSequenceNum": "ED-ENR-001",
+                    "applicationSource": "Paper"
+                  }
+                ]
+              }
+            ],
+            "source": "MWRP",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "EDU-001",
+            "applicationSource": "Paper"
+          }
+        ],
+        "inKindOrUnpaidWork": [
+          {
+            "organizationID": "ORG-IK-001",
+            "organizationName": "City Food Pantry",
+            "monthlyHours": 24,
+            "startDate": "2026-11-12",
+            "endDate": "2027-12-31",
+            "verificationDate": "2027-02-07",
+            "verificationSource": "TRUV",
+            "programName": "Community Support",
+            "source": "MWRP",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "IK-001"
+          }
+        ],
+        "volunteeringCommunityService": [
+          {
+            "organizationId": "ORG-VOL-001",
+            "organizationName": "Habitat Helpers",
+            "monthlyHours": 20,
+            "startDate": "2026-11-12",
+            "endDate": "2027-12-31",
+            "verificationSource": "TRUV",
+            "verificationDate": "2027-02-07",
+            "source": "MWRP",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "VOL-001"
+          }
+        ],
+        "electronicallyVerifiedEmployment": [
+          {
+            "verificationSource": "TRUV",
+            "monthlyIncome": 2025.0,
+            "monthlyHours": 160,
+            "incomeMonth": 2,
+            "incomeYear": 2027,
+            "source": "EV",
+            "updateSw": "Yes",
+            "vaCMSSequenceNum": "EVE-001",
+            "applicationSource": "Paper"
+          }
+        ],
+        "evEdgIncomeBudget": [
+          {
+            "edgNum": 501001,
+            "eligBeginDt": "2027-02-01",
+            "eligEndDt": "2027-02-28",
+            "totalBudgetAmount": 2025.0
+          }
+        ],
+        "evIndvIncomeBudget": [
+          {
+            "clientId": 1001001,
+            "ein": 541234567,
+            "budgetBeginDt": "2027-02-01",
+            "budgetEndDt": "2027-02-28",
+            "verificationSource": "EV",
+            "totalBudgetAmount": 2025.0
+          }
+        ],
+        "budgetGroupMembers": [
+          {
+            "edgNum": 501001,
+            "clientId": 1001001,
+            "eligPartStatusCd": "ACTIVE"
+          },
+          {
+            "edgNum": 501001,
+            "clientId": 1001002,
+            "eligPartStatusCd": "ACTIVE"
+          }
+        ],
+        "magiIncomeBudget": [
+          {
+            "edgNum": 601001,
+            "eligBeginDt": "2027-02-01",
+            "eligEndDt": "2027-02-28",
+            "totalBudgetAmount": 2025.0
+          }
+        ]
+      }
+    }
+  ]
+}

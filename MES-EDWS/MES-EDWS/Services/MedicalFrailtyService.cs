@@ -9,8 +9,8 @@ namespace MES_EDWS.Services
         private readonly ILogger<MedicalFrailtyService> _logger;
 
         private const string DataSource = "MES-EDWS";
-        //private const string Schema = "HR1_DMAS_POC";
-        private const string Schema = "HR1_DMAS_SIT";
+        private const string Schema = "HR1_DMAS_POC";
+       // private const string Schema = "HR1_DMAS_SIT";
 
         // ── Table names ────────────────────────────────────────────────────────────
         private const string MembersTable  = Schema + ".HR1_MEDICALLY_FRAIL_MEMBERS";
