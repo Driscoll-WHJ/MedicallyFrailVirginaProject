@@ -27,6 +27,18 @@ namespace MES_EDWS.Services
     /// APPLICATION_DT, and CHANGE_DT (mapped from CeVerifiedDTO.LastApprovedPeriodBeginDate,
     /// ApplicationDate, and ChangeDate) and dropped CUR_ELIG_BEG_DT/PRIMARY_COMM_METHOD_CD,
     /// which are no longer referenced in the INSERT below.
+    ///
+    /// NOTE: docs/TableDefenitionsV1_7_2.txt (v17.1.2) superseded docs/table_v17_updated.txt and
+    /// renamed several columns: MWRP_CE_VERIFIED.MWR_START_DT/MWR_END_DT -> MWR_STATUS_START_DT/
+    /// MWR_STATUS_END_DT; MWRP_CE_CIRCUMSTANCE_DETAIL.ENROLLED_FOR_TANF_IND -> COMPLY_WITH_TANF_WORK_IND;
+    /// MWRP_CE_CBC_TYPE_DETAILS.MA_BEGIN_DATE/MA_END_DATE -> BEGIN_DATE/END_DATE;
+    /// MWRP_CE_CARE_RECEIVED_DETAILS.TYPE_OF_CARE/PROVIDER_NAME -> TYPE_OF_CARE_CD/CARE_PROVIDER_NAME
+    /// (plus a new CARE_PROVIDER_ADDRESS column with no corresponding DTO field, left unpopulated);
+    /// and the MWRP_CE_PROVIDER table was renamed MWRP_CE_PAYROLL_PROVIDER with
+    /// PROVIDER_ID/PROVIDER_NAME/LOGO_URL -> PAYROLL_PROVIDER_ID/PAYROLL_PROVIDER_NAME/
+    /// PAYROLL_PROVIDER_LOGO_URL (MWRP_CE_EMPLOYEE_PROFILE.LOGO_URL was renamed the same way).
+    /// MWRP_CE_INCOME_DETAILS also gained an UNEMPLOYMENT_TYPE column with no corresponding DTO
+    /// field, so it is left unpopulated.
     /// </summary>
     public class ClientInfoService : IClientInfoService
     {
@@ -76,7 +88,7 @@ namespace MES_EDWS.Services
         private const string IncomeBudgetDetailsTable          = Schema + ".MWRP_CE_INCOME_BUDGET_DETAILS";
         private const string IncomeDetailsTable                = Schema + ".MWRP_CE_INCOME_DETAILS";
         private const string TruvEmployerTable                 = Schema + ".MWRP_CE_TRUV_EMPLOYER";
-        private const string ProviderTable                     = Schema + ".MWRP_CE_PROVIDER";
+        private const string ProviderTable                     = Schema + ".MWRP_CE_PAYROLL_PROVIDER";
         private const string EmploymentDetailTable             = Schema + ".MWRP_CE_EMPLOYMENT_DETAIL";
         private const string EmployeeProfileTable              = Schema + ".MWRP_CE_EMPLOYEE_PROFILE";
         private const string PayStatementTable                 = Schema + ".MWRP_CE_PAY_STATEMENT";
@@ -218,7 +230,7 @@ namespace MES_EDWS.Services
                 $"INSERT INTO {VerifiedTable} " +
                 "(REQUEST_SEQ_NBR, FIRST_NAME, LAST_NAME, MIDDLE_NAME, SUFFIX, GENDER_CD, DATE_OF_BIRTH, " +
                 "CLIENT_IDENTIFICATION_NBR, MMIS_ENROLLEE_ID, SSN_NBR, MWR_STATUS_CD, " +
-                "MWR_START_DT, MWR_END_DT, REVIEW_MONTH_DT, EXEMPT_EXCL_PENDING_SW, PREV_ELIG_AUTH_DT, " +
+                "MWR_STATUS_START_DT, MWR_STATUS_END_DT, REVIEW_MONTH_DT, EXEMPT_EXCL_PENDING_SW, PREV_ELIG_AUTH_DT, " +
                 "LAST_APPROVED_PERIOD_BEGIN_DT, APPLICATION_DT, RENEWAL_INITIATED_DT, CHANGE_DT, " +
                 "CURR_ELIG_BEGIN_DT, APP_CHG_SUBMIT_DT, CASE_ACTION_CD, DUE_DT, " +
                 "EMAIL_VERIFIED_FLG, EMAIL_ADDR, DRIVER_LICENSE_NUMBER, DRIVER_LICENSE_STATE, PASSPORT_NUMBER, " +
@@ -593,7 +605,7 @@ namespace MES_EDWS.Services
                 var cbcSql =
                     $"INSERT INTO {CbcTypeDetailsTable} " +
                     "(CLIENT_IDENTIFICATION_NBR, FRAILTY_ID, WAIVER_SW, PACE_CBC_TYPE, CBC_TYPE, " +
-                    "MA_BEGIN_DATE, MA_END_DATE, UPDATE_SW, SOURCE_SYSTEM, VACMS_SEQUENCE_NUM, " +
+                    "BEGIN_DATE, END_DATE, UPDATE_SW, SOURCE_SYSTEM, VACMS_SEQUENCE_NUM, " +
                     "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
@@ -777,7 +789,7 @@ namespace MES_EDWS.Services
         {
             var sql =
                 $"INSERT INTO {CareReceivedDetailsTable} " +
-                "(CLIENT_IDENTIFICATION_NBR, TYPE_OF_CARE, START_DATE, END_DATE, PROVIDER_NAME, " +
+                "(CLIENT_IDENTIFICATION_NBR, TYPE_OF_CARE_CD, START_DATE, END_DATE, CARE_PROVIDER_NAME, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, ?, 'Y', ?, ?)";
 
@@ -806,7 +818,7 @@ namespace MES_EDWS.Services
                 $"INSERT INTO {CircumstanceDetailTable} " +
                 "(CLIENT_IDENTIFICATION_NBR, CIRCUMSTANCE_ID, CIRCUMSTANCE_DETAIL_ID, VERIFICATION_SOURCE, " +
                 "VERIFICATION_DATE, EFFECTIVE_BEGIN_DATE, EFFECTIVE_END_DATE, BLIND_OR_DISABLED_IND, " +
-                "ENROLLED_FOR_TANF_IND, APPROVED_FOR_SNAP_NOT_EXEMPT_IND, SOURCE_SYSTEM, UPDATE_SW, " +
+                "COMPLY_WITH_TANF_WORK_IND, APPROVED_FOR_SNAP_NOT_EXEMPT_IND, SOURCE_SYSTEM, UPDATE_SW, " +
                 "VACMS_SEQUENCE_NUM, APPLICATION_SOURCE, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
@@ -1200,7 +1212,7 @@ namespace MES_EDWS.Services
 
             var providerSql =
                 $"INSERT INTO {ProviderTable} " +
-                "(CLIENT_IDENTIFICATION_NBR, TRUV_EMPLOYER_ID, PROVIDER_ID, PROVIDER_NAME, LOGO_URL, " +
+                "(CLIENT_IDENTIFICATION_NBR, TRUV_EMPLOYER_ID, PAYROLL_PROVIDER_ID, PAYROLL_PROVIDER_NAME, PAYROLL_PROVIDER_LOGO_URL, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, ?, 'Y', ?, ?)";
 
@@ -1213,7 +1225,7 @@ namespace MES_EDWS.Services
 
             var employeeProfileSql =
                 $"INSERT INTO {EmployeeProfileTable} " +
-                "(CLIENT_IDENTIFICATION_NBR, EMPLOYMENT_DETAIL_ID, EMPLOYEE_ID, FULL_NAME, LOGO_URL, " +
+                "(CLIENT_IDENTIFICATION_NBR, EMPLOYMENT_DETAIL_ID, EMPLOYEE_ID, FULL_NAME, PAYROLL_PROVIDER_LOGO_URL, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, ?, 'Y', ?, ?)";
 
@@ -1305,7 +1317,7 @@ namespace MES_EDWS.Services
                 "(ACK_ROW_ID, REQUEST_SEQUENCE_NBR, STATE_ID, REQUEST_SOURCE_CD, SOURCE_SYS_NM, UPDATE_SW, " +
                 "ACK_CODE, ACK_STATUS, ACK_MESSAGE_TXT, MWRP_CE_REQUEST_ID, ACK_SOURCE_SYS_NM, ACK_UPDATE_SW, CREATED_TS, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             await ExecuteAsync(connection, transaction, sql,
                 ackRowId,
