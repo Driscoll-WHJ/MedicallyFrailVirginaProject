@@ -10,8 +10,8 @@ namespace MES_EDWS.Services
         /// records (verified member, addresses, exclusions, exceptions, employment,
         /// job training, education, volunteering and Truv-verified employment) are
         /// inserted with generated surrogate keys.
-        /// Returns the generated REQUEST_ROW_ID used for the acknowledgement.
+        /// Returns the acknowledgement response that was also persisted to MWRP_CE_RESPONSE.
         /// </summary>
-        Task<long> SaveCeVerificationResultsAsync(CepDWRequestDTO request);
+        Task<CepDWAckResponseDTO> SaveCeVerificationResultsAsync(CepDWRequestDTO request);
     }
 }

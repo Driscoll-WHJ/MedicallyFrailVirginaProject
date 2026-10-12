@@ -5,22 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MES_EDWS</RootNamespace>
-    <!-- The Web SDK's implicit OpenAPI document-generation build step launches this app's
-         compiled assembly out-of-process; that invocation fails with a SQLitePCLRaw native
-         library load error from AuditDbContext's EnsureCreated() call, aborting build/publish
-         with exit code 10. This project does not use Swagger/OpenAPI (no AddOpenApi/
-         AddSwaggerGen calls), so the generated document isn't needed — disable the step. -->
+    <!-- This project does not use Swagger/OpenAPI (no AddOpenApi/AddSwaggerGen calls), so
+         the Web SDK's implicit OpenAPI document-generation build step isn't needed. -->
     <OpenApiGenerateDocumentsOnBuild>false</OpenApiGenerateDocumentsOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
-    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
     <PackageReference Include="Teradata.Client.Provider" Version="20.0.9" />
   </ItemGroup>
 

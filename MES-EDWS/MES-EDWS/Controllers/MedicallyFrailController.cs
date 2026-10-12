@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using MES_EDWS.Data;
 using MES_EDWS.Models;
 using MES_EDWS.Services;
 
@@ -11,16 +10,13 @@ namespace MES_EDWS.Controllers
     {
         private readonly ILogger<MedicallyFrailController> _logger;
         private readonly IMedicalFrailtyService _medicalFrailtyService;
-        private readonly AuditDbContext _auditDb;
 
         public MedicallyFrailController(
             ILogger<MedicallyFrailController> logger,
-            IMedicalFrailtyService medicalFrailtyService,
-            AuditDbContext auditDb)
+            IMedicalFrailtyService medicalFrailtyService)
         {
             _logger = logger;
             _medicalFrailtyService = medicalFrailtyService;
-            _auditDb = auditDb;
         }
 
         [HttpPost]
@@ -111,22 +107,6 @@ namespace MES_EDWS.Controllers
                 Code                  = "200",
                 Message               = "Success"
             };
-
-            // Also persist to the SQLite audit log (used by the web UI audit viewer).
-            var auditEntry = new MedicalFrailtyAuditLog
-            {
-                RequestId             = request.RequestId,
-                DateRequested         = DateTime.UtcNow,
-                MmisEnrolleeId        = request.MmisEnrolleeId,
-                Ssn                   = request.Ssn,
-                MedicallyFrail        = record.MedicallyFrail,
-                CircumstanceStartDate = record.CircumstanceStartDate
-            };
-
-            _auditDb.MedicalFrailtyAuditLogs.Add(auditEntry);
-            await _auditDb.SaveChangesAsync();
-
-            _logger.LogInformation("Audit log saved for RequestId: {RequestId}", request.RequestId);
 
             return Ok(response);
         }

@@ -1,0 +1,180 @@
+{
+  "requestTimestamp": "2026-10-06T14:30:00-04:00",
+  "requestSequenceNumber": "9639001",
+  "stateId": "VA",
+  "requestSource": "MWRP",
+  "caseNumber": "VA-20269639",
+  "sendEmailToCustomer": true,
+  "preferredCommunicationLanguage": "EN",
+  "documentsUploadedIn": [
+    {
+      "documentType": "ME",
+      "documentSubType": "DISABILITY_DETERMINATION",
+      "clientId": "963901",
+      "documentId": "9639101",
+      "documentUploadDate": "2026-10-04",
+      "documentDeletedDate": null,
+      "source": "MWRP",
+      "status": "Added"
+    },
+    {
+      "documentType": "PE",
+      "documentSubType": "DRIVER_LICENSE",
+      "clientId": "963901",
+      "documentId": "9639102",
+      "documentUploadDate": "2026-10-04",
+      "documentDeletedDate": null,
+      "source": "MWRP",
+      "status": "Added"
+    }
+  ],
+  "ceVerified": [
+    {
+      "clientId": "963901",
+      "firstName": "Freya",
+      "lastName": "Brooks",
+      "middleName": null,
+      "suffix": null,
+      "gender": "F",
+      "dateOfBirth": "1990-06-15",
+      "mmisEnrolleeID": null,
+      "socialSecurityNumber": "900-19-6391",
+      "mwrStatus": "EU",
+      "mwrStatusStartDate": "2026-10-01",
+      "mwrStatusEndDate": null,
+      "reviewMonth": "2026-10-01",
+      "rulesEvaluationResults": [
+        {
+          "ruleId": "CCAI",
+          "ruleName": "CC01_EXCLUSION_AMERICAN_INDIAN_OR_ALASKAN_NATIVE",
+          "result": "FAIL",
+          "activityType": null
+        },
+        {
+          "ruleId": "CCVD",
+          "ruleName": "CC02_EXCLUSION_VETERAN_100_PERCENT_DISABILITY",
+          "result": "FAIL",
+          "activityType": null
+        },
+        {
+          "ruleId": "CCPC",
+          "ruleName": "CC03_EXCLUSION_PARENT_GUARDIAN_CARETAKER_RELATIVE_OR_FAMILY_CAREGIVER_OF",
+          "result": "FAIL",
+          "activityType": null
+        },
+        {
+          "ruleId": "CCPD",
+          "ruleName": "CC04_EXCLUSION_PARENT_GUARDIAN_CARETAKER_RELATIVE_OR_FAMILY_CAREGIVER_OF",
+          "result": "FAIL",
+          "activityType": null
+        },
+        {
+          "ruleId": "CCFFC",
+          "ruleName": "CC05_EXCLUSION_FORMER_FOSTER_CARE",
+          "result": "FAIL",
+          "activityType": null
+        },
+        {
+          "ruleId": "CCMF0",
+          "ruleName": "CC06_EXCLUSION_MEDICALLY_FRAIL_EDWS",
+          "result": "FAIL",
+          "activityType": null
+        },
+        {
+          "ruleId": "CCMF1",
+          "ruleName": "CC07_EXCLUSION_MEDICALLY_FRAIL_BLIND_OR_DISABLED_INDIVIDUALS",
+          "result": "PASS",
+          "activityType": null
+        }
+      ],
+      "exemptOrExceptionOrExclusionPendingSw": "N",
+      "previousEligibilityAuthorizationDate": null,
+      "lastApprovedPeriodBeginDate": null,
+      "applicationDate": "2026-10-06",
+      "renewalInitiatedDate": null,
+      "changeDate": null,
+      "currentEligibilityBeginDate": "2026-10-01",
+      "applicationChangeSubmissionDate": "2026-10-06",
+      "caseAction": "IN",
+      "aidCategory": [
+        {
+          "aidCategory": "102",
+          "startDate": "2025-10-01",
+          "endDate": null,
+          "source": "VaCMS",
+          "updateSw": "No",
+          "vaCMSSequenceNum": "AC-9639-1",
+          "applicationSource": "Paper"
+        }
+      ],
+      "dueDate": "2026-11-05",
+      "emailVerifiedFlag": true,
+      "email": "freya.brooks@example.test",
+      "driverLicenseNumber": null,
+      "driverLicenseState": null,
+      "passportNumber": null,
+      "passportCountry": null,
+      "nationality": "United States",
+      "maritalStatus": "Single",
+      "primaryModeOfCommunication": "EM",
+      "alternateEmail": null,
+      "verificationType": "WORK_REQUIREMENTS",
+      "phoneData": [
+        {
+          "phoneType": "MO",
+          "phoneNumber": "8045559639",
+          "source": "VaCMS",
+          "updateSw": "No",
+          "vaCMSSequenceNum": "PH-9639-1"
+        }
+      ],
+      "addresses": [
+        {
+          "addressType": "PA",
+          "addressLine1": "100 Main Street",
+          "addressLine2": null,
+          "county": "Richmond City",
+          "city": "Richmond",
+          "zipCode5": "23219",
+          "zipCode4": "1042",
+          "state": "VA",
+          "fipsCode": "760",
+          "source": "VaCMS",
+          "updateSw": "No",
+          "vaCMSSequenceNum": "AD-9639-1"
+        }
+      ],
+      "headOfHousehold": true,
+      "requiresCEEvaluation": true,
+      "relationshipWithHOH": "UK",
+      "relationshipDetails": [],
+      "exemptions": {
+        "circumstances": [],
+        "disabilityDetails": [
+          {
+            "typeOfDisability": "DS",
+            "maVerification": "SS",
+            "maDisabilityBeginDate": "2026-04-01",
+            "disabilityOutcomeDeterminedByDDS": "NO",
+            "source": "VaCMS",
+            "updateSw": "No",
+            "vaCMSSequenceNum": "DIS-9639-1"
+          }
+        ],
+        "livingArrangementDetails": [
+          {
+            "livingArrangementType": "PR",
+            "effectiveBeginDate": "2025-10-01",
+            "effectiveEndDate": null,
+            "source": "VaCMS",
+            "updateSw": "No",
+            "vaCMSSequenceNum": "LIV-9639-1"
+          }
+        ]
+      },
+      "engagements": {
+        "inKindOrUnpaidWork": []
+      }
+    }
+  ]
+}

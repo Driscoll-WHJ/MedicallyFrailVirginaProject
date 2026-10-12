@@ -40,28 +40,14 @@ namespace MES_EDWS.Controllers
                 request.RequestSource,
                 request.CeVerified.Count > 0 ? request.CeVerified[0].ClientIdentificationNumber : null);
 
-            // Parse the payload and persist it to the HR1_DMAS_POC.MWRP_CE_* Teradata tables.
-            var requestRowId = await _clientInfoService.SaveCeVerificationResultsAsync(request);
+            // Persists both the request (MWRP_CE_REQUEST) and this same response (MWRP_CE_RESPONSE)
+            // to the HR1_DMAS_POC.MWRP_CE_* Teradata tables inside one transaction.
+            var response = await _clientInfoService.SaveCeVerificationResultsAsync(request);
 
             _logger.LogInformation(
-                "CE verification acknowledged. RequestRowId: {RequestRowId}, CaseNumber: {CaseNumber}",
-                requestRowId,
+                "CE verification acknowledged. NvhRequestId: {NvhRequestId}, CaseNumber: {CaseNumber}",
+                response.Acknowledgement.NvhRequestId,
                 request.CaseNumber);
-
-            var response = new CepDWAckResponseDTO
-            {
-                RequestSequenceNumber = request.RequestSequenceNumber,
-                StateId               = request.State,
-                RequestSource         = request.RequestSource,
-                Acknowledgement       = new AcknowledgementDTO
-                {
-                    Code             = "REQUEST_CREATED",
-                    Status           = "SUCCESS",
-                    Message          = "Request has been created successfully",
-                    NvhRequestId     = requestRowId.ToString(),
-                    CreatedTimestamp = DateTime.UtcNow
-                }
-            };
 
             return Ok(response);
         }

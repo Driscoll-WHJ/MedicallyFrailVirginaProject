@@ -46,8 +46,10 @@ namespace MES_EDWS.Services
         private readonly ILogger<ClientInfoService> _logger;
 
         private const string DataSource = "MES-EDWS";
-        private const string Schema = "HR1_DMAS_POC";
+        //private const string Schema = "HR1_DMAS_POC";
         //private const string Schema = "HR1_DMAS_SIT";
+        private const string Schema = "HR1_DMAS_UAT";
+
 
 
         // ── Table names (docs/Table_v17.txt) ────────────────────────────────────────
@@ -112,7 +114,7 @@ namespace MES_EDWS.Services
 
         // ── Entry point ────────────────────────────────────────────────────────────
 
-        public async Task<long> SaveCeVerificationResultsAsync(CepDWRequestDTO request)
+        public async Task<CepDWAckResponseDTO> SaveCeVerificationResultsAsync(CepDWRequestDTO request)
         {
             if (request.CeVerified is not { Count: > 0 })
                 throw new InvalidOperationException("ceVerified must contain at least one entry.");
@@ -140,7 +142,23 @@ namespace MES_EDWS.Services
                     await InsertVerifiedAsync(connection, transaction, clientId, request.RequestSequenceNumber, verified);
                 }
 
-                await InsertResponseAsync(connection, transaction, ackRowId, request);
+                var response = new CepDWAckResponseDTO
+                {
+                    RequestSequenceNumber = request.RequestSequenceNumber,
+                    StateId               = request.State,
+                    RequestSource         = request.RequestSource,
+                    Acknowledgement       = new AcknowledgementDTO
+                    {
+                        Code             = "REQUEST_CREATED",
+                        Status           = "SUCCESS",
+                        Message          = "Request has been created successfully",
+                        NvhRequestId     = ackRowId.ToString(),
+                        CreatedTimestamp = DateTime.UtcNow
+                    }
+                };
+
+                // Persist the same acknowledgement that is returned to the caller.
+                await InsertResponseAsync(connection, transaction, ackRowId, request, response);
 
                 transaction.Commit();
 
@@ -149,7 +167,7 @@ namespace MES_EDWS.Services
                     "ClientIdentificationNbr: {ClientIdentificationNbr}, CaseNumber: {CaseNumber}",
                     ackRowId, primaryClientId, request.CaseNumber);
 
-                return ackRowId;
+                return response;
             }
             catch (Exception ex)
             {
@@ -1305,7 +1323,8 @@ namespace MES_EDWS.Services
         // ── MWRP_CE_RESPONSE ───────────────────────────────────────────────────────
 
         private static async Task InsertResponseAsync(
-            TdConnection connection, TdTransaction transaction, long ackRowId, CepDWRequestDTO request)
+            TdConnection connection, TdTransaction transaction, long ackRowId, CepDWRequestDTO request,
+            CepDWAckResponseDTO response)
         {
             // REQUEST_SEQUENCE_NBR is INTEGER here (unlike the VARCHAR column on MWRP_CE_REQUEST).
             object requestSequenceNumber = int.TryParse(request.RequestSequenceNumber, out var seqNum)
@@ -1319,6 +1338,8 @@ namespace MES_EDWS.Services
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
+            // Persist the exact acknowledgement fields that are returned to the caller, not a
+            // separately-hardcoded copy, so the API response and MWRP_CE_RESPONSE never drift apart.
             await ExecuteAsync(connection, transaction, sql,
                 ackRowId,
                 requestSequenceNumber,
@@ -1326,13 +1347,13 @@ namespace MES_EDWS.Services
                 request.RequestSource,
                 DataSource,
                 "YES",
-                "REQUEST_CREATED",
-                "SUCCESS",
-                "Request has been created successfully",
-                ackRowId.ToString(),
+                response.Acknowledgement.Code,
+                response.Acknowledgement.Status,
+                response.Acknowledgement.Message,
+                response.Acknowledgement.NvhRequestId,
                 DataSource,
                 "YES",
-                DateTime.UtcNow,
+                response.Acknowledgement.CreatedTimestamp,
                 DataSource,
                 DateTime.Today);
         }
