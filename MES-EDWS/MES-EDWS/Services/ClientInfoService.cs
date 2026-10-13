@@ -132,7 +132,7 @@ namespace MES_EDWS.Services
             {
                 await InsertRequestAsync(connection, transaction, request);
 
-                if (request.DocumentsUploadedInMwrp is { Count: > 0 } documents)
+                if (request.DocumentsUploadedIn is { Count: > 0 } documents)
                     await InsertDocumentsAsync(connection, transaction, request.RequestSequenceNumber, documents);
 
                 foreach (var verified in request.CeVerified)
@@ -187,6 +187,8 @@ namespace MES_EDWS.Services
         }
 
         // ── MWRP_CE_REQUEST ────────────────────────────────────────────────────────
+        // REQUEST_TIMESTAMP receives the raw "requestTimestamp" string from the payload
+        // (e.g. "2026-10-06T14:30:00-04:00") with no DateTime conversion.
 
         private static async Task InsertRequestAsync(
             TdConnection connection, TdTransaction transaction, CepDWRequestDTO request)
@@ -211,6 +213,8 @@ namespace MES_EDWS.Services
         }
 
         // ── MWRP_CE_DOCUMENT ───────────────────────────────────────────────────────
+        // CLIENT_ID here comes from each documentsUploadedIn[].clientId (a document may belong
+        // to any client on the case), not from ceVerified[].clientId.
 
         private static async Task InsertDocumentsAsync(
             TdConnection connection, TdTransaction transaction, string requestSequenceNumber, List<DocumentUploadDTO> documents)
@@ -229,7 +233,7 @@ namespace MES_EDWS.Services
                     document.DocumentId,
                     document.DocumentType,
                     document.DocumentSubtype,
-                    document.ClientId?.ToString(),
+                    document.ClientId,
                     ToDbDateFromDateTime(document.DocumentUploadTimestamp),
                     ToDbDateFromDateTime(document.DocumentDeletedTimestamp),
                     document.SourceSystem,

@@ -36,9 +36,13 @@ namespace MES_EDWS.Models
 
     public class CepDWRequestDTO
     {
+        /// <summary>
+        /// Kept as the raw string sent by CEP (e.g. "2026-10-06T14:30:00-04:00") and written to
+        /// MWRP_CE_REQUEST.REQUEST_TIMESTAMP as-is; no DateTime round-trip, so the offset is preserved.
+        /// </summary>
         [Required]
         [JsonPropertyName("requestTimestamp")]
-        public DateTime Timestamp { get; set; }
+        public string Timestamp { get; set; } = string.Empty;
 
         [Required]
         [JsonPropertyName("requestSequenceNumber")]
@@ -62,8 +66,9 @@ namespace MES_EDWS.Models
         [JsonPropertyName("preferredCommunicationLanguage")]
         public string? PreferredCommunicationLanguage { get; set; }
 
-        [JsonPropertyName("documentsUploadedInMWRP")]
-        public List<DocumentUploadDTO>? DocumentsUploadedInMwrp { get; set; }
+        /// <summary>Renamed from "documentsUploadedInMWRP" to "documentsUploadedIn" in the v1.7.3 payload.</summary>
+        [JsonPropertyName("documentsUploadedIn")]
+        public List<DocumentUploadDTO>? DocumentsUploadedIn { get; set; }
 
         /// <summary>
         /// docs/SamplePayload.json sends "ceVerified" as an ARRAY (one entry per client on the
@@ -84,11 +89,15 @@ namespace MES_EDWS.Models
         [JsonPropertyName("documentSubType")]
         public string? DocumentSubtype { get; set; }
 
+        /// <summary>Sent as a quoted string in the v1.7.3 payload; persisted to the VARCHAR CLIENT_ID column.</summary>
         [JsonPropertyName("clientId")]
-        public long? ClientId { get; set; }
+        [JsonConverter(typeof(FlexibleStringConverter))]
+        public string? ClientId { get; set; }
 
+        /// <summary>Sent as a quoted string in the v1.7.3 payload; DOCUMENT_ID is VARCHAR(50) in v1.7.2.</summary>
         [JsonPropertyName("documentId")]
-        public long? DocumentId { get; set; }
+        [JsonConverter(typeof(FlexibleStringConverter))]
+        public string? DocumentId { get; set; }
 
         [JsonPropertyName("documentUploadDate")]
         public DateTime? DocumentUploadTimestamp { get; set; }
@@ -296,9 +305,11 @@ namespace MES_EDWS.Models
 
     public class AidCategoryDTO
     {
-        /// <summary>JSON field is named "aidCategory" (not "code") in the 2026-08 revision.</summary>
+        /// <summary>JSON field is named "aidCategory" (not "code") in the 2026-08 revision. Sent as a
+        /// quoted string (e.g. "102") and persisted as-is to the VARCHAR(20) AID_CATEGORY column.</summary>
         [JsonPropertyName("aidCategory")]
-        public int? Code { get; set; }
+        [JsonConverter(typeof(FlexibleStringConverter))]
+        public string? Code { get; set; }
 
         [JsonPropertyName("startDate")]
         public string? StartDate { get; set; }
@@ -370,8 +381,10 @@ namespace MES_EDWS.Models
         [JsonPropertyName("state")]
         public string? State { get; set; }
 
+        /// <summary>Sent as a quoted string (e.g. "760"); FIPS_CODE is VARCHAR(20), so it is persisted as-is.</summary>
         [JsonPropertyName("fipsCode")]
-        public int? FipsCode { get; set; }
+        [JsonConverter(typeof(FlexibleStringConverter))]
+        public string? FipsCode { get; set; }
 
         [JsonPropertyName("source")]
         public string? Source { get; set; }
@@ -898,9 +911,11 @@ namespace MES_EDWS.Models
         [JsonPropertyName("effectiveEndDate")]
         public string? EffectiveEndDate { get; set; }
 
-        /// <summary>New in the 2026-08 revision — persisted to CE_EXCLUSION_FORMER_FOSTER_CARE.AID_CATEGORY_WHEN_TURNED18_CD.</summary>
+        /// <summary>New in the 2026-08 revision — persisted to MWRP_CE_FORMER_FOSTER_CARE.AID_CATEGORY_WHEN_TURNED_18
+        /// (VARCHAR(30) in v1.7.2), so the aid-category code string is stored as-is.</summary>
         [JsonPropertyName("aidCategoryWhenTurned18")]
-        public int? AidCategoryWhenTurned18 { get; set; }
+        [JsonConverter(typeof(FlexibleStringConverter))]
+        public string? AidCategoryWhenTurned18 { get; set; }
 
         /// <summary>New in docs/SamplePayload.json — persisted to CE_FORMER_FOSTER_CARE.CLIENT_RECEIVED_FORMER_FOSTER_CARE.</summary>
         [JsonPropertyName("clientReceivedFormerFosterCare")]
