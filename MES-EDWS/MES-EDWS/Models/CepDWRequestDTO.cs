@@ -588,9 +588,8 @@ namespace MES_EDWS.Models
     }
 
     /// <summary>Shared shape for exemptions.medicalExemptions[].careReceivedDetails[] and
-    /// exemptions.travelingOutside[].careReceivedDetails[] — persisted to the new
-    /// MWRP_CE_CARE_RECEIVED_DETAILS table. ("providerAddress" has no corresponding column and
-    /// is not modeled here.)</summary>
+    /// exemptions.travelingOutside[].careReceivedDetails[] — persisted to the
+    /// MWRP_CE_CARE_RECEIVED_DETAILS table.</summary>
     public class CareReceivedDetailDTO
     {
         [JsonPropertyName("typeOfCare")]
@@ -604,6 +603,10 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("providerName")]
         public string? ProviderName { get; set; }
+
+        /// <summary>Persisted to MWRP_CE_CARE_RECEIVED_DETAILS.CARE_PROVIDER_ADDRESS (VARCHAR(200)).</summary>
+        [JsonPropertyName("providerAddress")]
+        public string? ProviderAddress { get; set; }
     }
 
     /// <summary>exemptions.medicalExemptions[] — persisted to the new MWRP_CE_MEDICAL_EXEMPTIONS /

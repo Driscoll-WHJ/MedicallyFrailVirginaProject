@@ -8,6 +8,22 @@
       },
       "applicationUrl": "https://localhost:19737;http://localhost:19738"
     },
+    "MES-EDWS (SIT)": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "SIT"
+      },
+      "applicationUrl": "https://localhost:19737;http://localhost:19738"
+    },
+    "MES-EDWS (UAT)": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "UAT"
+      },
+      "applicationUrl": "https://localhost:19737;http://localhost:19738"
+    },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,

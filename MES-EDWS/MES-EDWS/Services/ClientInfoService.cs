@@ -1,16 +1,23 @@
 using MES_EDWS.Models;
+using MES_EDWS.Options;
+using Microsoft.Extensions.Options;
 using Teradata.Client.Provider;
 
 namespace MES_EDWS.Services
 {
     /// <summary>
-    /// Persists CEP-ICD-003 CE verification result payloads to the HR1_DMAS_POC.MWRP_CE_*
-    /// Teradata tables defined in docs/table_v17_updated.txt. Rows are correlated by
+    /// Persists CEP-ICD-003 CE verification result payloads to the MWRP_CE_* Teradata tables
+    /// defined in docs/HR1_DMAS_SIT_DDL's.txt (the current authoritative DDL; the same shape is
+    /// deployed to every environment's schema, selected via <see cref="TeradataOptions.Schema"/>
+    /// from appsettings.{Environment}.json). Rows are correlated by
     /// CLIENT_IDENTIFICATION_NBR rather than a surrogate request/verified FK chain, matching
-    /// the v17 schema's flat, per-client table design. The whole payload is written inside
+    /// the schema's flat, per-client table design. The whole payload is written inside
     /// one transaction so a partially-saved request is never left behind.
     ///
-    /// NOTE: docs/table_v17_updated.txt does not declare GENERATED ALWAYS AS IDENTITY on any
+    /// NOTE: MWRP_CE_REQUEST.REQUEST_TIMESTAMP is VARCHAR(100) in the SIT DDL, so the raw
+    /// "requestTimestamp" string from the payload is stored verbatim (no DateTime conversion).
+    ///
+    /// NOTE: the DDL does not declare GENERATED ALWAYS AS IDENTITY on any
     /// primary key, and the Teradata.Client.Provider ODBC driver has no reliable way to read
     /// back a server-generated identity value from a plain INSERT. Surrogate keys used only to
     /// correlate rows within a single request (e.g. TRUV_EMPLOYER_ID, EMPLOYMENT_DETAIL_ID,
@@ -33,7 +40,7 @@ namespace MES_EDWS.Services
     /// MWR_STATUS_END_DT; MWRP_CE_CIRCUMSTANCE_DETAIL.ENROLLED_FOR_TANF_IND -> COMPLY_WITH_TANF_WORK_IND;
     /// MWRP_CE_CBC_TYPE_DETAILS.MA_BEGIN_DATE/MA_END_DATE -> BEGIN_DATE/END_DATE;
     /// MWRP_CE_CARE_RECEIVED_DETAILS.TYPE_OF_CARE/PROVIDER_NAME -> TYPE_OF_CARE_CD/CARE_PROVIDER_NAME
-    /// (plus a new CARE_PROVIDER_ADDRESS column with no corresponding DTO field, left unpopulated);
+    /// (plus a new CARE_PROVIDER_ADDRESS column, mapped from CareReceivedDetailDTO.ProviderAddress);
     /// and the MWRP_CE_PROVIDER table was renamed MWRP_CE_PAYROLL_PROVIDER with
     /// PROVIDER_ID/PROVIDER_NAME/LOGO_URL -> PAYROLL_PROVIDER_ID/PAYROLL_PROVIDER_NAME/
     /// PAYROLL_PROVIDER_LOGO_URL (MWRP_CE_EMPLOYEE_PROFILE.LOGO_URL was renamed the same way).
@@ -46,69 +53,74 @@ namespace MES_EDWS.Services
         private readonly ILogger<ClientInfoService> _logger;
 
         private const string DataSource = "MES-EDWS";
-        //private const string Schema = "HR1_DMAS_POC";
-        //private const string Schema = "HR1_DMAS_SIT";
-        private const string Schema = "HR1_DMAS_UAT";
 
+        /// <summary>
+        /// Teradata database/schema for this environment (HR1_DMAS_POC / HR1_DMAS_SIT /
+        /// HR1_DMAS_UAT / HR1_DMAS), from Teradata:Schema in appsettings.{Environment}.json.
+        /// </summary>
+        private readonly string _schema;
 
+        // ── Table names (docs/HR1_DMAS_SIT_DDL's.txt) ───────────────────────────────
+        private string RequestTable                      => $"{_schema}.MWRP_CE_REQUEST";
+        private string DocumentTable                     => $"{_schema}.MWRP_CE_DOCUMENT";
+        private string VerifiedTable                     => $"{_schema}.MWRP_CE_VERIFIED";
+        private string RelationshipDetailsTable          => $"{_schema}.MWRP_CE_RELATIONSHIP_DETAILS";
+        private string RuleEvaluationResultTable         => $"{_schema}.MWRP_CE_RULE_EVALUATION_RESULT";
+        private string VeteranDisabilityCircumstanceTable => $"{_schema}.MWRP_CE_VETERAN_DISABILITY_CIRCUMSTANCE";
+        private string CircumstanceTable                 => $"{_schema}.MWRP_CE_CIRCUMSTANCE";
+        private string CircumstanceDetailTable           => $"{_schema}.MWRP_CE_CIRCUMSTANCE_DETAIL";
+        private string IncarceratedCircumstanceTable     => $"{_schema}.MWRP_CE_INCARCERATED_CIRCUMSTANCE";
+        private string PriorIncarcerationDetailTable     => $"{_schema}.MWRP_CE_PRIOR_INCARCERATION_DETAIL";
+        private string MedicarePartAbTable               => $"{_schema}.MWRP_CE_MEDICARE_PART_AB";
+        private string MedicarePartAbTplTable            => $"{_schema}.MWRP_CE_MEDICARE_PART_AB_TPL";
+        private string AmericanIndianAlaskanNativeTable  => $"{_schema}.MWRP_CE_AMERICAN_INDIAN_ALASKAN_NATIVE";
+        private string FrailtyTable                      => $"{_schema}.MWRP_CE_FRAILTY";
+        private string CbcTypeDetailsTable                => $"{_schema}.MWRP_CE_CBC_TYPE_DETAILS";
+        private string PregnancyTable                    => $"{_schema}.MWRP_CE_PREGNANCY";
+        private string CareGiverCircumstanceTable        => $"{_schema}.MWRP_CE_CARE_GIVER_CIRCUMSTANCE";
+        private string MonthlyHoursOfCareGivingTable     => $"{_schema}.MWRP_CE_MONTHLY_HOURS_OF_CARE_GIVING";
+        private string FosterCareTable                    => $"{_schema}.MWRP_CE_FOSTER_CARE";
+        private string FormerFosterCareTable             => $"{_schema}.MWRP_CE_FORMER_FOSTER_CARE";
+        private string DisabilityDetailsTable             => $"{_schema}.MWRP_CE_DISABILITY_DETAILS";
+        private string MedicalExemptionsTable             => $"{_schema}.MWRP_CE_MEDICAL_EXEMPTIONS";
+        private string CareReceivedDetailsTable           => $"{_schema}.MWRP_CE_CARE_RECEIVED_DETAILS";
+        private string TravelingOutsideTable              => $"{_schema}.MWRP_CE_TRAVELING_OUTSIDE";
+        private string SubstanceUseDisorderTreatmentTable => $"{_schema}.MWRP_CE_SUBSTANCE_USE_DISORDER_TREATMENT";
+        private string TreatmentDetailsTable              => $"{_schema}.MWRP_CE_TREATMENT_DETAILS";
+        private string LivingArrangementDetailsTable      => $"{_schema}.MWRP_CE_LIVING_ARRANGEMENT_DETAILS";
+        private string AidCategoryTable                  => $"{_schema}.MWRP_CE_AID_CATEGORY";
+        private string PhoneTable                        => $"{_schema}.MWRP_CE_PHONE";
+        private string AddressTable                      => $"{_schema}.MWRP_CE_ADDRESS";
+        private string MagiIncomeBudgetTable             => $"{_schema}.MWRP_CE_MAGI_INCOME_BUDGET";
+        private string EvEdgIncomeBudgetTable            => $"{_schema}.MWRP_CE_EV_EDG_INCOME_BUDGET";
+        private string EvIndvIncomeBudgetTable           => $"{_schema}.MWRP_CE_EV_INDV_INCOME_BUDGET";
+        private string BudgetGroupMemberTable            => $"{_schema}.MWRP_CE_BUDGET_GROUP_MEMBER";
+        private string IncomeBudgetDetailsTable          => $"{_schema}.MWRP_CE_INCOME_BUDGET_DETAILS";
+        private string IncomeDetailsTable                => $"{_schema}.MWRP_CE_INCOME_DETAILS";
+        private string TruvEmployerTable                 => $"{_schema}.MWRP_CE_TRUV_EMPLOYER";
+        private string ProviderTable                     => $"{_schema}.MWRP_CE_PAYROLL_PROVIDER";
+        private string EmploymentDetailTable             => $"{_schema}.MWRP_CE_EMPLOYMENT_DETAIL";
+        private string EmployeeProfileTable              => $"{_schema}.MWRP_CE_EMPLOYEE_PROFILE";
+        private string PayStatementTable                 => $"{_schema}.MWRP_CE_PAY_STATEMENT";
+        private string AnnualIncomeTable                 => $"{_schema}.MWRP_CE_ANNUAL_INCOME";
+        private string ElectronicallyVerifiedEmpTable    => $"{_schema}.MWRP_CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT";
+        private string JobTrainingTable                  => $"{_schema}.MWRP_CE_JOB_TRAINING";
+        private string InKindUnpaidWorkTable             => $"{_schema}.MWRP_CE_INKIND_UNPAID_WORK";
+        private string VolunteeringCommunityServiceTable => $"{_schema}.MWRP_CE_VOLUNTEERING_COMMUNITY_SERVICE";
+        private string EducationVerifiedTable            => $"{_schema}.MWRP_CE_EDUCATION_VERIFIED";
+        private string NscEnrollmentTable                => $"{_schema}.MWRP_CE_NSC_ENROLLMENT";
+        private string NscEnrollmentDataTable            => $"{_schema}.MWRP_CE_NSC_ENROLLMENT_DATA";
+        private string CoursesOfStudyTable               => $"{_schema}.MWRP_CE_COURSES_OF_STUDY";
+        private string ResponseTable                     => $"{_schema}.MWRP_CE_RESPONSE";
 
-        // ── Table names (docs/Table_v17.txt) ────────────────────────────────────────
-        private const string RequestTable                      = Schema + ".MWRP_CE_REQUEST";
-        private const string DocumentTable                     = Schema + ".MWRP_CE_DOCUMENT";
-        private const string VerifiedTable                     = Schema + ".MWRP_CE_VERIFIED";
-        private const string RelationshipDetailsTable          = Schema + ".MWRP_CE_RELATIONSHIP_DETAILS";
-        private const string RuleEvaluationResultTable         = Schema + ".MWRP_CE_RULE_EVALUATION_RESULT";
-        private const string VeteranDisabilityCircumstanceTable = Schema + ".MWRP_CE_VETERAN_DISABILITY_CIRCUMSTANCE";
-        private const string CircumstanceTable                 = Schema + ".MWRP_CE_CIRCUMSTANCE";
-        private const string CircumstanceDetailTable           = Schema + ".MWRP_CE_CIRCUMSTANCE_DETAIL";
-        private const string IncarceratedCircumstanceTable     = Schema + ".MWRP_CE_INCARCERATED_CIRCUMSTANCE";
-        private const string PriorIncarcerationDetailTable     = Schema + ".MWRP_CE_PRIOR_INCARCERATION_DETAIL";
-        private const string MedicarePartAbTable               = Schema + ".MWRP_CE_MEDICARE_PART_AB";
-        private const string MedicarePartAbTplTable            = Schema + ".MWRP_CE_MEDICARE_PART_AB_TPL";
-        private const string AmericanIndianAlaskanNativeTable  = Schema + ".MWRP_CE_AMERICAN_INDIAN_ALASKAN_NATIVE";
-        private const string FrailtyTable                      = Schema + ".MWRP_CE_FRAILTY";
-        private const string CbcTypeDetailsTable                = Schema + ".MWRP_CE_CBC_TYPE_DETAILS";
-        private const string PregnancyTable                    = Schema + ".MWRP_CE_PREGNANCY";
-        private const string CareGiverCircumstanceTable        = Schema + ".MWRP_CE_CARE_GIVER_CIRCUMSTANCE";
-        private const string MonthlyHoursOfCareGivingTable     = Schema + ".MWRP_CE_MONTHLY_HOURS_OF_CARE_GIVING";
-        private const string FosterCareTable                    = Schema + ".MWRP_CE_FOSTER_CARE";
-        private const string FormerFosterCareTable             = Schema + ".MWRP_CE_FORMER_FOSTER_CARE";
-        private const string DisabilityDetailsTable             = Schema + ".MWRP_CE_DISABILITY_DETAILS";
-        private const string MedicalExemptionsTable             = Schema + ".MWRP_CE_MEDICAL_EXEMPTIONS";
-        private const string CareReceivedDetailsTable           = Schema + ".MWRP_CE_CARE_RECEIVED_DETAILS";
-        private const string TravelingOutsideTable              = Schema + ".MWRP_CE_TRAVELING_OUTSIDE";
-        private const string SubstanceUseDisorderTreatmentTable = Schema + ".MWRP_CE_SUBSTANCE_USE_DISORDER_TREATMENT";
-        private const string TreatmentDetailsTable              = Schema + ".MWRP_CE_TREATMENT_DETAILS";
-        private const string LivingArrangementDetailsTable      = Schema + ".MWRP_CE_LIVING_ARRANGEMENT_DETAILS";
-        private const string AidCategoryTable                  = Schema + ".MWRP_CE_AID_CATEGORY";
-        private const string PhoneTable                        = Schema + ".MWRP_CE_PHONE";
-        private const string AddressTable                      = Schema + ".MWRP_CE_ADDRESS";
-        private const string MagiIncomeBudgetTable             = Schema + ".MWRP_CE_MAGI_INCOME_BUDGET";
-        private const string EvEdgIncomeBudgetTable            = Schema + ".MWRP_CE_EV_EDG_INCOME_BUDGET";
-        private const string EvIndvIncomeBudgetTable           = Schema + ".MWRP_CE_EV_INDV_INCOME_BUDGET";
-        private const string BudgetGroupMemberTable            = Schema + ".MWRP_CE_BUDGET_GROUP_MEMBER";
-        private const string IncomeBudgetDetailsTable          = Schema + ".MWRP_CE_INCOME_BUDGET_DETAILS";
-        private const string IncomeDetailsTable                = Schema + ".MWRP_CE_INCOME_DETAILS";
-        private const string TruvEmployerTable                 = Schema + ".MWRP_CE_TRUV_EMPLOYER";
-        private const string ProviderTable                     = Schema + ".MWRP_CE_PAYROLL_PROVIDER";
-        private const string EmploymentDetailTable             = Schema + ".MWRP_CE_EMPLOYMENT_DETAIL";
-        private const string EmployeeProfileTable              = Schema + ".MWRP_CE_EMPLOYEE_PROFILE";
-        private const string PayStatementTable                 = Schema + ".MWRP_CE_PAY_STATEMENT";
-        private const string AnnualIncomeTable                 = Schema + ".MWRP_CE_ANNUAL_INCOME";
-        private const string ElectronicallyVerifiedEmpTable    = Schema + ".MWRP_CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT";
-        private const string JobTrainingTable                  = Schema + ".MWRP_CE_JOB_TRAINING";
-        private const string InKindUnpaidWorkTable             = Schema + ".MWRP_CE_INKIND_UNPAID_WORK";
-        private const string VolunteeringCommunityServiceTable = Schema + ".MWRP_CE_VOLUNTEERING_COMMUNITY_SERVICE";
-        private const string EducationVerifiedTable            = Schema + ".MWRP_CE_EDUCATION_VERIFIED";
-        private const string NscEnrollmentTable                = Schema + ".MWRP_CE_NSC_ENROLLMENT";
-        private const string NscEnrollmentDataTable            = Schema + ".MWRP_CE_NSC_ENROLLMENT_DATA";
-        private const string CoursesOfStudyTable               = Schema + ".MWRP_CE_COURSES_OF_STUDY";
-        private const string ResponseTable                     = Schema + ".MWRP_CE_RESPONSE";
-
-        public ClientInfoService(IConfiguration configuration, ILogger<ClientInfoService> logger)
+        public ClientInfoService(
+            IConfiguration configuration,
+            IOptions<TeradataOptions> teradataOptions,
+            ILogger<ClientInfoService> logger)
         {
             _connectionString = configuration.GetConnectionString("TeradataConnection")
                 ?? throw new InvalidOperationException("TeradataConnection connection string is not configured.");
+            _schema = teradataOptions.Value.Schema;
             _logger = logger;
         }
 
@@ -190,7 +202,7 @@ namespace MES_EDWS.Services
         // REQUEST_TIMESTAMP receives the raw "requestTimestamp" string from the payload
         // (e.g. "2026-10-06T14:30:00-04:00") with no DateTime conversion.
 
-        private static async Task InsertRequestAsync(
+        private async Task InsertRequestAsync(
             TdConnection connection, TdTransaction transaction, CepDWRequestDTO request)
         {
             var sql =
@@ -216,7 +228,7 @@ namespace MES_EDWS.Services
         // CLIENT_ID here comes from each documentsUploadedIn[].clientId (a document may belong
         // to any client on the case), not from ceVerified[].clientId.
 
-        private static async Task InsertDocumentsAsync(
+        private async Task InsertDocumentsAsync(
             TdConnection connection, TdTransaction transaction, string requestSequenceNumber, List<DocumentUploadDTO> documents)
         {
             var sql =
@@ -327,7 +339,7 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_RELATIONSHIP_DETAILS ──────────────────────────────────────────
 
-        private static async Task InsertRelationshipDetailsAsync(
+        private async Task InsertRelationshipDetailsAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<RelationshipDetailDTO> relationships)
         {
             var sql =
@@ -349,7 +361,7 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_RULE_EVALUATION_RESULT ────────────────────────────────────────
 
-        private static async Task InsertRulesEvaluationResultsAsync(
+        private async Task InsertRulesEvaluationResultsAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<RuleEvaluationResultDTO> rules)
         {
             var sql =
@@ -368,7 +380,7 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_AID_CATEGORY ───────────────────────────────────────────────────
 
-        private static async Task InsertAidCategoriesAsync(
+        private async Task InsertAidCategoriesAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<AidCategoryDTO> aidCategories)
         {
             var sql =
@@ -396,7 +408,7 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_PHONE ──────────────────────────────────────────────────────────
 
-        private static async Task InsertPhonesAsync(
+        private async Task InsertPhonesAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<PhoneDataDTO> phones)
         {
             var sql =
@@ -422,7 +434,7 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_ADDRESS ────────────────────────────────────────────────────────
 
-        private static async Task InsertAddressesAsync(
+        private async Task InsertAddressesAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<AddressDTO> addresses)
         {
             var sql =
@@ -806,20 +818,20 @@ namespace MES_EDWS.Services
         // Shared child table for both medicalExemptions[] and travelingOutside[]; has no
         // FK back to its parent in docs/Table_v17.txt, so rows are simply scoped by client.
 
-        private static async Task InsertCareReceivedDetailsAsync(
+        private async Task InsertCareReceivedDetailsAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<CareReceivedDetailDTO> careReceivedDetails)
         {
             var sql =
                 $"INSERT INTO {CareReceivedDetailsTable} " +
                 "(CLIENT_IDENTIFICATION_NBR, TYPE_OF_CARE_CD, START_DATE, END_DATE, CARE_PROVIDER_NAME, " +
-                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "CARE_PROVIDER_ADDRESS, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             foreach (var careReceived in careReceivedDetails)
             {
                 await ExecuteAsync(connection, transaction, sql,
                     clientId, careReceived.TypeOfCare, ToDbDate(careReceived.StartDate),
-                    ToDbDate(careReceived.EndDate), careReceived.ProviderName,
+                    ToDbDate(careReceived.EndDate), careReceived.ProviderName, careReceived.ProviderAddress,
                     DataSource, DateTime.Today);
             }
         }
@@ -827,7 +839,7 @@ namespace MES_EDWS.Services
         // ── MWRP_CE_CIRCUMSTANCE / MWRP_CE_CIRCUMSTANCE_DETAIL ────────────────────
         // Shared by both exemptions.circumstances[] and exemptions.circumstanceForExemption[].
 
-        private static async Task InsertCircumstancesAsync(
+        private async Task InsertCircumstancesAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<CircumstanceDTO> circumstances)
         {
             var circumstanceSql =
@@ -869,7 +881,7 @@ namespace MES_EDWS.Services
         // CARE_GIVER_ID is generated only to correlate the monthly-hours child rows
         // within this request; MWRP_CE_CARE_GIVER_CIRCUMSTANCE has no ID column of its own.
 
-        private static async Task InsertCaregiversAsync(
+        private async Task InsertCaregiversAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<CaregiverExemptionDTO> caregivers)
         {
             var sql =
@@ -895,7 +907,7 @@ namespace MES_EDWS.Services
             }
         }
 
-        private static async Task InsertCaregiverMonthlyHoursAsync(
+        private async Task InsertCaregiverMonthlyHoursAsync(
             TdConnection connection, TdTransaction transaction, string clientId, long careGiverId,
             List<CaregiverMonthlyHoursDTO> monthlyHours)
         {
@@ -953,7 +965,7 @@ namespace MES_EDWS.Services
         // id is generated only so the Truv employer tree below can share the same
         // CLIENT_IDENTIFICATION_NBR-scoped insert pattern as the rest of the file.
 
-        private static async Task InsertEmploymentAsync(
+        private async Task InsertEmploymentAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<EmploymentEntryDTO> employments)
         {
             var employmentSql =
@@ -1002,7 +1014,7 @@ namespace MES_EDWS.Services
         // ── MWRP_CE_JOB_TRAINING / MWRP_CE_INKIND_UNPAID_WORK ─────────────────────
         // Identical shape apart from PROGRAM_TYPE, which only exists on JOB_TRAINING.
 
-        private static async Task InsertJobTrainingLikeAsync(
+        private async Task InsertJobTrainingLikeAsync(
             TdConnection connection, TdTransaction transaction, string table,
             string clientId, List<JobTrainingEntryDTO> entries, bool includeProgramType)
         {
@@ -1040,7 +1052,7 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_VOLUNTEERING_COMMUNITY_SERVICE ─────────────────────────────────
 
-        private static async Task InsertVolunteeringAsync(
+        private async Task InsertVolunteeringAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<VolunteeringEntryDTO> volunteerings)
         {
             var sql =
@@ -1064,7 +1076,7 @@ namespace MES_EDWS.Services
         // ── MWRP_CE_EDUCATION_VERIFIED / MWRP_CE_NSC_ENROLLMENT / MWRP_CE_NSC_ENROLLMENT_DATA /
         //    MWRP_CE_COURSES_OF_STUDY ────────────────────────────────────────────────
 
-        private static async Task InsertEducationAsync(
+        private async Task InsertEducationAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<EducationEntryDTO> educationEntries)
         {
             var educationSql =
@@ -1132,7 +1144,7 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT ─────────────────────────────
 
-        private static async Task InsertElectronicallyVerifiedEmploymentAsync(
+        private async Task InsertElectronicallyVerifiedEmploymentAsync(
             TdConnection connection, TdTransaction transaction, string clientId,
             List<ElectronicallyVerifiedEmploymentDTO> summaries)
         {
@@ -1156,7 +1168,7 @@ namespace MES_EDWS.Services
         // already identified via CLIENT_IDENTIFICATION_NBR, so IndvIncomeBudgetDTO.ClientId
         // has nowhere to go and is intentionally not persisted.
 
-        private static async Task InsertIndvIncomeBudgetAsync(
+        private async Task InsertIndvIncomeBudgetAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<IndvIncomeBudgetDTO> budgets)
         {
             var sql =
@@ -1176,7 +1188,7 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_EV_EDG_INCOME_BUDGET / MWRP_CE_MAGI_INCOME_BUDGET (identical shape) ─
 
-        private static async Task InsertEdgIncomeBudgetAsync(
+        private async Task InsertEdgIncomeBudgetAsync(
             TdConnection connection, TdTransaction transaction, string table,
             string clientId, List<EdgIncomeBudgetDTO> budgets)
         {
@@ -1197,7 +1209,7 @@ namespace MES_EDWS.Services
         // ── MWRP_CE_BUDGET_GROUP_MEMBER ────────────────────────────────────────────
         // No CLIENT_ID column here; ELIG_PART_STATUS_CD is VARCHAR(50) and stores the raw status string.
 
-        private static async Task InsertBudgetGroupMembersAsync(
+        private async Task InsertBudgetGroupMembersAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<BudgetGroupMemberDTO> members)
         {
             var sql =
@@ -1222,7 +1234,7 @@ namespace MES_EDWS.Services
         // child rows within this one save operation and are never written back onto
         // their own parent row.
 
-        private static async Task InsertTruvEmployersAsync(
+        private async Task InsertTruvEmployersAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<TruvEmployerDTO> truvEmployers)
         {
             var truvEmployerSql =
@@ -1326,7 +1338,7 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_RESPONSE ───────────────────────────────────────────────────────
 
-        private static async Task InsertResponseAsync(
+        private async Task InsertResponseAsync(
             TdConnection connection, TdTransaction transaction, long ackRowId, CepDWRequestDTO request,
             CepDWAckResponseDTO response)
         {

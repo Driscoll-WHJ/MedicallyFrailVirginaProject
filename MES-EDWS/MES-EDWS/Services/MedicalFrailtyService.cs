@@ -1,4 +1,6 @@
 using MES_EDWS.Models;
+using MES_EDWS.Options;
+using Microsoft.Extensions.Options;
 using Teradata.Client.Provider;
 
 namespace MES_EDWS.Services
@@ -9,14 +11,13 @@ namespace MES_EDWS.Services
         private readonly ILogger<MedicalFrailtyService> _logger;
 
         private const string DataSource = "MES-EDWS";
-        //private const string Schema = "HR1_DMAS_POC";
-        //private const string Schema = "HR1_DMAS_SIT";
-         private const string Schema = "HR1_DMAS_UAT";
 
         // ── Table names ────────────────────────────────────────────────────────────
-        private const string MembersTable  = Schema + ".HR1_MEDICALLY_FRAIL_MEMBERS";
-        private const string RequestTable  = Schema + ".HR1_MEDICALLY_FRAIL_REQUEST";
-        private const string ResponseTable = Schema + ".HR1_MEDICALLY_FRAIL_RESPONSE";
+        // Schema comes from Teradata:Schema in appsettings.{Environment}.json
+        // (HR1_DMAS_POC / HR1_DMAS_SIT / HR1_DMAS_UAT / HR1_DMAS).
+        private readonly string MembersTable;
+        private readonly string RequestTable;
+        private readonly string ResponseTable;
 
         // ── HR1_MEDICALLY_FRAIL_MEMBERS columns ────────────────────────────────────
         private const string MCol_MmisEnrolleeId   = "MMIS_ENROLLEE_ID";
@@ -47,11 +48,19 @@ namespace MES_EDWS.Services
         private const string RsCol_Datasource        = "EDWS_DATASOURCE";
         private const string RsCol_DateInsert        = "EDWS_DATE_INSERT";
 
-        public MedicalFrailtyService(IConfiguration configuration, ILogger<MedicalFrailtyService> logger)
+        public MedicalFrailtyService(
+            IConfiguration configuration,
+            IOptions<TeradataOptions> teradataOptions,
+            ILogger<MedicalFrailtyService> logger)
         {
             _connectionString = configuration.GetConnectionString("TeradataConnection")
                 ?? throw new InvalidOperationException("TeradataConnection connection string is not configured.");
             _logger = logger;
+
+            var teradata  = teradataOptions.Value;
+            MembersTable  = teradata.Table("HR1_MEDICALLY_FRAIL_MEMBERS");
+            RequestTable  = teradata.Table("HR1_MEDICALLY_FRAIL_REQUEST");
+            ResponseTable = teradata.Table("HR1_MEDICALLY_FRAIL_RESPONSE");
         }
 
         // ── Lookup ─────────────────────────────────────────────────────────────────
