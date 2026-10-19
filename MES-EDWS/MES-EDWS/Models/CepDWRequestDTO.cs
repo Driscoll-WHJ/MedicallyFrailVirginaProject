@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -37,12 +38,16 @@ namespace MES_EDWS.Models
     public class CepDWRequestDTO
     {
         /// <summary>
-        /// Kept as the raw string sent by CEP (e.g. "2026-10-06T14:30:00-04:00") and written to
-        /// MWRP_CE_REQUEST.REQUEST_TIMESTAMP as-is; no DateTime round-trip, so the offset is preserved.
+        /// Raw string sent by CEP (e.g. "2026-10-06T14:30:00-04:00"). MWRP_CE_REQUEST.REQUEST_TIMESTAMP
+        /// is TIMESTAMP(6) WITH TIME ZONE, so it is written via <see cref="TryGetRequestTimestamp"/>
+        /// as a DateTimeOffset, which preserves the offset.
         /// </summary>
         [Required]
         [JsonPropertyName("requestTimestamp")]
         public string Timestamp { get; set; } = string.Empty;
+
+        public bool TryGetRequestTimestamp(out DateTimeOffset value) =>
+            DateTimeOffset.TryParse(Timestamp, CultureInfo.InvariantCulture, DateTimeStyles.None, out value);
 
         [Required]
         [JsonPropertyName("requestSequenceNumber")]
@@ -69,6 +74,18 @@ namespace MES_EDWS.Models
         /// <summary>Renamed from "documentsUploadedInMWRP" to "documentsUploadedIn" in the v1.7.3 payload.</summary>
         [JsonPropertyName("documentsUploadedIn")]
         public List<DocumentUploadDTO>? DocumentsUploadedIn { get; set; }
+
+        /// <summary>
+        /// Pre-v1.7.3 name of <see cref="DocumentsUploadedIn"/>, still sent by docs/SamplePayload.json.
+        /// Without it those documents bind to nothing and MWRP_CE_DOCUMENT stays empty.
+        /// </summary>
+        [JsonPropertyName("documentsUploadedInMWRP")]
+        public List<DocumentUploadDTO>? DocumentsUploadedInMwrp { get; set; }
+
+        /// <summary>Documents from both the current and the legacy segment name.</summary>
+        public IEnumerable<DocumentUploadDTO> AllDocumentsUploaded() =>
+            (DocumentsUploadedIn ?? Enumerable.Empty<DocumentUploadDTO>())
+                .Concat(DocumentsUploadedInMwrp ?? Enumerable.Empty<DocumentUploadDTO>());
 
         /// <summary>
         /// docs/SamplePayload.json sends "ceVerified" as an ARRAY (one entry per client on the

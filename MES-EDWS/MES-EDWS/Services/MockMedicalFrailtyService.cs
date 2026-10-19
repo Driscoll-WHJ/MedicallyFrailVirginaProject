@@ -79,7 +79,7 @@ namespace MES_EDWS.Services
             return Task.FromResult<MedicalFrailtyRecord?>(null);
         }
 
-        public Task SaveRequestAsync(string requestId, string? mmisEnrolleeId, string? ssn)
+        public Task SaveRequestAsync(string? requestId, string? mmisEnrolleeId, string? ssn)
         {
             _logger.LogInformation(
                 "[MOCK] SaveRequest — RequestId: {RequestId}, MmisEnrolleeId: {MmisEnrolleeId}",
@@ -88,16 +88,24 @@ namespace MES_EDWS.Services
         }
 
         public Task SaveResponseAsync(
-            string requestId,
-            string medicallyFrail,
+            string? requestId,
+            string? medicallyFrail,
             string? circumstanceStartDate,
             string? circumstanceEndDate,
-            string? errorCode,
-            string? errorMessage)
+            string? code,
+            string? message)
         {
             _logger.LogInformation(
                 "[MOCK] SaveResponse — RequestId: {RequestId}, MedicallyFrail: {MedicallyFrail}",
                 requestId, medicallyFrail);
+            return Task.CompletedTask;
+        }
+
+        public Task SaveApiAuditAsync(ApiAudit audit)
+        {
+            _logger.LogInformation(
+                "[MOCK] SaveApiAudit — RequestId: {RequestId}, TransactionId: {TransactionId}, StatusCode: {StatusCode}",
+                audit.RequestId, audit.TransactionId, audit.StatusCode);
             return Task.CompletedTask;
         }
     }

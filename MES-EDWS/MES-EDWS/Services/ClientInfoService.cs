@@ -14,8 +14,14 @@ namespace MES_EDWS.Services
     /// the schema's flat, per-client table design. The whole payload is written inside
     /// one transaction so a partially-saved request is never left behind.
     ///
-    /// NOTE: MWRP_CE_REQUEST.REQUEST_TIMESTAMP is VARCHAR(100) in the SIT DDL, so the raw
-    /// "requestTimestamp" string from the payload is stored verbatim (no DateTime conversion).
+    /// NOTE: MWRP_CE_REQUEST.REQUEST_TIMESTAMP is TIMESTAMP(6) WITH TIME ZONE in
+    /// docs/UpdatedSQL/ClientInfoTables.txt, so "requestTimestamp" is parsed to a DateTimeOffset
+    /// (offset preserved) rather than sent as the raw ISO-8601 string.
+    ///
+    /// NOTE: when the controller finds required fields missing it still calls
+    /// <see cref="SavePartialCeVerificationResultsAsync"/>. Rows whose NOT NULL key is absent are
+    /// skipped: MWRP_CE_REQUEST / MWRP_CE_VERIFIED without REQUEST_SEQ_NBR, and every
+    /// CLIENT_IDENTIFICATION_NBR-keyed table for a ceVerified[] entry without clientId.
     ///
     /// NOTE: the DDL does not declare GENERATED ALWAYS AS IDENTITY on any
     /// primary key, and the Teradata.Client.Provider ODBC driver has no reliable way to read
@@ -112,6 +118,9 @@ namespace MES_EDWS.Services
         private string NscEnrollmentDataTable            => $"{_schema}.MWRP_CE_NSC_ENROLLMENT_DATA";
         private string CoursesOfStudyTable               => $"{_schema}.MWRP_CE_COURSES_OF_STUDY";
         private string ResponseTable                     => $"{_schema}.MWRP_CE_RESPONSE";
+        private string ApiTransactionTable               => $"{_schema}.MWRP_CE_API_TRANSACTION";
+        private string ApiRequestTable                   => $"{_schema}.MWRP_CE_API_REQUEST";
+        private string ApiResponseTable                  => $"{_schema}.MWRP_CE_API_RESPONSE";
 
         public ClientInfoService(
             IConfiguration configuration,
@@ -126,13 +135,16 @@ namespace MES_EDWS.Services
 
         // ── Entry point ────────────────────────────────────────────────────────────
 
-        public async Task<CepDWAckResponseDTO> SaveCeVerificationResultsAsync(CepDWRequestDTO request)
-        {
-            if (request.CeVerified is not { Count: > 0 })
-                throw new InvalidOperationException("ceVerified must contain at least one entry.");
+        public async Task<CepDWAckResponseDTO> SaveCeVerificationResultsAsync(CepDWRequestDTO request) =>
+            await SaveAsync(request, acknowledge: true)
+                ?? throw new InvalidOperationException("Acknowledgement was not produced.");
 
-            var primaryClientId = request.CeVerified[0].ClientIdentificationNumber
-                ?? throw new InvalidOperationException("ceVerified[0].clientId is required.");
+        public async Task SavePartialCeVerificationResultsAsync(CepDWRequestDTO request) =>
+            await SaveAsync(request, acknowledge: false);
+
+        private async Task<CepDWAckResponseDTO?> SaveAsync(CepDWRequestDTO request, bool acknowledge)
+        {
+            var requestSequenceNumber = NullIfWhiteSpace(request.RequestSequenceNumber);
             var ackRowId = NewId();
 
             await using var connection = new TdConnection(_connectionString);
@@ -142,42 +154,61 @@ namespace MES_EDWS.Services
 
             try
             {
-                await InsertRequestAsync(connection, transaction, request);
+                if (requestSequenceNumber != null)
+                    await InsertRequestAsync(connection, transaction, request);
+                else
+                    _logger.LogWarning(
+                        "requestSequenceNumber missing — MWRP_CE_REQUEST and MWRP_CE_VERIFIED rows skipped. CaseNumber: {CaseNumber}",
+                        request.CaseNumber);
 
-                if (request.DocumentsUploadedIn is { Count: > 0 } documents)
-                    await InsertDocumentsAsync(connection, transaction, request.RequestSequenceNumber, documents);
+                var documents = request.AllDocumentsUploaded().ToList();
+                if (documents.Count > 0)
+                    await InsertDocumentsAsync(connection, transaction, requestSequenceNumber, documents);
 
-                foreach (var verified in request.CeVerified)
+                var verifiedEntries = request.CeVerified ?? new List<CeVerifiedDTO>();
+                for (var i = 0; i < verifiedEntries.Count; i++)
                 {
-                    var clientId = verified.ClientIdentificationNumber
-                        ?? throw new InvalidOperationException("ceVerified[].clientId is required.");
-                    await InsertVerifiedAsync(connection, transaction, clientId, request.RequestSequenceNumber, verified);
+                    var verified = verifiedEntries[i];
+                    var clientId = NullIfWhiteSpace(verified?.ClientIdentificationNumber);
+                    if (verified == null || clientId == null)
+                    {
+                        _logger.LogWarning(
+                            "ceVerified[{Index}].clientId missing — rows for this entry skipped. CaseNumber: {CaseNumber}",
+                            i, request.CaseNumber);
+                        continue;
+                    }
+
+                    await InsertVerifiedAsync(connection, transaction, clientId, requestSequenceNumber, verified);
                 }
 
-                var response = new CepDWAckResponseDTO
+                CepDWAckResponseDTO? response = null;
+                if (acknowledge)
                 {
-                    RequestSequenceNumber = request.RequestSequenceNumber,
-                    StateId               = request.State,
-                    RequestSource         = request.RequestSource,
-                    Acknowledgement       = new AcknowledgementDTO
+                    response = new CepDWAckResponseDTO
                     {
-                        Code             = "REQUEST_CREATED",
-                        Status           = "SUCCESS",
-                        Message          = "Request has been created successfully",
-                        NvhRequestId     = ackRowId.ToString(),
-                        CreatedTimestamp = DateTime.UtcNow
-                    }
-                };
+                        RequestSequenceNumber = request.RequestSequenceNumber,
+                        StateId               = request.State,
+                        RequestSource         = request.RequestSource,
+                        Acknowledgement       = new AcknowledgementDTO
+                        {
+                            Code             = "REQUEST_CREATED",
+                            Status           = "SUCCESS",
+                            Message          = "Request has been created successfully",
+                            NvhRequestId     = ackRowId.ToString(),
+                            CreatedTimestamp = DateTime.UtcNow
+                        }
+                    };
 
-                // Persist the same acknowledgement that is returned to the caller.
-                await InsertResponseAsync(connection, transaction, ackRowId, request, response);
+                    // Persist the same acknowledgement that is returned to the caller.
+                    await InsertResponseAsync(connection, transaction, ackRowId, request, response);
+                }
 
                 transaction.Commit();
 
                 _logger.LogInformation(
-                    "CE verification results saved to Teradata. AckRowId: {AckRowId}, " +
-                    "ClientIdentificationNbr: {ClientIdentificationNbr}, CaseNumber: {CaseNumber}",
-                    ackRowId, primaryClientId, request.CaseNumber);
+                    "CE verification results saved to Teradata. Acknowledged: {Acknowledged}, AckRowId: {AckRowId}, " +
+                    "RequestSequenceNumber: {RequestSequenceNumber}, Documents: {DocumentCount}, CaseNumber: {CaseNumber}",
+                    acknowledge, ackRowId, requestSequenceNumber, documents.Count, request.CaseNumber);
 
                 return response;
             }
@@ -192,15 +223,15 @@ namespace MES_EDWS.Services
 
                 _logger.LogError(ex,
                     "Failed to save CE verification results. AckRowId: {AckRowId}, " +
-                    "ClientIdentificationNbr: {ClientIdentificationNbr}, CaseNumber: {CaseNumber}",
-                    ackRowId, primaryClientId, request.CaseNumber);
+                    "RequestSequenceNumber: {RequestSequenceNumber}, CaseNumber: {CaseNumber}",
+                    ackRowId, requestSequenceNumber, request.CaseNumber);
                 throw;
             }
         }
 
         // ── MWRP_CE_REQUEST ────────────────────────────────────────────────────────
-        // REQUEST_TIMESTAMP receives the raw "requestTimestamp" string from the payload
-        // (e.g. "2026-10-06T14:30:00-04:00") with no DateTime conversion.
+        // REQUEST_TIMESTAMP is TIMESTAMP(6) WITH TIME ZONE; "requestTimestamp"
+        // (e.g. "2026-10-06T14:30:00-04:00") is sent as a DateTimeOffset.
 
         private async Task InsertRequestAsync(
             TdConnection connection, TdTransaction transaction, CepDWRequestDTO request)
@@ -213,7 +244,7 @@ namespace MES_EDWS.Services
                 "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             await ExecuteAsync(connection, transaction, sql,
-                request.Timestamp,
+                request.TryGetRequestTimestamp(out var requestTimestamp) ? (object)requestTimestamp : DBNull.Value,
                 request.RequestSequenceNumber,
                 request.State,
                 request.RequestSource,
@@ -226,10 +257,11 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_DOCUMENT ───────────────────────────────────────────────────────
         // CLIENT_ID here comes from each documentsUploadedIn[].clientId (a document may belong
-        // to any client on the case), not from ceVerified[].clientId.
+        // to any client on the case), not from ceVerified[].clientId. REQUEST_SEQ_NBR is nullable
+        // on this table, so documents are still saved when requestSequenceNumber is missing.
 
         private async Task InsertDocumentsAsync(
-            TdConnection connection, TdTransaction transaction, string requestSequenceNumber, List<DocumentUploadDTO> documents)
+            TdConnection connection, TdTransaction transaction, string? requestSequenceNumber, List<DocumentUploadDTO> documents)
         {
             var sql =
                 $"INSERT INTO {DocumentTable} " +
@@ -258,6 +290,35 @@ namespace MES_EDWS.Services
         // ── MWRP_CE_VERIFIED and everything hanging off it ─────────────────────────
 
         private async Task InsertVerifiedAsync(
+            TdConnection connection, TdTransaction transaction, string clientId, string? requestSequenceNumber, CeVerifiedDTO verified)
+        {
+            // REQUEST_SEQ_NBR is NOT NULL on MWRP_CE_VERIFIED; the child tables below only need clientId.
+            if (requestSequenceNumber != null)
+                await InsertVerifiedRowAsync(connection, transaction, clientId, requestSequenceNumber, verified);
+
+            if (verified.RelationshipDetails is { Count: > 0 } relationshipDetails)
+                await InsertRelationshipDetailsAsync(connection, transaction, clientId, relationshipDetails);
+
+            if (verified.RulesEvaluationResults is { Count: > 0 } rules)
+                await InsertRulesEvaluationResultsAsync(connection, transaction, clientId, rules);
+
+            if (verified.AidCategory is { Count: > 0 } aidCategories)
+                await InsertAidCategoriesAsync(connection, transaction, clientId, aidCategories);
+
+            if (verified.PhoneData is { Count: > 0 } phones)
+                await InsertPhonesAsync(connection, transaction, clientId, phones);
+
+            if (verified.Addresses is { Count: > 0 } addresses)
+                await InsertAddressesAsync(connection, transaction, clientId, addresses);
+
+            if (verified.Exemptions != null)
+                await InsertExemptionsAsync(connection, transaction, clientId, verified.Exemptions);
+
+            if (verified.Engagements != null)
+                await InsertEngagementsAsync(connection, transaction, clientId, verified.Engagements);
+        }
+
+        private async Task InsertVerifiedRowAsync(
             TdConnection connection, TdTransaction transaction, string clientId, string requestSequenceNumber, CeVerifiedDTO verified)
         {
             var sql =
@@ -314,27 +375,6 @@ namespace MES_EDWS.Services
                 verified.RelationshipWithHoh,
                 DataSource,
                 DateTime.Today);
-
-            if (verified.RelationshipDetails is { Count: > 0 } relationshipDetails)
-                await InsertRelationshipDetailsAsync(connection, transaction, clientId, relationshipDetails);
-
-            if (verified.RulesEvaluationResults is { Count: > 0 } rules)
-                await InsertRulesEvaluationResultsAsync(connection, transaction, clientId, rules);
-
-            if (verified.AidCategory is { Count: > 0 } aidCategories)
-                await InsertAidCategoriesAsync(connection, transaction, clientId, aidCategories);
-
-            if (verified.PhoneData is { Count: > 0 } phones)
-                await InsertPhonesAsync(connection, transaction, clientId, phones);
-
-            if (verified.Addresses is { Count: > 0 } addresses)
-                await InsertAddressesAsync(connection, transaction, clientId, addresses);
-
-            if (verified.Exemptions != null)
-                await InsertExemptionsAsync(connection, transaction, clientId, verified.Exemptions);
-
-            if (verified.Engagements != null)
-                await InsertEngagementsAsync(connection, transaction, clientId, verified.Engagements);
         }
 
         // ── MWRP_CE_RELATIONSHIP_DETAILS ──────────────────────────────────────────
@@ -1374,7 +1414,69 @@ namespace MES_EDWS.Services
                 DateTime.Today);
         }
 
+        // ── MWRP_CE_API_TRANSACTION / MWRP_CE_API_REQUEST / MWRP_CE_API_RESPONSE ──
+        // Own connection and transaction, so the audit survives a rollback of the payload save.
+        // TRANSACTION_ID is the per-call GUID in all three tables; CORRELATION_ID / REQUEST_ID /
+        // RESPONSE_ID carry the caller's requestSequenceNumber.
+
+        public async Task SaveApiAuditAsync(ApiAudit audit)
+        {
+            var transactionSql =
+                $"INSERT INTO {ApiTransactionTable} " +
+                "(TRANSACTION_ID, CORRELATION_ID, API_NAME, REQUEST_TIME, RESPONSE_TIME, HTTP_METHOD, STATUS_CODE, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            var requestSql =
+                $"INSERT INTO {ApiRequestTable} " +
+                "(REQUEST_ID, TRANSACTION_ID, REQUEST_JSON, CREATED_TS, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
+
+            var responseSql =
+                $"INSERT INTO {ApiResponseTable} " +
+                "(RESPONSE_ID, TRANSACTION_ID, RESPONSE_JSON, CREATED_TS, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
+
+            try
+            {
+                await using var connection = new TdConnection(_connectionString);
+                await connection.OpenAsync();
+
+                await using var transaction = connection.BeginTransaction();
+
+                await ExecuteAsync(connection, transaction, transactionSql,
+                    audit.TransactionId, audit.RequestId, audit.ApiName,
+                    audit.RequestTime, audit.ResponseTime, audit.HttpMethod, audit.StatusCode,
+                    DataSource, DateTime.Today);
+
+                await ExecuteAsync(connection, transaction, requestSql,
+                    audit.RequestId, audit.TransactionId, NullIfWhiteSpace(audit.RequestJson), audit.RequestTime,
+                    DataSource, DateTime.Today);
+
+                await ExecuteAsync(connection, transaction, responseSql,
+                    audit.RequestId, audit.TransactionId, NullIfWhiteSpace(audit.ResponseJson), audit.ResponseTime,
+                    DataSource, DateTime.Today);
+
+                transaction.Commit();
+
+                _logger.LogInformation(
+                    "API audit saved to Teradata. TransactionId: {TransactionId}, RequestSequenceNumber: {RequestId}, StatusCode: {StatusCode}",
+                    audit.TransactionId, audit.RequestId, audit.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Failed to save API audit to Teradata. TransactionId: {TransactionId}, RequestSequenceNumber: {RequestId}",
+                    audit.TransactionId, audit.RequestId);
+            }
+        }
+
         // ── Helpers ────────────────────────────────────────────────────────────────
+
+        private static string? NullIfWhiteSpace(string? value) =>
+            string.IsNullOrWhiteSpace(value) ? null : value;
 
         private static async Task ExecuteAsync(
             TdConnection connection, TdTransaction transaction, string sql, params object?[] values)

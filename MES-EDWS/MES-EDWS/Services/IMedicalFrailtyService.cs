@@ -16,18 +16,24 @@ namespace MES_EDWS.Services
         /// Persists the inbound API request to HR1_MEDICALLY_FRAIL_REQUEST.
         /// Failures are logged but do not abort the caller.
         /// </summary>
-        Task SaveRequestAsync(string requestId, string? mmisEnrolleeId, string? ssn);
+        Task SaveRequestAsync(string? requestId, string? mmisEnrolleeId, string? ssn);
 
         /// <summary>
         /// Persists the outbound API response to HR1_MEDICALLY_FRAIL_RESPONSE.
         /// Failures are logged but do not abort the caller.
         /// </summary>
         Task SaveResponseAsync(
-            string requestId,
-            string medicallyFrail,
+            string? requestId,
+            string? medicallyFrail,
             string? circumstanceStartDate,
             string? circumstanceEndDate,
-            string? errorCode,
-            string? errorMessage);
+            string? code,
+            string? message);
+
+        /// <summary>
+        /// Persists one API call to MWRP_CE_MED_FRAIL_API_TRANSACTION, MWRP_CE_MED_FRAIL_API_REQUEST
+        /// and MWRP_CE_MED_FRAIL_API_RESPONSE. Failures are logged but do not abort the caller.
+        /// </summary>
+        Task SaveApiAuditAsync(ApiAudit audit);
     }
 }

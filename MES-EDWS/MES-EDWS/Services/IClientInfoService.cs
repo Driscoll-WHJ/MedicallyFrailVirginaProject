@@ -13,5 +13,17 @@ namespace MES_EDWS.Services
         /// Returns the acknowledgement response that was also persisted to MWRP_CE_RESPONSE.
         /// </summary>
         Task<CepDWAckResponseDTO> SaveCeVerificationResultsAsync(CepDWRequestDTO request);
+
+        /// <summary>
+        /// Persists whatever a payload with missing required fields does contain, skipping rows
+        /// whose NOT NULL key is absent. No acknowledgement is written to MWRP_CE_RESPONSE.
+        /// </summary>
+        Task SavePartialCeVerificationResultsAsync(CepDWRequestDTO request);
+
+        /// <summary>
+        /// Persists one API call to MWRP_CE_API_TRANSACTION, MWRP_CE_API_REQUEST and
+        /// MWRP_CE_API_RESPONSE. Failures are logged but do not abort the caller.
+        /// </summary>
+        Task SaveApiAuditAsync(ApiAudit audit);
     }
 }

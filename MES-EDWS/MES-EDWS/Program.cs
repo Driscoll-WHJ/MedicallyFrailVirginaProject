@@ -1,3 +1,4 @@
+using MES_EDWS.Controllers;
 using MES_EDWS.Options;
 using MES_EDWS.Services;
 using Microsoft.Extensions.Options;
@@ -78,6 +79,18 @@ var app = builder.Build();
 }
 
 app.UseHttpsRedirection();
+
+// MedicallyFrailController / ClientInfoController store the raw request JSON in
+// MWRP_CE_MED_FRAIL_API_REQUEST / MWRP_CE_API_REQUEST, which requires re-reading the body
+// after model binding.
+app.UseWhen(
+    context => context.Request.Path.StartsWithSegments("/" + MedicallyFrailController.ApiRoute) ||
+               context.Request.Path.StartsWithSegments("/" + ClientInfoController.ApiRoute),
+    branch => branch.Use((context, next) =>
+    {
+        context.Request.EnableBuffering();
+        return next(context);
+    }));
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>
