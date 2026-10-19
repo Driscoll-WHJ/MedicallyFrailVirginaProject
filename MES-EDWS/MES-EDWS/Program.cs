@@ -1,6 +1,8 @@
 using MES_EDWS.Options;
 using MES_EDWS.Services;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +22,14 @@ builder.Services
 
 builder.Services
     .AddOptions<DeploymentOptions>()
-    .Bind(builder.Configuration.GetSection(DeploymentOptions.SectionName));
+    .Bind(builder.Configuration.GetSection(DeploymentOptions.SectionName))
+    .Validate(o => Uri.TryCreate(o.BaseUrl, UriKind.Absolute, out var url) &&
+        (url.Scheme == Uri.UriSchemeHttps || url.Scheme == Uri.UriSchemeHttp) &&
+        string.IsNullOrEmpty(url.Query) && string.IsNullOrEmpty(url.Fragment) &&
+        string.IsNullOrEmpty(url.UserInfo),
+        "Deployment:BaseUrl must be an absolute HTTP(S) URL without credentials, a query, or a fragment. " +
+        "Check ASPNETCORE_ENVIRONMENT and the matching appsettings.{Environment}.json.")
+    .ValidateOnStart();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -38,6 +47,22 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
 
+builder.Services.AddSwaggerGen();
+builder.Services.AddOptions<SwaggerGenOptions>()
+    .Configure<IOptions<DeploymentOptions>>((swagger, deployment) =>
+    {
+        swagger.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "MES-EDWS API",
+            Version = "v1"
+        });
+        swagger.AddServer(new OpenApiServer
+        {
+            Url = deployment.Value.BaseUrl!.TrimEnd('/'),
+            Description = builder.Environment.EnvironmentName
+        });
+    });
+
 builder.Services.AddScoped<IMedicalFrailtyService, MedicalFrailtyService>();
 builder.Services.AddScoped<IClientInfoService, ClientInfoService>();
 
@@ -53,6 +78,13 @@ var app = builder.Build();
 }
 
 app.UseHttpsRedirection();
+
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    // Relative to /swagger/ so IIS application paths such as /SIT are preserved.
+    options.SwaggerEndpoint("v1/swagger.json", "MES-EDWS API v1");
+});
 
 app.MapControllers();
 

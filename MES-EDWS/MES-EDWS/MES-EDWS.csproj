@@ -5,12 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MES_EDWS</RootNamespace>
-    <!-- This project does not use Swagger/OpenAPI (no AddOpenApi/AddSwaggerGen calls), so
-         the Web SDK's implicit OpenAPI document-generation build step isn't needed. -->
+    <!-- Swagger documents are generated at runtime using the environment's Deployment:BaseUrl. -->
     <OpenApiGenerateDocumentsOnBuild>false</OpenApiGenerateDocumentsOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
     <PackageReference Include="Teradata.Client.Provider" Version="20.0.9" />
   </ItemGroup>
 
