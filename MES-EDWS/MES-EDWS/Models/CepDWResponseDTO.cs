@@ -3,10 +3,25 @@ using System.Text.Json.Serialization;
 
 namespace MES_EDWS.Models
 {
+    /// <summary>
+    /// source / updateSw sent on every CEP-003 response DTO (ack and error) and persisted to the
+    /// matching MWRP_CE_RESPONSE / MWRP_CE_ERROR_* columns.
+    /// </summary>
+    public static class CepDWResponseDefaults
+    {
+        public const string Source   = "MES-EDWS";
+        public const string UpdateSw = "No";
+    }
+
     // ─── Success Response (HTTP 200) ─────────────────────────────────────────────
+    // CEP-003 ICD v1.7.3 "Acknowledgement Response": CepDWAckResponseDTO / AcknowledgementDTO.
 
     public class CepDWAckResponseDTO
     {
+        /// <summary>
+        /// Echoed from the request as sent. The ICD types this Integer here but String in the
+        /// request; it stays a string so non-numeric values echo back unchanged.
+        /// </summary>
         [JsonPropertyName("requestSequenceNumber")]
         public string RequestSequenceNumber { get; set; } = string.Empty;
 
@@ -18,6 +33,12 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("acknowledgement")]
         public AcknowledgementDTO Acknowledgement { get; set; } = new();
+
+        [JsonPropertyName("source")]
+        public string Source { get; set; } = CepDWResponseDefaults.Source;
+
+        [JsonPropertyName("updateSw")]
+        public string? UpdateSw { get; set; } = CepDWResponseDefaults.UpdateSw;
     }
 
     public class AcknowledgementDTO
@@ -33,58 +54,101 @@ namespace MES_EDWS.Models
         [JsonPropertyName("message")]
         public string Message { get; set; } = string.Empty;
 
-        /// <summary>EDWS-assigned unique identifier for this NVH request. CEP uses this for response correlation.</summary>
-        [JsonPropertyName("nvhRequestId")]
-        public string NvhRequestId { get; set; } = string.Empty;
+        /// <summary>
+        /// Unique identifier for this request, used for response correlation (was "nvhRequestId"
+        /// before ICD v1.7.3). Persisted to MWRP_CE_RESPONSE.MWRP_CE_REQUEST_ID.
+        /// </summary>
+        [JsonPropertyName("requestId")]
+        public string RequestId { get; set; } = string.Empty;
 
+        /// <summary>Not in the v1.7.3 AcknowledgementDTO table; kept for existing consumers and MWRP_CE_RESPONSE.CREATED_TS.</summary>
         [JsonPropertyName("createdTimestamp")]
         public DateTime CreatedTimestamp { get; set; }
+
+        [JsonPropertyName("source")]
+        public string Source { get; set; } = CepDWResponseDefaults.Source;
+
+        [JsonPropertyName("updateSw")]
+        public string? UpdateSw { get; set; } = CepDWResponseDefaults.UpdateSw;
     }
 
-    // ─── Error Response (HTTP 400 / 422) ─────────────────────────────────────────
+    // ─── Error Response (HTTP 400 / 422 / 500) ───────────────────────────────────
+    // CEP-003 ICD v1.7.3 "Error Response": CepDWResultDTO / ErrorMessageDTO /
+    // ErrorDetailDTO / InvalidFieldDTO, each carrying source + updateSw.
 
-    public class CepDWErrorDTO
+    public class CepDWResultDTO
     {
+        /// <summary>Error occurrence timestamp.</summary>
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; set; }
 
         [JsonPropertyName("message")]
         public ErrorMessageDTO Message { get; set; } = new();
 
+        /// <summary>Correlation ID for support reference (the per-call TRANSACTION_ID in MWRP_CE_API_*).</summary>
         [JsonPropertyName("correlationId")]
         public string CorrelationId { get; set; } = string.Empty;
 
         [JsonPropertyName("error")]
         public ErrorDetailDTO Error { get; set; } = new();
+
+        [JsonPropertyName("source")]
+        public string Source { get; set; } = string.Empty;
+
+        [JsonPropertyName("updateSw")]
+        public string? UpdateSw { get; set; }
     }
 
     public class ErrorMessageDTO
     {
+        /// <summary>Numeric error code, e.g. 101 for validation failure.</summary>
         [JsonPropertyName("code")]
         public int Code { get; set; }
 
+        /// <summary>Always "ERROR".</summary>
         [JsonPropertyName("type")]
-        public string Type { get; set; } = string.Empty;
+        public string Type { get; set; } = "ERROR";
 
+        /// <summary>True if the error requires user notification; false for system errors.</summary>
         [JsonPropertyName("notify")]
         public bool Notify { get; set; }
+
+        [JsonPropertyName("source")]
+        public string Source { get; set; } = string.Empty;
+
+        [JsonPropertyName("updateSw")]
+        public string? UpdateSw { get; set; }
     }
 
     public class ErrorDetailDTO
     {
         [JsonPropertyName("invalidFields")]
         public List<InvalidFieldDTO> InvalidFields { get; set; } = new();
+
+        [JsonPropertyName("source")]
+        public string Source { get; set; } = string.Empty;
+
+        [JsonPropertyName("updateSw")]
+        public string? UpdateSw { get; set; }
     }
 
     public class InvalidFieldDTO
     {
+        /// <summary>JSON path of the invalid field, e.g. ceVerified[0].clientId.</summary>
         [JsonPropertyName("field")]
         public string Field { get; set; } = string.Empty;
 
+        /// <summary>Validation rule code that was violated, e.g. Required, Format.</summary>
         [JsonPropertyName("code")]
         public string Code { get; set; } = string.Empty;
 
         [JsonPropertyName("message")]
         public string Message { get; set; } = string.Empty;
+
+        [JsonPropertyName("source")]
+        public string Source { get; set; } = string.Empty;
+
+        [JsonPropertyName("updateSw")]
+        public string? UpdateSw { get; set; }
     }
 }

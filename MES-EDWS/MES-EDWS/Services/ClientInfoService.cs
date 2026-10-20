@@ -1,3 +1,4 @@
+using System.Globalization;
 using MES_EDWS.Models;
 using MES_EDWS.Options;
 using Microsoft.Extensions.Options;
@@ -29,7 +30,9 @@ namespace MES_EDWS.Services
     /// correlate rows within a single request (e.g. TRUV_EMPLOYER_ID, EMPLOYMENT_DETAIL_ID,
     /// CARE_GIVER_ID, FRAILTY_ID, SUD_TREATMENT_ID, CIRCUMSTANCE_ID, INCARCERATION_ID) are
     /// generated in application code (see <see cref="NewId"/>) and are not persisted back
-    /// onto their parent row when the v17 table has no column for them.
+    /// onto their parent row when the v17 table has no column for them. The exception is
+    /// MWRP_CE_INCOME_BUDGET_DETAILS.INCOME_DETAIL_ID, which is MAX + 1 per inserted row
+    /// (see InsertEmploymentAsync).
     ///
     /// NOTE: MWRP_CE_BUDGET_GROUP_MEMBER.ELIG_PART_STATUS_CD and MWRP_CE_CBC_TYPE_DETAILS'
     /// PACE indicator (renamed PACE_CBC_TYPE) were both widened to VARCHAR(50) so the
@@ -118,6 +121,10 @@ namespace MES_EDWS.Services
         private string NscEnrollmentDataTable            => $"{_schema}.MWRP_CE_NSC_ENROLLMENT_DATA";
         private string CoursesOfStudyTable               => $"{_schema}.MWRP_CE_COURSES_OF_STUDY";
         private string ResponseTable                     => $"{_schema}.MWRP_CE_RESPONSE";
+        private string ErrorResponseTable                => $"{_schema}.MWRP_CE_ERROR_RESPONSE";
+        private string ErrorMessageTable                 => $"{_schema}.MWRP_CE_ERROR_MESSAGE";
+        private string ErrorDetailTable                  => $"{_schema}.MWRP_CE_ERROR_DETAIL";
+        private string InvalidFieldTable                 => $"{_schema}.MWRP_CE_INVALID_FIELD";
         private string ApiTransactionTable               => $"{_schema}.MWRP_CE_API_TRANSACTION";
         private string ApiRequestTable                   => $"{_schema}.MWRP_CE_API_REQUEST";
         private string ApiResponseTable                  => $"{_schema}.MWRP_CE_API_RESPONSE";
@@ -194,7 +201,7 @@ namespace MES_EDWS.Services
                             Code             = "REQUEST_CREATED",
                             Status           = "SUCCESS",
                             Message          = "Request has been created successfully",
-                            NvhRequestId     = ackRowId.ToString(),
+                            RequestId        = ackRowId.ToString(),
                             CreatedTimestamp = DateTime.UtcNow
                         }
                     };
@@ -1001,9 +1008,9 @@ namespace MES_EDWS.Services
         }
 
         // ── MWRP_CE_INCOME_DETAILS / MWRP_CE_INCOME_BUDGET_DETAILS / nested Truv tree ─
-        // INCOME_DETAILS has no ID column of its own in docs/Table_v17.txt; an in-memory
-        // id is generated only so the Truv employer tree below can share the same
-        // CLIENT_IDENTIFICATION_NBR-scoped insert pattern as the rest of the file.
+        // INCOME_DETAILS has no ID column of its own. Each MWRP_CE_INCOME_BUDGET_DETAILS row
+        // gets INCOME_DETAIL_ID = MAX(INCOME_DETAIL_ID) + 1, read under a table write lock held
+        // until the save transaction commits so concurrent requests cannot reuse a value.
 
         private async Task InsertEmploymentAsync(
             TdConnection connection, TdTransaction transaction, string clientId, List<EmploymentEntryDTO> employments)
@@ -1023,6 +1030,8 @@ namespace MES_EDWS.Services
                 "APPLICATION_SOURCE, EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
+            long? nextIncomeDetailId = null;
+
             foreach (var employment in employments)
             {
                 // EMPLOYMENT_ACTIVE_FLG / IN_KIND_UNPAID_FLG / SEASONAL_EMPLOYMENT_FLG have no
@@ -1035,12 +1044,12 @@ namespace MES_EDWS.Services
                     employment.Source, employment.UpdateSw, employment.VaCmsSequenceNumber,
                     DataSource, DateTime.Today);
 
-                var employmentId = NewId();
-
                 foreach (var budget in employment.IncomeBudgetDetails ?? Enumerable.Empty<IncomeBudgetDetailsDTO>())
                 {
+                    nextIncomeDetailId ??= await GetMaxIncomeDetailIdAsync(connection, transaction) + 1;
+
                     await ExecuteAsync(connection, transaction, budgetSql,
-                        clientId, employmentId, budget.MonthlyIncome, budget.MonthlyHours,
+                        clientId, nextIncomeDetailId++, budget.MonthlyIncome, budget.MonthlyHours,
                         budget.IncomeMonth, budget.IncomeYear, budget.VerificationSource,
                         budget.Source, budget.UpdateSw, budget.VaCmsSequenceNumber, budget.ApplicationSource,
                         DataSource, DateTime.Today);
@@ -1401,17 +1410,100 @@ namespace MES_EDWS.Services
                 requestSequenceNumber,
                 request.State,
                 request.RequestSource,
-                DataSource,
-                "YES",
+                response.Source,
+                response.UpdateSw,
                 response.Acknowledgement.Code,
                 response.Acknowledgement.Status,
                 response.Acknowledgement.Message,
-                response.Acknowledgement.NvhRequestId,
-                DataSource,
-                "YES",
+                response.Acknowledgement.RequestId,
+                response.Acknowledgement.Source,
+                response.Acknowledgement.UpdateSw,
                 response.Acknowledgement.CreatedTimestamp,
                 DataSource,
                 DateTime.Today);
+        }
+
+        // ── MWRP_CE_ERROR_RESPONSE / _ERROR_MESSAGE / _ERROR_DETAIL / _INVALID_FIELD ─
+        // One row per CepDWResultDTO level, joined on ERROR_TS (= result.Timestamp). Each
+        // MWRP_CE_INVALID_FIELD row gets ERROR_INVALID_FLD_TS = ERROR_TS + n microseconds, the
+        // TIMESTAMP(6) resolution, so rows stay distinct and keep their order. Own connection and
+        // transaction, so the error is recorded even when the payload save rolled back.
+
+        public async Task SaveErrorResultAsync(CepDWResultDTO result)
+        {
+            var errorResponseSql =
+                $"INSERT INTO {ErrorResponseTable} " +
+                "(ERROR_TS, CORRELATION_ID, SOURCE_SYS_NM, UPDATE_SW, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
+
+            var errorMessageSql =
+                $"INSERT INTO {ErrorMessageTable} " +
+                "(ERROR_MSG_TS, ERROR_TS, ERROR_CODE, ERROR_TYPE, NOTIFY_IND, MSG_SOURCE_SYS_NM, MSG_UPDATE_SW, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            var errorDetailSql =
+                $"INSERT INTO {ErrorDetailTable} " +
+                "(ERROR_DTL_TS, ERROR_TS, ERROR_SOURCE_SYS_NM, ERROR_UPDATE_SW, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, 'Y', ?, ?)";
+
+            var invalidFieldSql =
+                $"INSERT INTO {InvalidFieldTable} " +
+                "(ERROR_INVALID_FLD_TS, ERROR_TS, ERROR_SOURCE_SYS_NM, INVALID_FIELD_PATH, VALIDATION_CODE, " +
+                "VALIDATION_MESSAGE, SOURCE_SYS_NM, UPDATE_SW, CORRELATION_ID, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            var errorTs = new DateTimeOffset(DateTime.SpecifyKind(result.Timestamp, DateTimeKind.Utc));
+
+            try
+            {
+                await using var connection = new TdConnection(_connectionString);
+                await connection.OpenAsync();
+
+                await using var transaction = connection.BeginTransaction();
+
+                await ExecuteAsync(connection, transaction, errorResponseSql,
+                    errorTs, Truncate(result.CorrelationId, 64),
+                    Truncate(result.Source, 20), Truncate(result.UpdateSw, 3),
+                    DataSource, DateTime.Today);
+
+                await ExecuteAsync(connection, transaction, errorMessageSql,
+                    errorTs, errorTs, result.Message.Code, Truncate(result.Message.Type, 20),
+                    ToYnChar(result.Message.Notify),
+                    Truncate(result.Message.Source, 20), Truncate(result.Message.UpdateSw, 3),
+                    DataSource, DateTime.Today);
+
+                await ExecuteAsync(connection, transaction, errorDetailSql,
+                    errorTs, errorTs,
+                    Truncate(result.Error.Source, 20), Truncate(result.Error.UpdateSw, 3),
+                    DataSource, DateTime.Today);
+
+                for (var i = 0; i < result.Error.InvalidFields.Count; i++)
+                {
+                    var field = result.Error.InvalidFields[i];
+                    await ExecuteAsync(connection, transaction, invalidFieldSql,
+                        errorTs.AddTicks((i + 1) * TimeSpan.TicksPerMicrosecond), errorTs,
+                        Truncate(result.Error.Source, 20),
+                        Truncate(field.Field, 500), Truncate(field.Code, 50), Truncate(field.Message, 500),
+                        Truncate(field.Source, 20), Truncate(field.UpdateSw, 3),
+                        Truncate(result.CorrelationId, 64),
+                        DataSource, DateTime.Today);
+                }
+
+                transaction.Commit();
+
+                _logger.LogInformation(
+                    "Error result saved to Teradata. CorrelationId: {CorrelationId}, Code: {Code}, InvalidFields: {InvalidFieldCount}",
+                    result.CorrelationId, result.Message.Code, result.Error.InvalidFields.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Failed to save error result to Teradata. CorrelationId: {CorrelationId}", result.CorrelationId);
+            }
         }
 
         // ── MWRP_CE_API_TRANSACTION / MWRP_CE_API_REQUEST / MWRP_CE_API_RESPONSE ──
@@ -1478,6 +1570,9 @@ namespace MES_EDWS.Services
         private static string? NullIfWhiteSpace(string? value) =>
             string.IsNullOrWhiteSpace(value) ? null : value;
 
+        private static string? Truncate(string? value, int maxLength) =>
+            value is { Length: > 0 } && value.Length > maxLength ? value[..maxLength] : value;
+
         private static async Task ExecuteAsync(
             TdConnection connection, TdTransaction transaction, string sql, params object?[] values)
         {
@@ -1492,6 +1587,16 @@ namespace MES_EDWS.Services
                 command.Parameters.Add(new TdParameter { Value = value ?? DBNull.Value });
 
             await command.ExecuteNonQueryAsync();
+        }
+
+        private async Task<long> GetMaxIncomeDetailIdAsync(TdConnection connection, TdTransaction transaction)
+        {
+            var sql =
+                $"LOCKING TABLE {IncomeBudgetDetailsTable} FOR WRITE " +
+                $"SELECT COALESCE(MAX(INCOME_DETAIL_ID), 0) FROM {IncomeBudgetDetailsTable}";
+
+            await using var command = new TdCommand(sql, connection) { Transaction = transaction };
+            return Convert.ToInt64(await command.ExecuteScalarAsync(), CultureInfo.InvariantCulture);
         }
 
         /// <summary>

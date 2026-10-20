@@ -104,6 +104,11 @@ namespace MES_EDWS.Services
         public async Task<MedicalFrailtyRecord?> GetByMmisEnrolleeIdOrSsnAsync(
             string requestId, string? mmisEnrolleeId, string? ssn)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(requestId);
+
+            if (!string.IsNullOrWhiteSpace(ssn) && !SsnValidationException.IsValidFormat(ssn))
+                throw new SsnValidationException(SsnValidationException.RequiredFormatMessage);
+
             // Primary lookup: MMIS_ENROLLEE_ID (only when a value is present in the payload)
             if (!string.IsNullOrWhiteSpace(mmisEnrolleeId))
             {
@@ -120,10 +125,11 @@ namespace MES_EDWS.Services
                     "No match by MMIS_ENROLLEE_ID for RequestId: {RequestId} — falling back to SSN", requestId);
             }
 
-            // SSN lookup — used when MMIS ID was absent or returned no match
+            // SSN lookup — used when MMIS ID was absent or returned no match. Matches both
+            // XXX-XX-XXXX and rows still stored as 9 digits from the earlier no-dash format.
             if (!string.IsNullOrWhiteSpace(ssn))
             {
-                var bySsn = await QueryMembersAsync(MCol_Ssn, ssn);
+                var bySsn = await QueryMembersAsync(MCol_Ssn, ssn, SsnValidationException.WithoutDashes(ssn));
 
                 if (bySsn != null)
                 {
@@ -140,14 +146,14 @@ namespace MES_EDWS.Services
             return null;
         }
 
-        private async Task<MedicalFrailtyRecord?> QueryMembersAsync(string column, string value)
+        private async Task<MedicalFrailtyRecord?> QueryMembersAsync(string column, params string[] values)
         {
             var sql =
                 $"SELECT {MCol_MmisEnrolleeId}, {MCol_Ssn}, {MCol_MedicallyFrailFlag}, " +
                 $"{MCol_CircumStartDate}, {MCol_CircumEndDate}, " +
                 $"{MCol_CurrentInd}, {MCol_Datasource}, {MCol_DateInsert} " +
                 $"FROM {MembersTable} " +
-                $"WHERE {column} = ? AND {MCol_CurrentInd} = 'Y'";
+                $"WHERE {column} IN ({string.Join(", ", values.Select(_ => "?"))}) AND {MCol_CurrentInd} = 'Y'";
 
             try
             {
@@ -155,7 +161,8 @@ namespace MES_EDWS.Services
                 await connection.OpenAsync();
 
                 await using var command = new TdCommand(sql, connection);
-                command.Parameters.Add(new TdParameter { Value = value });
+                foreach (var value in values)
+                    command.Parameters.Add(new TdParameter { Value = value });
 
                 await using var reader = await command.ExecuteReaderAsync();
 
@@ -178,15 +185,18 @@ namespace MES_EDWS.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Teradata members query failed. Column: {Column}, Value: {Value}", column, value);
+                // Values are not logged: they can be SSNs.
+                _logger.LogError(ex, "Teradata members query failed. Column: {Column}", column);
                 throw;
             }
         }
 
         // ── Request logging ────────────────────────────────────────────────────────
 
-        public async Task SaveRequestAsync(string? requestId, string? mmisEnrolleeId, string? ssn)
+        public async Task SaveRequestAsync(string requestId, string? mmisEnrolleeId, string? ssn)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(requestId);
+
             var sql =
                 $"INSERT INTO {RequestTable} " +
                 $"({RqCol_RequestId}, {RqCol_MmisEnrolleeId}, {RqCol_Ssn}, " +
@@ -199,7 +209,7 @@ namespace MES_EDWS.Services
                 await connection.OpenAsync();
 
                 await using var command = new TdCommand(sql, connection);
-                command.Parameters.Add(new TdParameter { Value = NullIfEmpty(requestId) });
+                command.Parameters.Add(new TdParameter { Value = requestId });
                 command.Parameters.Add(new TdParameter { Value = (object?)mmisEnrolleeId ?? DBNull.Value });
                 command.Parameters.Add(new TdParameter { Value = (object?)ssn ?? DBNull.Value });
                 command.Parameters.Add(new TdParameter { Value = DataSource });
@@ -218,13 +228,15 @@ namespace MES_EDWS.Services
         // ── Response logging ───────────────────────────────────────────────────────
 
         public async Task SaveResponseAsync(
-            string? requestId,
+            string requestId,
             string? medicallyFrail,
             string? circumstanceStartDate,
             string? circumstanceEndDate,
             string? code,
             string? message)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(requestId);
+
             var sql =
                 $"INSERT INTO {ResponseTable} " +
                 $"({RsCol_RequestId}, {RsCol_MedicallyFrail}, " +
@@ -239,7 +251,7 @@ namespace MES_EDWS.Services
                 await connection.OpenAsync();
 
                 await using var command = new TdCommand(sql, connection);
-                command.Parameters.Add(new TdParameter { Value = NullIfEmpty(requestId) });
+                command.Parameters.Add(new TdParameter { Value = requestId });
                 command.Parameters.Add(new TdParameter { Value = NullIfEmpty(medicallyFrail) });
                 command.Parameters.Add(new TdParameter { Value = ToDbDate(circumstanceStartDate) });
                 command.Parameters.Add(new TdParameter { Value = ToDbDate(circumstanceEndDate) });

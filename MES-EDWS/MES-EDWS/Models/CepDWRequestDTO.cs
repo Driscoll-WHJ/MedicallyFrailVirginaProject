@@ -1635,6 +1635,25 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("employments")]
         public List<TruvEmploymentDetailDTO>? Employments { get; set; }
+
+        // The ICD specifies snake_case, but senders also post camelCase; both must bind.
+        [JsonPropertyName("productType")]
+        public string? ProductTypeCamelCase { set => ProductType ??= value; }
+
+        [JsonPropertyName("dataSource")]
+        public string? DataSourceCamelCase { set => DataSource ??= value; }
+
+        [JsonPropertyName("companyName")]
+        public string? CompanyNameCamelCase { set => CompanyName ??= value; }
+
+        [JsonPropertyName("isSuspicious")]
+        public bool? IsSuspiciousCamelCase { set => IsSuspicious ??= value; }
+
+        [JsonPropertyName("startDate")]
+        public string? StartDateCamelCase { set => StartDate ??= value; }
+
+        [JsonPropertyName("endDate")]
+        public string? EndDateCamelCase { set => EndDate ??= value; }
     }
 
     public class TruvProviderDTO

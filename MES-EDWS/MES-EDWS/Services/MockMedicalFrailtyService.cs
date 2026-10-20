@@ -53,6 +53,11 @@ namespace MES_EDWS.Services
         public Task<MedicalFrailtyRecord?> GetByMmisEnrolleeIdOrSsnAsync(
             string requestId, string? mmisEnrolleeId, string? ssn)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(requestId);
+
+            if (!string.IsNullOrWhiteSpace(ssn) && !SsnValidationException.IsValidFormat(ssn))
+                throw new SsnValidationException(SsnValidationException.RequiredFormatMessage);
+
             if (!string.IsNullOrWhiteSpace(mmisEnrolleeId) &&
                 SampleData.TryGetValue(mmisEnrolleeId, out var record))
             {
@@ -79,8 +84,10 @@ namespace MES_EDWS.Services
             return Task.FromResult<MedicalFrailtyRecord?>(null);
         }
 
-        public Task SaveRequestAsync(string? requestId, string? mmisEnrolleeId, string? ssn)
+        public Task SaveRequestAsync(string requestId, string? mmisEnrolleeId, string? ssn)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(requestId);
+
             _logger.LogInformation(
                 "[MOCK] SaveRequest — RequestId: {RequestId}, MmisEnrolleeId: {MmisEnrolleeId}",
                 requestId, mmisEnrolleeId);
@@ -88,13 +95,15 @@ namespace MES_EDWS.Services
         }
 
         public Task SaveResponseAsync(
-            string? requestId,
+            string requestId,
             string? medicallyFrail,
             string? circumstanceStartDate,
             string? circumstanceEndDate,
             string? code,
             string? message)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(requestId);
+
             _logger.LogInformation(
                 "[MOCK] SaveResponse — RequestId: {RequestId}, MedicallyFrail: {MedicallyFrail}",
                 requestId, medicallyFrail);

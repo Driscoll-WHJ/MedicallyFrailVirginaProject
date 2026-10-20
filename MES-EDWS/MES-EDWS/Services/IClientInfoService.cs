@@ -21,6 +21,13 @@ namespace MES_EDWS.Services
         Task SavePartialCeVerificationResultsAsync(CepDWRequestDTO request);
 
         /// <summary>
+        /// Persists an error response to MWRP_CE_ERROR_RESPONSE, MWRP_CE_ERROR_MESSAGE,
+        /// MWRP_CE_ERROR_DETAIL and one MWRP_CE_INVALID_FIELD row per invalid field.
+        /// Failures are logged but do not abort the caller.
+        /// </summary>
+        Task SaveErrorResultAsync(CepDWResultDTO result);
+
+        /// <summary>
         /// Persists one API call to MWRP_CE_API_TRANSACTION, MWRP_CE_API_REQUEST and
         /// MWRP_CE_API_RESPONSE. Failures are logged but do not abort the caller.
         /// </summary>

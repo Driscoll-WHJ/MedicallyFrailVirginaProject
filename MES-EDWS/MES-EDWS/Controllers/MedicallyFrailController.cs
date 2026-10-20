@@ -94,13 +94,18 @@ namespace MES_EDWS.Controllers
 
                 var badRequest = BadRequestBody(missingFields);
 
-                // Save what was provided (non-blocking — failures are logged, not thrown).
-                await _medicalFrailtyService.SaveRequestAsync(
-                    request.RequestId, request.MmisEnrolleeId, request.Ssn);
-                await _medicalFrailtyService.SaveResponseAsync(
-                    request.RequestId, null, null, null,
-                    code:    badRequest.Code.ToString(),
-                    message: badRequest.Message);
+                // REQUEST_ID is required on the HR1_* tables, so without a requestId only the
+                // MWRP_CE_MED_FRAIL_API_* audit rows are written.
+                if (!string.IsNullOrWhiteSpace(request.RequestId))
+                {
+                    // Save what was provided (non-blocking — failures are logged, not thrown).
+                    await _medicalFrailtyService.SaveRequestAsync(
+                        request.RequestId, request.MmisEnrolleeId, request.Ssn);
+                    await _medicalFrailtyService.SaveResponseAsync(
+                        request.RequestId, null, null, null,
+                        code:    badRequest.Code.ToString(),
+                        message: badRequest.Message);
+                }
 
                 return (StatusCodes.Status400BadRequest, badRequest);
             }
@@ -115,6 +120,19 @@ namespace MES_EDWS.Controllers
             {
                 record = await _medicalFrailtyService.GetByMmisEnrolleeIdOrSsnAsync(
                     request.RequestId, request.MmisEnrolleeId, request.Ssn);
+            }
+            catch (SsnValidationException ex)
+            {
+                _logger.LogWarning(
+                    "SSN validation failed for RequestId: {RequestId}", request.RequestId);
+
+                await _medicalFrailtyService.SaveResponseAsync(
+                    request.RequestId, null, null, null,
+                    code:    SsnValidationException.ErrorCode,
+                    message: ex.Message);
+
+                return (StatusCodes.Status400BadRequest,
+                    new BadRequestResponse(int.Parse(SsnValidationException.ErrorCode), ex.Message));
             }
             catch (Exception ex)
             {
