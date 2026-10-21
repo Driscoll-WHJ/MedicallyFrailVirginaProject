@@ -9,7 +9,7 @@ namespace MES_EDWS.Models
         /// <summary>MMIS_ENROLLEE_ID VARCHAR(15)</summary>
         public string? MmisEnrolleeId { get; set; }
 
-        /// <summary>SSN VARCHAR(11), format XXX-XX-XXXX</summary>
+        /// <summary>SSN VARCHAR(10), 9 digits with no dashes</summary>
         public string? Ssn { get; set; }
 
         /// <summary>MEDICALLY_FRAIL_FLAG CHAR(1) — 'Y' maps to true.</summary>

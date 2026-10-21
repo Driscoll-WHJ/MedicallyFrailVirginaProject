@@ -125,11 +125,10 @@ namespace MES_EDWS.Services
                     "No match by MMIS_ENROLLEE_ID for RequestId: {RequestId} — falling back to SSN", requestId);
             }
 
-            // SSN lookup — used when MMIS ID was absent or returned no match. Matches both
-            // XXX-XX-XXXX and rows still stored as 9 digits from the earlier no-dash format.
+            // SSN lookup — used when MMIS ID was absent or returned no match
             if (!string.IsNullOrWhiteSpace(ssn))
             {
-                var bySsn = await QueryMembersAsync(MCol_Ssn, ssn, SsnValidationException.WithoutDashes(ssn));
+                var bySsn = await QueryMembersAsync(MCol_Ssn, ssn);
 
                 if (bySsn != null)
                 {

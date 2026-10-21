@@ -1666,6 +1666,10 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("logo_url")]
         public string? LogoUrl { get; set; }
+
+        // The ICD specifies snake_case, but senders also post camelCase; both must bind.
+        [JsonPropertyName("logoUrl")]
+        public string? LogoUrlCamelCase { set => LogoUrl ??= value; }
     }
 
     public class TruvEmploymentDetailDTO
@@ -1722,6 +1726,10 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("logoUrl")]
         public string? LogoUrl { get; set; }
+
+        // The ICD names this field logo_url; SamplePayload.json sends logoUrl. Both must bind.
+        [JsonPropertyName("logo_url")]
+        public string? LogoUrlSnakeCase { set => LogoUrl ??= value; }
     }
 
     public class TruvPayStatementDTO

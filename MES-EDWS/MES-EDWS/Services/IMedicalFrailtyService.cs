@@ -9,7 +9,7 @@ namespace MES_EDWS.Services
         /// Queries by MMIS_ENROLLEE_ID first; if no match is found, falls back to SSN.
         /// Returns null if no current record is found by either identifier.
         /// <paramref name="requestId"/> is required: null or blank throws <see cref="ArgumentException"/>.
-        /// A provided <paramref name="ssn"/> not in XXX-XX-XXXX format throws <see cref="SsnValidationException"/>.
+        /// A provided <paramref name="ssn"/> that is not exactly 9 digits (no dashes) throws <see cref="SsnValidationException"/>.
         /// </summary>
         Task<MedicalFrailtyRecord?> GetByMmisEnrolleeIdOrSsnAsync(
             string requestId, string? mmisEnrolleeId, string? ssn);

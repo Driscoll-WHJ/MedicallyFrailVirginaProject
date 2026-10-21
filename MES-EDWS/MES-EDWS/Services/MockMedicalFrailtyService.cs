@@ -16,7 +16,7 @@ namespace MES_EDWS.Services
                 ["1000000001"] = new MedicalFrailtyRecord
                 {
                     MmisEnrolleeId        = "1000000001",
-                    Ssn                   = "111-11-1111",
+                    Ssn                   = "111111111",
                     MedicallyFrail        = true,
                     CircumstanceStartDate = "2026-03-01",
                     CircumstanceEndDate   = null,
@@ -26,7 +26,7 @@ namespace MES_EDWS.Services
                 ["1000000002"] = new MedicalFrailtyRecord
                 {
                     MmisEnrolleeId        = "1000000002",
-                    Ssn                   = "222-22-2222",
+                    Ssn                   = "222222222",
                     MedicallyFrail        = false,
                     CircumstanceStartDate = "2025-10-05",
                     CircumstanceEndDate   = null,
@@ -36,7 +36,7 @@ namespace MES_EDWS.Services
                 ["1000000003"] = new MedicalFrailtyRecord
                 {
                     MmisEnrolleeId        = "1000000003",
-                    Ssn                   = "333-33-3333",
+                    Ssn                   = "333333333",
                     MedicallyFrail        = true,
                     CircumstanceStartDate = "2026-01-01",
                     CircumstanceEndDate   = "2026-08-01",
