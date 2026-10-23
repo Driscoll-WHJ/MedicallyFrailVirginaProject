@@ -152,38 +152,21 @@ namespace MES_EDWS.Controllers
         }
 
         /// <summary>
-        /// Required fields that are absent or blank (rule "Required"), plus a requestTimestamp that
-        /// is present but not an ISO 8601 date-time (rule "Format").
+        /// Every [Required] model field (per CEP-003 ICD v1.7.3) that is absent, null, empty or
+        /// whitespace (rule "Required"), plus a requestTimestamp that is present but not an
+        /// ISO 8601 date-time (rule "Format").
         /// </summary>
         private static List<InvalidFieldDTO> GetInvalidRequiredFields(CepDWRequestDTO request)
         {
-            var invalid = new List<InvalidFieldDTO>();
+            var invalid = RequiredFieldValidator.GetMissingFields(request).Select(MissingField).ToList();
 
-            if (string.IsNullOrWhiteSpace(request.Timestamp))
-                invalid.Add(MissingField("requestTimestamp"));
-            else if (!request.TryGetRequestTimestamp(out _))
-                invalid.Add(InvalidField("requestTimestamp", FormatRule,
+            if (!string.IsNullOrWhiteSpace(request.Timestamp) && !request.TryGetRequestTimestamp(out _))
+                invalid.Insert(0, InvalidField("requestTimestamp", FormatRule,
                     "Malformed JSON or missing required field: requestTimestamp must be an ISO 8601 date-time (e.g. 2026-10-06T14:30:00-04:00)."));
 
-            if (string.IsNullOrWhiteSpace(request.RequestSequenceNumber))
-                invalid.Add(MissingField("requestSequenceNumber"));
-            if (string.IsNullOrWhiteSpace(request.State))
-                invalid.Add(MissingField("stateId"));
-            if (string.IsNullOrWhiteSpace(request.RequestSource))
-                invalid.Add(MissingField("requestSource"));
-
-            if (request.CeVerified is not { Count: > 0 })
-            {
+            // An empty list is present, so [Required] accepts it, but there is nothing to verify.
+            if (request.CeVerified is { Count: 0 })
                 invalid.Add(MissingField("ceVerified"));
-            }
-            else
-            {
-                for (var i = 0; i < request.CeVerified.Count; i++)
-                {
-                    if (string.IsNullOrWhiteSpace(request.CeVerified[i]?.ClientIdentificationNumber))
-                        invalid.Add(MissingField($"ceVerified[{i}].clientId"));
-                }
-            }
 
             return invalid;
         }

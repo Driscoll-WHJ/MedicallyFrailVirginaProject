@@ -53,8 +53,8 @@ namespace MES_EDWS.Services
     /// and the MWRP_CE_PROVIDER table was renamed MWRP_CE_PAYROLL_PROVIDER with
     /// PROVIDER_ID/PROVIDER_NAME/LOGO_URL -> PAYROLL_PROVIDER_ID/PAYROLL_PROVIDER_NAME/
     /// PAYROLL_PROVIDER_LOGO_URL (MWRP_CE_EMPLOYEE_PROFILE.LOGO_URL was renamed the same way).
-    /// MWRP_CE_INCOME_DETAILS also gained an UNEMPLOYMENT_TYPE column with no corresponding DTO
-    /// field, so it is left unpopulated.
+    /// MWRP_CE_INCOME_DETAILS also gained an UNEMPLOYMENT_TYPE column, mapped from
+    /// EmploymentEntryDTO.UnemploymentType ("unEmploymentType").
     /// </summary>
     public class ClientInfoService : IClientInfoService
     {
@@ -304,7 +304,7 @@ namespace MES_EDWS.Services
                 await InsertVerifiedRowAsync(connection, transaction, clientId, requestSequenceNumber, verified);
 
             if (verified.RelationshipDetails is { Count: > 0 } relationshipDetails)
-                await InsertRelationshipDetailsAsync(connection, transaction, clientId, relationshipDetails);
+                await InsertRelationshipDetailsAsync(connection, transaction, relationshipDetails);
 
             if (verified.RulesEvaluationResults is { Count: > 0 } rules)
                 await InsertRulesEvaluationResultsAsync(connection, transaction, clientId, rules);
@@ -387,7 +387,7 @@ namespace MES_EDWS.Services
         // ── MWRP_CE_RELATIONSHIP_DETAILS ──────────────────────────────────────────
 
         private async Task InsertRelationshipDetailsAsync(
-            TdConnection connection, TdTransaction transaction, string clientId, List<RelationshipDetailDTO> relationships)
+            TdConnection connection, TdTransaction transaction, List<RelationshipDetailDTO> relationships)
         {
             var sql =
                 $"INSERT INTO {RelationshipDetailsTable} " +
@@ -399,7 +399,7 @@ namespace MES_EDWS.Services
             foreach (var relationship in relationships)
             {
                 await ExecuteAsync(connection, transaction, sql,
-                    clientId, relationship.ReverseClientId, relationship.RelationType,
+                    NullIfWhiteSpace(relationship.ClientId), relationship.ReverseClientId, relationship.RelationType,
                     ToDbDate(relationship.EffectiveBeginDate), ToDbDate(relationship.EffectiveEndDate),
                     relationship.UpdateSw, relationship.Source, relationship.VaCmsSequenceNumber,
                     DataSource, DateTime.Today);
@@ -995,7 +995,7 @@ namespace MES_EDWS.Services
                 await InsertElectronicallyVerifiedEmploymentAsync(connection, transaction, clientId, summaries);
 
             if (engagements.EvIndvIncomeBudget is { Count: > 0 } indvBudgets)
-                await InsertIndvIncomeBudgetAsync(connection, transaction, clientId, indvBudgets);
+                await InsertIndvIncomeBudgetAsync(connection, transaction, indvBudgets);
 
             if (engagements.EvEdgIncomeBudget is { Count: > 0 } edgBudgets)
                 await InsertEdgIncomeBudgetAsync(connection, transaction, EvEdgIncomeBudgetTable, clientId, edgBudgets);
@@ -1004,7 +1004,7 @@ namespace MES_EDWS.Services
                 await InsertEdgIncomeBudgetAsync(connection, transaction, MagiIncomeBudgetTable, clientId, magiBudgets);
 
             if (engagements.BudgetGroupMembers is { Count: > 0 } groupMembers)
-                await InsertBudgetGroupMembersAsync(connection, transaction, clientId, groupMembers);
+                await InsertBudgetGroupMembersAsync(connection, transaction, groupMembers);
         }
 
         // ── MWRP_CE_INCOME_DETAILS / MWRP_CE_INCOME_BUDGET_DETAILS / nested Truv tree ─
@@ -1018,10 +1018,10 @@ namespace MES_EDWS.Services
             var employmentSql =
                 $"INSERT INTO {IncomeDetailsTable} " +
                 "(CLIENT_IDENTIFICATION_NBR, EMPLOYER_NAME, EMPLOYER_EIN, INCOME_TYPE, EMPLOYMENT_TYPE, " +
-                "SEASONAL_EMPLOYMENT_TYPE, PRIOR_OR_CURRENT_EMPLOYMENT_IND, START_DATE, END_DATE, " +
+                "UNEMPLOYMENT_TYPE, SEASONAL_EMPLOYMENT_TYPE, PRIOR_OR_CURRENT_EMPLOYMENT_IND, START_DATE, END_DATE, " +
                 "SOURCE_SYSTEM, UPDATE_SW, VACMS_SEQUENCE_NUM, " +
                 "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Y', ?, ?)";
 
             var budgetSql =
                 $"INSERT INTO {IncomeBudgetDetailsTable} " +
@@ -1038,7 +1038,7 @@ namespace MES_EDWS.Services
                 // column on MWRP_CE_INCOME_DETAILS in docs/Table_v17.txt.
                 await ExecuteAsync(connection, transaction, employmentSql,
                     clientId, employment.EmployerName, employment.EmployerEin, employment.IncomeType,
-                    employment.EmploymentType, employment.SeasonalEmploymentType,
+                    employment.EmploymentType, employment.UnemploymentType, employment.SeasonalEmploymentType,
                     ToYnChar(employment.IsPriorEmployment),
                     ToDbDate(employment.StartDate), ToDbDate(employment.EndDate),
                     employment.Source, employment.UpdateSw, employment.VaCmsSequenceNumber,
@@ -1065,7 +1065,7 @@ namespace MES_EDWS.Services
 
         private async Task InsertJobTrainingLikeAsync(
             TdConnection connection, TdTransaction transaction, string table,
-            string clientId, List<JobTrainingEntryDTO> entries, bool includeProgramType)
+            string clientId, IEnumerable<InKindOrUnpaidWorkEntryDTO> entries, bool includeProgramType)
         {
             var sql =
                 $"INSERT INTO {table} " +
@@ -1086,7 +1086,7 @@ namespace MES_EDWS.Services
                 };
 
                 if (includeProgramType)
-                    values.Add(entry.ProgramType); // MWRP_CE_INKIND_UNPAID_WORK has no PROGRAM_TYPE column
+                    values.Add((entry as JobTrainingEntryDTO)?.ProgramType); // MWRP_CE_INKIND_UNPAID_WORK has no PROGRAM_TYPE column
 
                 values.Add(entry.Source);
                 values.Add(entry.UpdateSw);
@@ -1213,12 +1213,10 @@ namespace MES_EDWS.Services
         }
 
         // ── MWRP_CE_EV_INDV_INCOME_BUDGET ──────────────────────────────────────────
-        // No CLIENT_ID column exists on this table in docs/Table_v17.txt; the client is
-        // already identified via CLIENT_IDENTIFICATION_NBR, so IndvIncomeBudgetDTO.ClientId
-        // has nowhere to go and is intentionally not persisted.
+        // CLIENT_IDENTIFICATION_NBR comes from the entry's own clientId (required by the ICD).
 
         private async Task InsertIndvIncomeBudgetAsync(
-            TdConnection connection, TdTransaction transaction, string clientId, List<IndvIncomeBudgetDTO> budgets)
+            TdConnection connection, TdTransaction transaction, List<IndvIncomeBudgetDTO> budgets)
         {
             var sql =
                 $"INSERT INTO {EvIndvIncomeBudgetTable} " +
@@ -1229,7 +1227,7 @@ namespace MES_EDWS.Services
             foreach (var budget in budgets)
             {
                 await ExecuteAsync(connection, transaction, sql,
-                    clientId, budget.Ein, ToDbDate(budget.BudgetBeginDate),
+                    budget.ClientId?.ToString(), budget.Ein, ToDbDate(budget.BudgetBeginDate),
                     ToDbDate(budget.BudgetEndDate), budget.VerificationSource ?? budget.Source, budget.TotalBudgetAmount,
                     DataSource, DateTime.Today);
             }
@@ -1256,10 +1254,11 @@ namespace MES_EDWS.Services
         }
 
         // ── MWRP_CE_BUDGET_GROUP_MEMBER ────────────────────────────────────────────
-        // No CLIENT_ID column here; ELIG_PART_STATUS_CD is VARCHAR(50) and stores the raw status string.
+        // CLIENT_IDENTIFICATION_NBR comes from the member's own clientId (required by the ICD);
+        // ELIG_PART_STATUS_CD is VARCHAR(50) and stores the raw status string.
 
         private async Task InsertBudgetGroupMembersAsync(
-            TdConnection connection, TdTransaction transaction, string clientId, List<BudgetGroupMemberDTO> members)
+            TdConnection connection, TdTransaction transaction, List<BudgetGroupMemberDTO> members)
         {
             var sql =
                 $"INSERT INTO {BudgetGroupMemberTable} " +
@@ -1270,7 +1269,7 @@ namespace MES_EDWS.Services
             foreach (var member in members)
             {
                 await ExecuteAsync(connection, transaction, sql,
-                    clientId, member.EdgNum, member.EligPartStatusCd,
+                    member.ClientId?.ToString(), member.EdgNum, member.EligPartStatusCd,
                     DataSource, DateTime.Today);
             }
         }
