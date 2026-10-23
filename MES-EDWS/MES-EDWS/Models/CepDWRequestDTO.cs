@@ -310,7 +310,7 @@ namespace MES_EDWS.Models
         [JsonPropertyName("mmisEnrolleeID")]
         public long? MmisEnrolleeId { get; set; }
 
-        /// <summary>EDWS's earlier medically-frail response, echoed back by CEP. Validated but not persisted.</summary>
+        /// <summary>EDWS's earlier medically-frail response, echoed back by CEP. Persisted to MWRP_CE_EDWS_FRAILTY.</summary>
         [JsonPropertyName("edwsMedicalFrailty")]
         public EdwsFrailtyDTO? EdwsMedicalFrailty { get; set; }
     }

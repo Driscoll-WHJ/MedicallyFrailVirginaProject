@@ -74,6 +74,7 @@ namespace MES_EDWS.Services
         private string DocumentTable                     => $"{_schema}.MWRP_CE_DOCUMENT";
         private string VerifiedTable                     => $"{_schema}.MWRP_CE_VERIFIED";
         private string RelationshipDetailsTable          => $"{_schema}.MWRP_CE_RELATIONSHIP_DETAILS";
+        private string EdwsFrailtyTable                  => $"{_schema}.MWRP_CE_EDWS_FRAILTY";
         private string RuleEvaluationResultTable         => $"{_schema}.MWRP_CE_RULE_EVALUATION_RESULT";
         private string VeteranDisabilityCircumstanceTable => $"{_schema}.MWRP_CE_VETERAN_DISABILITY_CIRCUMSTANCE";
         private string CircumstanceTable                 => $"{_schema}.MWRP_CE_CIRCUMSTANCE";
@@ -306,6 +307,9 @@ namespace MES_EDWS.Services
             if (verified.RelationshipDetails is { Count: > 0 } relationshipDetails)
                 await InsertRelationshipDetailsAsync(connection, transaction, relationshipDetails);
 
+            if (verified.EdwsMedicalFrailty is { } edwsFrailty)
+                await InsertEdwsFrailtyAsync(connection, transaction, clientId, edwsFrailty);
+
             if (verified.RulesEvaluationResults is { Count: > 0 } rules)
                 await InsertRulesEvaluationResultsAsync(connection, transaction, clientId, rules);
 
@@ -404,6 +408,23 @@ namespace MES_EDWS.Services
                     relationship.UpdateSw, relationship.Source, relationship.VaCmsSequenceNumber,
                     DataSource, DateTime.Today);
             }
+        }
+
+        // ── MWRP_CE_EDWS_FRAILTY ───────────────────────────────────────────────────
+
+        private async Task InsertEdwsFrailtyAsync(
+            TdConnection connection, TdTransaction transaction, string clientId, EdwsFrailtyDTO frailty)
+        {
+            var sql =
+                $"INSERT INTO {EdwsFrailtyTable} " +
+                "(CLIENT_IDENTIFICATION_NBR, REQUEST_ID, MEDICAL_FRAIL_IND, CIRCUM_START_DATE, CIRCUM_END_DATE, " +
+                "EDWS_CURRENT_IND, EDWS_DATASOURCE, EDWS_DATE_INSERT) " +
+                "VALUES (?, ?, ?, ?, ?, 'Y', ?, ?)";
+
+            await ExecuteAsync(connection, transaction, sql,
+                clientId, frailty.RequestId, ToYnChar(frailty.MedicallyFrail),
+                ToDbDate(frailty.CircumstanceStartDate), ToDbDate(frailty.CircumstanceEndDate),
+                DataSource, DateTime.Today);
         }
 
         // ── MWRP_CE_RULE_EVALUATION_RESULT ────────────────────────────────────────
