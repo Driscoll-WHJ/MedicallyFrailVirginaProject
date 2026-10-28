@@ -1,20 +1,10 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace MES_EDWS.Models
 {
-    /// <summary>
-    /// source / updateSw sent on every CEP-003 response DTO (ack and error) and persisted to the
-    /// matching MWRP_CE_RESPONSE / MWRP_CE_ERROR_* columns.
-    /// </summary>
-    public static class CepDWResponseDefaults
-    {
-        public const string Source   = "MES-EDWS";
-        public const string UpdateSw = "No";
-    }
-
     // ─── Success Response (HTTP 200) ─────────────────────────────────────────────
-    // CEP-003 ICD v1.7.3 "Acknowledgement Response": CepDWAckResponseDTO / AcknowledgementDTO.
+    // CEP-003 ICD v1.7.4 "Acknowledgement Response": CepDWAckResponseDTO / AcknowledgementDTO.
+    // v1.7.4 removed source / updateSw from both DTOs (and from MWRP_CE_RESPONSE).
 
     public class CepDWAckResponseDTO
     {
@@ -33,12 +23,6 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("acknowledgement")]
         public AcknowledgementDTO Acknowledgement { get; set; } = new();
-
-        [JsonPropertyName("source")]
-        public string Source { get; set; } = CepDWResponseDefaults.Source;
-
-        [JsonPropertyName("updateSw")]
-        public string? UpdateSw { get; set; } = CepDWResponseDefaults.UpdateSw;
     }
 
     public class AcknowledgementDTO
@@ -61,20 +45,14 @@ namespace MES_EDWS.Models
         [JsonPropertyName("requestId")]
         public string RequestId { get; set; } = string.Empty;
 
-        /// <summary>Not in the v1.7.3 AcknowledgementDTO table; kept for existing consumers and MWRP_CE_RESPONSE.CREATED_TS.</summary>
+        /// <summary>Not in the ICD AcknowledgementDTO table; kept for existing consumers and MWRP_CE_RESPONSE.CREATED_TS.</summary>
         [JsonPropertyName("createdTimestamp")]
         public DateTime CreatedTimestamp { get; set; }
-
-        [JsonPropertyName("source")]
-        public string Source { get; set; } = CepDWResponseDefaults.Source;
-
-        [JsonPropertyName("updateSw")]
-        public string? UpdateSw { get; set; } = CepDWResponseDefaults.UpdateSw;
     }
 
     // ─── Error Response (HTTP 400 / 422 / 500) ───────────────────────────────────
-    // CEP-003 ICD v1.7.3 "Error Response": CepDWResultDTO / ErrorMessageDTO /
-    // ErrorDetailDTO / InvalidFieldDTO, each carrying source + updateSw.
+    // CEP-003 ICD v1.7.4 "Error Response": CepDWResultDTO / ErrorMessageDTO /
+    // ErrorDetailDTO / InvalidFieldDTO. None of them carry source / updateSw any more.
 
     public class CepDWResultDTO
     {
@@ -91,12 +69,6 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("error")]
         public ErrorDetailDTO Error { get; set; } = new();
-
-        [JsonPropertyName("source")]
-        public string Source { get; set; } = string.Empty;
-
-        [JsonPropertyName("updateSw")]
-        public string? UpdateSw { get; set; }
     }
 
     public class ErrorMessageDTO
@@ -112,24 +84,12 @@ namespace MES_EDWS.Models
         /// <summary>True if the error requires user notification; false for system errors.</summary>
         [JsonPropertyName("notify")]
         public bool Notify { get; set; }
-
-        [JsonPropertyName("source")]
-        public string Source { get; set; } = string.Empty;
-
-        [JsonPropertyName("updateSw")]
-        public string? UpdateSw { get; set; }
     }
 
     public class ErrorDetailDTO
     {
         [JsonPropertyName("invalidFields")]
         public List<InvalidFieldDTO> InvalidFields { get; set; } = new();
-
-        [JsonPropertyName("source")]
-        public string Source { get; set; } = string.Empty;
-
-        [JsonPropertyName("updateSw")]
-        public string? UpdateSw { get; set; }
     }
 
     public class InvalidFieldDTO
@@ -144,11 +104,5 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("message")]
         public string Message { get; set; } = string.Empty;
-
-        [JsonPropertyName("source")]
-        public string Source { get; set; } = string.Empty;
-
-        [JsonPropertyName("updateSw")]
-        public string? UpdateSw { get; set; }
     }
 }

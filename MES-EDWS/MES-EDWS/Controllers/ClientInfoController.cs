@@ -152,7 +152,7 @@ namespace MES_EDWS.Controllers
         }
 
         /// <summary>
-        /// Every [Required] model field (per CEP-003 ICD v1.7.3) that is absent, null, empty or
+        /// Every [Required] model field (per CEP-003 ICD v1.7.4) that is absent, null, empty or
         /// whitespace (rule "Required"), plus a requestTimestamp that is present but not an
         /// ISO 8601 date-time (rule "Format").
         /// </summary>
@@ -171,25 +171,21 @@ namespace MES_EDWS.Controllers
             return invalid;
         }
 
-        // ── CepDWResultDTO (CEP-003 ICD v1.7.3 "Error Response") ──────────────────
+        // ── CepDWResultDTO (CEP-003 ICD v1.7.4 "Error Response") ──────────────────
 
         private const int ValidationErrorCode = 101;
         private const int SystemErrorCode     = 500;
         private const string RequiredRule     = "Required";
         private const string FormatRule       = "Format";
-        private const string ResultSource     = CepDWResponseDefaults.Source;
-        private const string ResultUpdateSw   = CepDWResponseDefaults.UpdateSw;
 
         private static InvalidFieldDTO MissingField(string field) =>
             InvalidField(field, RequiredRule, $"Malformed JSON or missing required field: {field}");
 
         private static InvalidFieldDTO InvalidField(string field, string rule, string message) => new()
         {
-            Field    = field,
-            Code     = rule,
-            Message  = message,
-            Source   = ResultSource,
-            UpdateSw = ResultUpdateSw
+            Field   = field,
+            Code    = rule,
+            Message = message
         };
 
         /// <summary>400 — the caller must correct the listed fields and resubmit, so notify = true.</summary>
@@ -210,20 +206,14 @@ namespace MES_EDWS.Controllers
             CorrelationId = correlationId,
             Message       = new ErrorMessageDTO
             {
-                Code     = code,
-                Type     = "ERROR",
-                Notify   = notify,
-                Source   = ResultSource,
-                UpdateSw = ResultUpdateSw
+                Code   = code,
+                Type   = "ERROR",
+                Notify = notify
             },
             Error = new ErrorDetailDTO
             {
-                InvalidFields = invalidFields,
-                Source        = ResultSource,
-                UpdateSw      = ResultUpdateSw
-            },
-            Source   = ResultSource,
-            UpdateSw = ResultUpdateSw
+                InvalidFields = invalidFields
+            }
         };
     }
 }

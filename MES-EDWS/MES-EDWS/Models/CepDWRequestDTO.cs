@@ -39,8 +39,8 @@ namespace MES_EDWS.Models
     {
         /// <summary>
         /// Raw string sent by CEP (e.g. "2026-10-06T14:30:00-04:00"). MWRP_CE_REQUEST.REQUEST_TIMESTAMP
-        /// is TIMESTAMP(6) WITH TIME ZONE, so it is written via <see cref="TryGetRequestTimestamp"/>
-        /// as a DateTimeOffset, which preserves the offset.
+        /// is VARCHAR(100) in v1.7.4, so it is stored exactly as sent; <see cref="TryGetRequestTimestamp"/>
+        /// only checks that it is ISO 8601.
         /// </summary>
         [Required]
         [JsonPropertyName("requestTimestamp")]
@@ -85,10 +85,9 @@ namespace MES_EDWS.Models
         [JsonPropertyName("documentsUploadedInMWRP")]
         public List<DocumentUploadDTO>? DocumentsUploadedInMwrp { get; set; }
 
-        /// <summary>Documents from both the current and the legacy segment name.</summary>
-        public IEnumerable<DocumentUploadDTO> AllDocumentsUploaded() =>
-            (DocumentsUploadedIn ?? Enumerable.Empty<DocumentUploadDTO>())
-                .Concat(DocumentsUploadedInMwrp ?? Enumerable.Empty<DocumentUploadDTO>());
+        /// <summary>Added to the request body in v1.7.3 (e.g. Paper, CommonHelp, RDE). Persisted to MWRP_CE_REQUEST.APPLICATION_SOURCE.</summary>
+        [JsonPropertyName("applicationSource")]
+        public string? ApplicationSource { get; set; }
 
         /// <summary>
         /// docs/SamplePayload.json sends "ceVerified" as an ARRAY (one entry per client on the
@@ -111,8 +110,7 @@ namespace MES_EDWS.Models
         [JsonPropertyName("documentSubType")]
         public string? DocumentSubtype { get; set; }
 
-        /// <summary>Sent as a quoted string in the v1.7.3 payload; persisted to the VARCHAR CLIENT_ID column.</summary>
-        [Required]
+        /// <summary>Optional since v1.7.4. Sent as a quoted string; persisted to the VARCHAR CLIENT_ID column.</summary>
         [JsonPropertyName("clientId")]
         [JsonConverter(typeof(FlexibleStringConverter))]
         public string? ClientId { get; set; }
@@ -231,9 +229,14 @@ namespace MES_EDWS.Models
         [JsonPropertyName("applicationDate")]
         public string? ApplicationDate { get; set; }
 
+        /// <summary>Replaces "caseAction" in v1.7.4 (RT_INDIVIDUALCASEACTION). Persisted to CE_VERIFIED.CASE_ACTION_CD.</summary>
         [Required]
+        [JsonPropertyName("individualCaseAction")]
+        public string? IndividualCaseAction { get; set; }
+
+        /// <summary>Pre-v1.7.4 name of <see cref="IndividualCaseAction"/>, still sent by the v1.7.4 sample payload.</summary>
         [JsonPropertyName("caseAction")]
-        public string? CaseAction { get; set; }
+        public string? CaseActionLegacy { set => IndividualCaseAction ??= value; }
 
         [JsonPropertyName("aidCategory")]
         public List<AidCategoryDTO>? AidCategory { get; set; }
@@ -307,8 +310,10 @@ namespace MES_EDWS.Models
         [JsonPropertyName("engagements")]
         public EngagementsDTO? Engagements { get; set; }
 
+        /// <summary>ICD type is String; persisted to the VARCHAR(15) MMIS_ENROLLEE_ID column.</summary>
         [JsonPropertyName("mmisEnrolleeID")]
-        public long? MmisEnrolleeId { get; set; }
+        [JsonConverter(typeof(FlexibleStringConverter))]
+        public string? MmisEnrolleeId { get; set; }
 
         /// <summary>EDWS's earlier medically-frail response, echoed back by CEP. Persisted to MWRP_CE_EDWS_FRAILTY.</summary>
         [JsonPropertyName("edwsMedicalFrailty")]
@@ -416,9 +421,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     // ─── Phone (CE_PHONE) ─────────────────────────────────────────────────────────
@@ -443,9 +445,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     // ─── Address (CE_ADDRESS) ─────────────────────────────────────────────────────
@@ -496,9 +495,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     // ─── Exemptions (CE_EXCLUSION_* / CE_VETERAN_DISABILITY) ─────────────────────
@@ -508,7 +504,7 @@ namespace MES_EDWS.Models
     public class ExemptionsDTO
     {
         [JsonPropertyName("pregnancy")]
-        public PregnancyExemptionDTO? Pregnancy { get; set; }
+        public PregnancyCircumstanceDTO? Pregnancy { get; set; }
 
         /// <summary>New in docs/SamplePayload.json — persisted to the new MWRP_CE_AMERICAN_INDIAN_ALASKAN_NATIVE table.</summary>
         [JsonPropertyName("americanIndianAlaskanNativeCircumstance")]
@@ -525,13 +521,13 @@ namespace MES_EDWS.Models
         [JsonPropertyName("formerFosterCare")]
         public FormerFosterCareExemptionDTO? FormerFosterCare { get; set; }
 
-        /// <summary>ICD v1.7.3 and the QA payloads send "currentlyIncarcerated".</summary>
-        [JsonPropertyName("currentlyIncarcerated")]
-        public List<IncarcerationExemptionDTO>? CurrentlyIncarcerated { get; set; }
-
-        /// <summary>Older name still sent by docs/SamplePayload.json.</summary>
+        /// <summary>Renamed from "currentlyIncarcerated" in v1.7.4.</summary>
         [JsonPropertyName("incarceratedCircumstance")]
-        public List<IncarcerationExemptionDTO>? IncarceratedCircumstanceLegacy { set => CurrentlyIncarcerated ??= value; }
+        public List<IncarcerationExemptionDTO>? IncarceratedCircumstance { get; set; }
+
+        /// <summary>Pre-v1.7.4 name still sent by the v1.7.3 QA payloads.</summary>
+        [JsonPropertyName("currentlyIncarcerated")]
+        public List<IncarcerationExemptionDTO>? CurrentlyIncarceratedLegacy { set => IncarceratedCircumstance ??= value; }
 
         /// <summary>New in docs/SamplePayload.json — persisted to the new MWRP_CE_PRIOR_INCARCERATION_DETAIL table.</summary>
         [JsonPropertyName("priorIncarcerationDetails")]
@@ -551,6 +547,22 @@ namespace MES_EDWS.Models
         /// <summary>Renamed from "frailty" to "medicallyFrail" and is now an array in docs/SamplePayload.json.</summary>
         [JsonPropertyName("medicallyFrail")]
         public List<FrailtyExemptionDTO>? MedicallyFrail { get; set; }
+
+        /// <summary>New in v1.7.4 (replaces medicallyFrail[].cBCTypeDetails) — persisted to MWRP_CE_CBC_TYPE_DETAILS.</summary>
+        [JsonPropertyName("indvCBCTypeDetails")]
+        public List<IndvCbcTypeDetailDTO>? IndvCbcTypeDetails { get; set; }
+
+        /// <summary>Spelling used in the v1.7.4 ICD ExemptionsDTO table.</summary>
+        [JsonPropertyName("indvCcBCTypeDetails")]
+        public List<IndvCbcTypeDetailDTO>? IndvCcbcTypeDetailsMisspelled { set => IndvCbcTypeDetails ??= value; }
+
+        /// <summary>New in v1.7.4 (replaces the FrailtyDTO SOLQ flags) — persisted to MWRP_CE_SOLQ_TITLE_DISABLED.</summary>
+        [JsonPropertyName("solqTitleDisability")]
+        public List<SolqTitleDisabledDTO>? SolqTitleDisability { get; set; }
+
+        /// <summary>New in v1.7.4 — persisted to MWRP_CE_LTSS_SCREENING.</summary>
+        [JsonPropertyName("lTSSScreeningDetails")]
+        public List<LtssScreeningDTO>? LtssScreeningDetails { get; set; }
 
         /// <summary>New in docs/SamplePayload.json — persisted to the new MWRP_CE_MEDICAL_EXEMPTIONS /
         /// MWRP_CE_CARE_RECEIVED_DETAILS tables.</summary>
@@ -582,8 +594,8 @@ namespace MES_EDWS.Models
         public List<CircumstanceDTO>? CircumstanceForExemption { get; set; }
 
         /// <summary>Now a rich array (was previously assumed to only carry lineage fields) — persisted to
-        /// the same MWRP_CE_CIRCUMSTANCE / MWRP_CE_CIRCUMSTANCE_DETAIL tables as "circumstanceForExemption".</summary>
-        [Required]
+        /// the same MWRP_CE_CIRCUMSTANCE / MWRP_CE_CIRCUMSTANCE_DETAIL tables as "circumstanceForExemption".
+        /// Optional since v1.7.4.</summary>
         [JsonPropertyName("circumstances")]
         public List<CircumstanceDTO>? Circumstances { get; set; }
     }
@@ -622,9 +634,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     /// <summary>exemptions.fosterCare — persisted to the new MWRP_CE_FOSTER_CARE table.</summary>
@@ -642,7 +651,6 @@ namespace MES_EDWS.Models
         [JsonPropertyName("inStateCustody")]
         public bool? InStateCustody { get; set; }
 
-        [Required]
         [JsonPropertyName("effectiveBeginDate")]
         public string? EffectiveBeginDate { get; set; }
 
@@ -724,6 +732,10 @@ namespace MES_EDWS.Models
         /// <summary>Older name still sent by docs/SamplePayload.json.</summary>
         [JsonPropertyName("typeOfCare")]
         public string? TypeOfCareLegacy { set => TypeOfCare ??= value; }
+
+        /// <summary>Persisted to MWRP_CE_CARE_RECEIVED_DETAILS.TYPE_OF_CARE_DESC.</summary>
+        [JsonPropertyName("typeOfCareDescription")]
+        public string? TypeOfCareDescription { get; set; }
 
         [Required]
         [JsonPropertyName("startDate")]
@@ -865,12 +877,17 @@ namespace MES_EDWS.Models
         [JsonPropertyName("typeOfDisability")]
         public string? TypeOfDisability { get; set; }
 
+        [Required]
         [JsonPropertyName("maVerification")]
         public string? MaVerification { get; set; }
 
         [Required]
         [JsonPropertyName("maDisabilityBeginDate")]
         public string? MaDisabilityBeginDate { get; set; }
+
+        /// <summary>New in v1.7.4 — persisted to MWRP_CE_DISABILITY_DETAILS.MA_DISABILITY_END_DATE.</summary>
+        [JsonPropertyName("maDisabilityEndDate")]
+        public string? MaDisabilityEndDate { get; set; }
 
         [Required]
         [JsonPropertyName("disabilityOutcomeDeterminedByDDS")]
@@ -953,16 +970,21 @@ namespace MES_EDWS.Models
         [JsonPropertyName("blindOrDisabled")]
         public bool? BlindOrDisabled { get; set; }
 
-        /// <summary>Persisted to MWRP_CE_CIRCUMSTANCE_DETAIL.COMPLY_WITH_TANF_WORK_IND.</summary>
-        [JsonPropertyName("individualComplyingWithTANFWorkParticipationRequirements")]
+        /// <summary>Replaces "individualComplyingWithTANFWorkParticipationRequirements" in v1.7.4.
+        /// Persisted to MWRP_CE_CIRCUMSTANCE_DETAIL.COMPLY_WITH_TANF_WORK_IND.</summary>
+        [JsonPropertyName("enrolledForTANF")]
         public bool? EnrolledForTanf { get; set; }
 
-        /// <summary>Older name still sent by docs/SamplePayload.json.</summary>
-        [JsonPropertyName("enrolledForTANF")]
-        public bool? EnrolledForTanfLegacy { set => EnrolledForTanf ??= value; }
+        /// <summary>Pre-v1.7.4 name still sent by the v1.7.3 QA payloads.</summary>
+        [JsonPropertyName("individualComplyingWithTANFWorkParticipationRequirements")]
+        public bool? IndividualComplyingWithTanfLegacy { set => EnrolledForTanf ??= value; }
 
         [JsonPropertyName("approvedForSNAPAndNotExemptFromSNAPWorkRequirement")]
         public bool? ApprovedForSnapNotExempt { get; set; }
+
+        /// <summary>New in v1.7.4 (RT_EMPEXMTRSN) — persisted to MWRP_CE_CIRCUMSTANCE_DETAIL.SNAP_EXEMPT_TYPE.</summary>
+        [JsonPropertyName("SNAPExemptionType")]
+        public string? SnapExemptionType { get; set; }
 
         [Required]
         [JsonPropertyName("source")]
@@ -974,12 +996,10 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
-    public class PregnancyExemptionDTO
+    /// <summary>exemptions.pregnancy — replaces PregnancyDTO in v1.7.4. Persisted to MWRP_CE_PREGNANCY.</summary>
+    public class PregnancyCircumstanceDTO
     {
         [Required]
         [JsonPropertyName("circumstanceCode")]
@@ -992,7 +1012,6 @@ namespace MES_EDWS.Models
         [JsonPropertyName("actualPregnancyEndDate")]
         public string? ActualPregnancyEndDate { get; set; }
 
-        [Required]
         [JsonPropertyName("effectiveBeginDate")]
         public string? EffectiveBeginDate { get; set; }
 
@@ -1009,9 +1028,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     public class CaregiverExemptionDTO
@@ -1028,7 +1044,6 @@ namespace MES_EDWS.Models
         [JsonPropertyName("dependentLiveInTheSameHome")]
         public bool? DependentLivesSameHome { get; set; }
 
-        [Required]
         [JsonPropertyName("dependentDOB")]
         public string? DependentDob { get; set; }
 
@@ -1043,7 +1058,6 @@ namespace MES_EDWS.Models
         [JsonPropertyName("isDependentDisabled")]
         public bool? IsDependentDisabled { get; set; }
 
-        [Required]
         [JsonPropertyName("effectiveBeginDate")]
         public string? EffectiveBeginDate { get; set; }
 
@@ -1060,9 +1074,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     public class CaregiverMonthlyHoursDTO
@@ -1118,9 +1129,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     /// <summary>Item of the "incarceratedCircumstance" array (docs/SamplePayload.json; was a single
@@ -1159,33 +1167,21 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
-    /// <summary>Item of the "receivingMedicaidPartAB" array (was a single "medicarePartAB" object).</summary>
+    /// <summary>Item of the "receivingMedicarePartAB" array (ICD MedicarePartABDTO).</summary>
     public class MedicarePartAbExemptionDTO
     {
-        [JsonPropertyName("circumstanceCode")]
-        public string? CircumstanceCode { get; set; }
-
+        /// <summary>New in v1.7.4 (RT_DCINSURANCETYPE), replacing typeOfCoverage / medicareExpenseType /
+        /// overallTypeOfCoverage / isSOLQ. Persisted to MWRP_CE_MEDICARE_PART_AB.MEDICARE_TYPE_CD.</summary>
         [Required]
+        [JsonPropertyName("entitledToOrReceivingMedicareType")]
+        public string? EntitledToOrReceivingMedicareType { get; set; }
+
+        /// <summary>Removed from the ICD in v1.7.4, but MWRP_CE_MEDICARE_PART_AB.TYPE_OF_COVERAGE still exists,
+        /// so it is persisted when a sender still includes it.</summary>
         [JsonPropertyName("typeOfCoverage")]
         public string? CoverageType { get; set; }
-
-        [Required]
-        [JsonPropertyName("medicareExpenseType")]
-        public string? MedicareExpenseType { get; set; }
-
-        /// <summary>New in docs/SamplePayload.json — persisted to CE_MEDICARE_PART_AB.OVERALL_TYPE_OF_COVERAGE.</summary>
-        [Required]
-        [JsonPropertyName("overAllTypeOfCoverage")]
-        public string? OverallTypeOfCoverage { get; set; }
-
-        [Required]
-        [JsonPropertyName("isSOLQ")]
-        public bool? Solq { get; set; }
 
         [Required]
         [JsonPropertyName("startDate")]
@@ -1204,9 +1200,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     /// <summary>Backs the "medicallyFrail" exemption (was "frailty"); now an array in docs/SamplePayload.json.</summary>
@@ -1220,25 +1213,23 @@ namespace MES_EDWS.Models
         [JsonPropertyName("seriousMedicalCondition")]
         public bool? SeriousMedicalCondition { get; set; }
 
-        [Required]
         [JsonPropertyName("seriousHealthProblemImpactsYourLife")]
         public bool? SeriousHealthImpact { get; set; }
 
-        [Required]
         [JsonPropertyName("mentalHealth")]
         public bool? MentalHealth { get; set; }
 
-        [Required]
         [JsonPropertyName("physicalDisability")]
         public bool? PhysicalDisability { get; set; }
 
+        /// <summary>No longer in the v1.7.4 FrailtyDTO, but MWRP_CE_FRAILTY.VERIFICATION_SOURCE still exists.</summary>
         [JsonPropertyName("verificationSource")]
         public string? VerificationSource { get; set; }
 
-        /// <summary>New in docs/SamplePayload.json — persisted to the new MWRP_CE_CBC_TYPE_DETAILS table.</summary>
-        [Required]
+        /// <summary>Still listed (optional) on the v1.7.4 FrailtyDTO; v1.7.4 also adds exemptions.indvCBCTypeDetails.
+        /// Both feed MWRP_CE_CBC_TYPE_DETAILS.</summary>
         [JsonPropertyName("cBCTypeDetails")]
-        public List<CbcTypeDetailDTO>? CbcTypeDetails { get; set; }
+        public List<IndvCbcTypeDetailDTO>? CbcTypeDetails { get; set; }
 
         [Required]
         [JsonPropertyName("effectiveStartDate")]
@@ -1263,18 +1254,16 @@ namespace MES_EDWS.Models
         [JsonPropertyName("blindOrHaveLimitedVision")]
         public bool? BlindOrHaveLimitedVision { get; set; }
 
-        /// <summary>New in docs/SamplePayload.json — persisted to CE_FRAILTY.LTSS_SCREENING_IND.</summary>
-        [Required]
+        /// <summary>Persisted to CE_FRAILTY.LTSS_SCREENING_IND. Optional since v1.7.4.</summary>
         [JsonPropertyName("lTSSScreening")]
         public bool? LtssScreening { get; set; }
 
-        /// <summary>New in docs/SamplePayload.json — persisted to CE_FRAILTY.SOLQ_TITLE_II_DISABLED_IND.</summary>
-        [Required]
+        /// <summary>Moved to exemptions.solqTitleDisability in v1.7.4, but MWRP_CE_FRAILTY.SOLQ_TITLE_II_DISABLED_IND
+        /// still exists, so it is persisted when a sender still includes it.</summary>
         [JsonPropertyName("sOLQTitleIIDisabled")]
         public bool? SolqTitleIIDisabled { get; set; }
 
-        /// <summary>New in docs/SamplePayload.json — persisted to CE_FRAILTY.SOLQ_TITLE_XVI_DISABLED_IND.</summary>
-        [Required]
+        /// <summary>Same as <see cref="SolqTitleIIDisabled"/>, for SOLQ_TITLE_XVI_DISABLED_IND.</summary>
         [JsonPropertyName("sOLQTitleXVIDisabled")]
         public bool? SolqTitleXviDisabled { get; set; }
 
@@ -1288,14 +1277,11 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
-    /// <summary>exemptions.medicallyFrail[].cBCTypeDetails[] — persisted to the new
-    /// MWRP_CE_CBC_TYPE_DETAILS table.</summary>
-    public class CbcTypeDetailDTO
+    /// <summary>exemptions.indvCBCTypeDetails[] (ICD IndvCBCTypeDetailsDTO, replacing CBCTypeDetailsDTO in v1.7.4)
+    /// and medicallyFrail[].cBCTypeDetails[] — persisted to MWRP_CE_CBC_TYPE_DETAILS.</summary>
+    public class IndvCbcTypeDetailDTO
     {
         [Required]
         [JsonPropertyName("waiverSw")]
@@ -1305,7 +1291,6 @@ namespace MES_EDWS.Models
         [JsonPropertyName("paceCbcType")]
         public string? PaceCbcType { get; set; }
 
-        [Required]
         [JsonPropertyName("cbcType")]
         public string? CbcType { get; set; }
 
@@ -1326,6 +1311,59 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
+    }
+
+    /// <summary>exemptions.solqTitleDisability[] (new in v1.7.4) — persisted to MWRP_CE_SOLQ_TITLE_DISABLED.</summary>
+    public class SolqTitleDisabledDTO
+    {
+        /// <summary>SOLQTYPE: "SOLQ Title II" or "SOLQ Title XVI".</summary>
+        [Required]
+        [JsonPropertyName("sOLQTitleDisabledType")]
+        public string? SolqTitleDisabledType { get; set; }
+
+        [Required]
+        [JsonPropertyName("effectiveBeginDate")]
+        public string? EffectiveBeginDate { get; set; }
+
+        [JsonPropertyName("effectiveEndDate")]
+        public string? EffectiveEndDate { get; set; }
+
+        [Required]
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("updateSw")]
+        public string? UpdateSw { get; set; }
+
+        [Required]
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+    }
+
+    /// <summary>exemptions.lTSSScreeningDetails[] (new in v1.7.4) — persisted to MWRP_CE_LTSS_SCREENING.</summary>
+    public class LtssScreeningDTO
+    {
+        [Required]
+        [JsonPropertyName("lTSSScreening")]
+        public bool? LtssScreening { get; set; }
+
+        [Required]
+        [JsonPropertyName("effectiveBeginDate")]
+        public string? EffectiveBeginDate { get; set; }
+
+        [JsonPropertyName("effectiveEndDate")]
+        public string? EffectiveEndDate { get; set; }
+
+        [Required]
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
+
+        [JsonPropertyName("updateSw")]
+        public string? UpdateSw { get; set; }
+
+        [Required]
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
     }
 
     /// <summary>New in the 2026-08 revision — persisted to the new MWRP_CE_VETERAN_DISABILITY_CIRCUMSTANCE table.</summary>
@@ -1364,9 +1402,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     // ─── Engagements ──────────────────────────────────────────────────────────────
@@ -1411,8 +1446,7 @@ namespace MES_EDWS.Models
         [JsonPropertyName("volunteeringCommunityService")]
         public List<VolunteeringEntryDTO>? VolunteeringCommunityService { get; set; }
 
-        /// <summary>New in the 2026-08 revision — persisted to the new MWRP_CE_INKIND_UNPAID_WORK table.</summary>
-        [Required]
+        /// <summary>Persisted to MWRP_CE_INKIND_UNPAID_WORK. Optional since v1.7.4.</summary>
         [JsonPropertyName("inKindOrUnpaidWork")]
         public List<InKindOrUnpaidWorkEntryDTO>? InKindOrUnpaidWork { get; set; }
 
@@ -1491,9 +1525,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     public class IncomeBudgetDetailsDTO
@@ -1528,9 +1559,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     /// <summary>Simple verified income/hours summary item — feeds MWRP_CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT.</summary>
@@ -1544,7 +1572,7 @@ namespace MES_EDWS.Models
         [JsonPropertyName("monthlyIncome")]
         public decimal? MonthlyIncome { get; set; }
 
-        [Required]
+        /// <summary>Optional since v1.7.4.</summary>
         [JsonPropertyName("monthlyHours")]
         public decimal? MonthlyHours { get; set; }
 
@@ -1575,10 +1603,12 @@ namespace MES_EDWS.Models
         [JsonPropertyName("budgetEndDt")]
         public string? BudgetEndDate { get; set; }
 
+        /// <summary>Required since v1.7.4 — persisted to CE_EV_INDV_INCOME_BUDGET.SOURCE_SYSTEM.</summary>
+        [Required]
         [JsonPropertyName("source")]
         public string? Source { get; set; }
 
-        /// <summary>New in docs/SamplePayload.json — persisted to CE_EV_INDV_INCOME_BUDGET.VERIFICATION_SOURCE.</summary>
+        /// <summary>Persisted to CE_EV_INDV_INCOME_BUDGET.VERIFICATION_SOURCE.</summary>
         [Required]
         [JsonPropertyName("verificationSource")]
         public string? VerificationSource { get; set; }
@@ -1586,6 +1616,11 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("totalBudgetAmount")]
         public decimal? TotalBudgetAmount { get; set; }
+
+        /// <summary>New and required in v1.7.4 — persisted to CE_EV_INDV_INCOME_BUDGET.TOTAL_BUDGET_HOURS.</summary>
+        [Required]
+        [JsonPropertyName("totalBudgetHours")]
+        public decimal? TotalBudgetHours { get; set; }
     }
 
     /// <summary>engagements.evEdgIncomeBudget[] and engagements.magiIncomeBudget[] (same shape) — persisted
@@ -1630,12 +1665,23 @@ namespace MES_EDWS.Models
     // ─── Job Training / In-Kind or Unpaid Work (CE_JOB_TRAINING / CE_INKIND_UNPAID_WORK) ─────
 
     /// <summary>engagements.jobTraining[] — the in-kind shape plus a programType the ICD requires here only.</summary>
-    public class JobTrainingEntryDTO : InKindOrUnpaidWorkEntryDTO
+    public class JobTrainingEntryDTO : InKindOrUnpaidWorkEntryDTO, IValidatableObject
     {
         /// <summary>Persisted to MWRP_CE_JOB_TRAINING.PROGRAM_TYPE (MWRP_CE_INKIND_UNPAID_WORK has no such column).</summary>
         [Required]
         [JsonPropertyName("programType")]
         public string? ProgramType { get; set; }
+
+        /// <summary>v1.7.4 makes these required for job training only; they stay optional for in-kind/unpaid work.</summary>
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (string.IsNullOrWhiteSpace(OrganizationName))
+                yield return new ValidationResult("organizationName is required.", new[] { nameof(OrganizationName) });
+            if (MonthlyHours == null)
+                yield return new ValidationResult("monthlyHours is required.", new[] { nameof(MonthlyHours) });
+            if (string.IsNullOrWhiteSpace(StartDate))
+                yield return new ValidationResult("startDate is required.", new[] { nameof(StartDate) });
+        }
     }
 
     /// <summary>engagements.inKindOrUnpaidWork[] (ICD IsInkindOrUnPaidResultDTO).</summary>
@@ -1678,9 +1724,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     // ─── Volunteering (CE_VOLUNTEER_SERVICE) ─────────────────────────────────────
@@ -1722,9 +1765,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     // ─── Education (CE_EDUCATION / CE_NSC_ENROLLMENT / CE_NSC_ENROLLMENT_DETAIL /
@@ -1732,6 +1772,12 @@ namespace MES_EDWS.Models
 
     public class EducationEntryDTO
     {
+        /// <summary>New and required in v1.7.4 — persisted to MWRP_CE_EDUCATION_VERIFIED.INSTITUTION_CODE.</summary>
+        [Required]
+        [JsonPropertyName("institutionCode")]
+        [JsonConverter(typeof(FlexibleStringConverter))]
+        public string? InstitutionCode { get; set; }
+
         [Required]
         [JsonPropertyName("institutionName")]
         public string? InstitutionName { get; set; }
@@ -1742,7 +1788,7 @@ namespace MES_EDWS.Models
         [JsonPropertyName("verificationDate")]
         public string? VerificationDate { get; set; }
 
-        [Required]
+        /// <summary>Optional since v1.7.4.</summary>
         [JsonPropertyName("verificationSource")]
         public string? VerificationSource { get; set; }
 
@@ -1750,7 +1796,12 @@ namespace MES_EDWS.Models
         [JsonPropertyName("enrollmentStatus")]
         public string? EnrollmentStatus { get; set; }
 
+        /// <summary>New and required in v1.7.4 — persisted to MWRP_CE_EDUCATION_VERIFIED.CREDIT_HOURS.</summary>
         [Required]
+        [JsonPropertyName("creditHours")]
+        public decimal? CreditHours { get; set; }
+
+        /// <summary>Optional since v1.7.4.</summary>
         [JsonPropertyName("monthlyHours")]
         public decimal? MonthlyHours { get; set; }
 
@@ -1758,7 +1809,7 @@ namespace MES_EDWS.Models
         [JsonPropertyName("termStartDate")]
         public string? TermStartDate { get; set; }
 
-        [Required]
+        /// <summary>Optional since v1.7.4.</summary>
         [JsonPropertyName("termEndDate")]
         public string? TermEndDate { get; set; }
 
@@ -1775,9 +1826,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     public class NscEnrollmentDTO
@@ -1828,9 +1876,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     public class CourseOfStudyDTO
@@ -1852,9 +1897,6 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("vaCMSSequenceNum")]
         public string? VaCmsSequenceNumber { get; set; }
-
-        [JsonPropertyName("applicationSource")]
-        public string? ApplicationSource { get; set; }
     }
 
     // ─── Truv Verified Employment (CE_TRUV_EMPLOYER / CE_TRUV_PROVIDER /

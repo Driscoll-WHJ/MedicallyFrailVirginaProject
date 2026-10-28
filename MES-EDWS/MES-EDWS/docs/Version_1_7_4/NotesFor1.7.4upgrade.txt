@@ -1,0 +1,12 @@
+SEQ_NUM values: Every row now gets a new GUID as its *_SEQ_NUM instead of the JSON-path string. Child rows still carry their parent row's GUID, so they stay linked. For example, a MWRP_CE_CIRCUMSTANCE_DETAIL row gets its own CIRCUMSTANCE_DETAIL_SEQ_NUM GUID and repeats the parent circumstance's CIRCUMSTANCE_SEQ_NUM.
+I checked that every *_SEQ_NUM column in the service now gets either a new GUID or its parent's.
+
+I made one choice beyond what you said: the single-object DTOs also get a new GUID, because their tables have the same NOT NULL *_SEQ_NUM column. 
+These are pregnancy, foster care, former foster care, veteran disability, payroll provider and employee profile.
+
+EDWS_DATASOURCE. Every insert now writes HR1_MWRP. I read the ! in "HR!_MWRP" as a typo for 1, matching the HR1_DMAS_* schema names.
+If it really should be HR!_MWRP, it's the DataSource constant at the top of Services/ClientInfoService.cs.
+
+Decision for you: the CBC rows from the new top-level indvCBCTypeDetails array have no frailty parent, but FRAILTY_SEQ_NUM is NOT NULL.
+They now share one GUID per exemptions object that doesn't match any MWRP_CE_FRAILTY row. If the data team wants something else there, 
+such as the GUID of the client's frailty row, that's a one-line change.
