@@ -525,9 +525,10 @@ namespace MES_EDWS.Models
         [JsonPropertyName("incarceratedCircumstance")]
         public List<IncarcerationExemptionDTO>? IncarceratedCircumstance { get; set; }
 
-        /// <summary>Pre-v1.7.4 name still sent by the v1.7.3 QA payloads.</summary>
+        /// <summary>Pre-v1.7.4 name still sent by the v1.7.3 QA payloads. System.Text.Json skips set-only
+        /// collection properties, so list aliases need the null getter to bind.</summary>
         [JsonPropertyName("currentlyIncarcerated")]
-        public List<IncarcerationExemptionDTO>? CurrentlyIncarceratedLegacy { set => IncarceratedCircumstance ??= value; }
+        public List<IncarcerationExemptionDTO>? CurrentlyIncarceratedLegacy { get => null; set => IncarceratedCircumstance ??= value; }
 
         /// <summary>New in docs/SamplePayload.json — persisted to the new MWRP_CE_PRIOR_INCARCERATION_DETAIL table.</summary>
         [JsonPropertyName("priorIncarcerationDetails")]
@@ -554,7 +555,7 @@ namespace MES_EDWS.Models
 
         /// <summary>Spelling used in the v1.7.4 ICD ExemptionsDTO table.</summary>
         [JsonPropertyName("indvCcBCTypeDetails")]
-        public List<IndvCbcTypeDetailDTO>? IndvCcbcTypeDetailsMisspelled { set => IndvCbcTypeDetails ??= value; }
+        public List<IndvCbcTypeDetailDTO>? IndvCcbcTypeDetailsMisspelled { get => null; set => IndvCbcTypeDetails ??= value; }
 
         /// <summary>New in v1.7.4 (replaces the FrailtyDTO SOLQ flags) — persisted to MWRP_CE_SOLQ_TITLE_DISABLED.</summary>
         [JsonPropertyName("solqTitleDisability")]
@@ -1178,11 +1179,6 @@ namespace MES_EDWS.Models
         [JsonPropertyName("entitledToOrReceivingMedicareType")]
         public string? EntitledToOrReceivingMedicareType { get; set; }
 
-        /// <summary>Removed from the ICD in v1.7.4, but MWRP_CE_MEDICARE_PART_AB.TYPE_OF_COVERAGE still exists,
-        /// so it is persisted when a sender still includes it.</summary>
-        [JsonPropertyName("typeOfCoverage")]
-        public string? CoverageType { get; set; }
-
         [Required]
         [JsonPropertyName("startDate")]
         public string? StartDate { get; set; }
@@ -1257,15 +1253,6 @@ namespace MES_EDWS.Models
         /// <summary>Persisted to CE_FRAILTY.LTSS_SCREENING_IND. Optional since v1.7.4.</summary>
         [JsonPropertyName("lTSSScreening")]
         public bool? LtssScreening { get; set; }
-
-        /// <summary>Moved to exemptions.solqTitleDisability in v1.7.4, but MWRP_CE_FRAILTY.SOLQ_TITLE_II_DISABLED_IND
-        /// still exists, so it is persisted when a sender still includes it.</summary>
-        [JsonPropertyName("sOLQTitleIIDisabled")]
-        public bool? SolqTitleIIDisabled { get; set; }
-
-        /// <summary>Same as <see cref="SolqTitleIIDisabled"/>, for SOLQ_TITLE_XVI_DISABLED_IND.</summary>
-        [JsonPropertyName("sOLQTitleXVIDisabled")]
-        public bool? SolqTitleXviDisabled { get; set; }
 
         [Required]
         [JsonPropertyName("source")]
@@ -1427,9 +1414,10 @@ namespace MES_EDWS.Models
         [JsonPropertyName("evIndvIncomeBudgetForBudgetGroupMembers")]
         public List<IndvIncomeBudgetDTO>? EvIndvIncomeBudget { get; set; }
 
-        /// <summary>Older name still sent by docs/SamplePayload.json.</summary>
+        /// <summary>Name sent by the CEP v1.7.4 sample payload instead of the ICD's
+        /// "evIndvIncomeBudgetForBudgetGroupMembers".</summary>
         [JsonPropertyName("evIndvIncomeBudget")]
-        public List<IndvIncomeBudgetDTO>? EvIndvIncomeBudgetLegacy { set => EvIndvIncomeBudget ??= value; }
+        public List<IndvIncomeBudgetDTO>? EvIndvIncomeBudgetLegacy { get => null; set => EvIndvIncomeBudget ??= value; }
 
         /// <summary>Persisted to the new MWRP_CE_EDG_INCOME_BUDGET table.</summary>
         [JsonPropertyName("evEdgIncomeBudget")]

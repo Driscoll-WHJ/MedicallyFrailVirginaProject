@@ -166,29 +166,22 @@ namespace MES_EDWS.Services
                     await InsertVerifiedAsync(scope, clientId, verified);
                 }
 
-                CepDWAckResponseDTO? response = null;
-                if (acknowledge)
-                {
-                    response = new CepDWAckResponseDTO
-                    {
-                        RequestSequenceNumber = request.RequestSequenceNumber,
-                        StateId               = request.State,
-                        RequestSource         = request.RequestSource,
-                        Acknowledgement       = new AcknowledgementDTO
-                        {
-                            Code             = "REQUEST_CREATED",
-                            Status           = "SUCCESS",
-                            Message          = "Request has been created successfully",
-                            RequestId        = ackRowId.ToString(),
-                            CreatedTimestamp = DateTime.UtcNow
-                        }
-                    };
-
-                    // Persist the same acknowledgement that is returned to the caller.
-                    await InsertResponseAsync(scope, ackRowId, request, response);
-                }
-
                 transaction.Commit();
+
+                var response = !acknowledge ? null : new CepDWAckResponseDTO
+                {
+                    RequestSequenceNumber = request.RequestSequenceNumber,
+                    StateId               = request.State,
+                    RequestSource         = request.RequestSource,
+                    Acknowledgement       = new AcknowledgementDTO
+                    {
+                        Code             = "REQUEST_CREATED",
+                        Status           = "SUCCESS",
+                        Message          = "Request has been created successfully",
+                        RequestId        = ackRowId.ToString(),
+                        CreatedTimestamp = DateTime.UtcNow
+                    }
+                };
 
                 _logger.LogInformation(
                     "CE verification results saved to Teradata. Acknowledged: {Acknowledged}, AckRowId: {AckRowId}, " +
@@ -493,7 +486,6 @@ namespace MES_EDWS.Services
             {
                 await InsertClientRowAsync(scope, MedicarePartAbTable, clientId,
                     ("MEDICARE_SEQ_NUM", seq),
-                    ("TYPE_OF_COVERAGE", medicare.CoverageType),
                     ("MEDICARE_TYPE_CD", medicare.EntitledToOrReceivingMedicareType),
                     ("START_DATE", ToDbDate(medicare.StartDate)),
                     ("END_DATE", ToDbDate(medicare.EndDate)),
@@ -534,9 +526,7 @@ namespace MES_EDWS.Services
                     ("LTSS_SCREENING_IND", ToYnChar(frailty.LtssScreening)),
                     ("SOURCE_SYSTEM", frailty.Source),
                     ("UPDATE_SW", frailty.UpdateSw),
-                    ("VACMS_SEQUENCE_NUM", frailty.VaCmsSequenceNumber),
-                    ("SOLQ_TITLE_II_DISABLED_IND", ToYnChar(frailty.SolqTitleIIDisabled)),
-                    ("SOLQ_TITLE_XVI_DISABLED_IND", ToYnChar(frailty.SolqTitleXviDisabled)));
+                    ("VACMS_SEQUENCE_NUM", frailty.VaCmsSequenceNumber));
 
                 await InsertCbcTypeDetailsAsync(scope, clientId, seq, frailty.CbcTypeDetails);
             }
@@ -1090,20 +1080,61 @@ namespace MES_EDWS.Services
         }
 
         // ── MWRP_CE_RESPONSE ───────────────────────────────────────────────────────
+        // One row per API response (200, 400 or 500), written from the body actually returned.
+        // ACK_CODE is the HTTP status code. REQUEST_SEQ_NBR is NOT NULL, so a request without one
+        // is keyed by correlationId, as in MWRP_CE_API_*. Own connection and transaction, so the
+        // row is recorded even when the payload save rolled back.
 
-        private Task InsertResponseAsync(SaveScope scope, long ackRowId, CepDWRequestDTO request, CepDWAckResponseDTO response) =>
-            // Persist the exact acknowledgement fields that are returned to the caller, not a
-            // separately-hardcoded copy, so the API response and MWRP_CE_RESPONSE never drift apart.
-            InsertAsync(scope.Connection, scope.Transaction, ResponseTable,
-                ("ACK_ROW_ID", ackRowId),
-                ("REQUEST_SEQ_NBR", scope.RequestSeqNbr),
-                ("STATE_ID", request.State),
-                ("REQUEST_SOURCE_CD", request.RequestSource),
-                ("ACK_CODE", response.Acknowledgement.Code),
-                ("ACK_STATUS", response.Acknowledgement.Status),
-                ("ACK_MESSAGE_TXT", response.Acknowledgement.Message),
-                ("MWRP_CE_REQUEST_ID", response.Acknowledgement.RequestId),
-                ("CREATED_TS", response.Acknowledgement.CreatedTimestamp));
+        public async Task SaveResponseAsync(CepDWRequestDTO? request, string correlationId, int statusCode, object body)
+        {
+            var (ackRowId, requestId, status, message, createdTs) = body switch
+            {
+                CepDWAckResponseDTO ack => (
+                    long.TryParse(ack.Acknowledgement.RequestId, out var id) ? id : NewId(),
+                    ack.Acknowledgement.RequestId,
+                    ack.Acknowledgement.Status,
+                    ack.Acknowledgement.Message,
+                    ack.Acknowledgement.CreatedTimestamp),
+                CepDWResultDTO error => (
+                    NewId(),
+                    error.CorrelationId,
+                    error.Message.Type,
+                    string.Join("; ", error.Error.InvalidFields.Select(f => f.Message)),
+                    error.Timestamp),
+                _ => throw new ArgumentException($"Unsupported response body {body.GetType().Name}.", nameof(body))
+            };
+
+            try
+            {
+                await using var connection = new TdConnection(_connectionString);
+                await connection.OpenAsync();
+
+                await using var transaction = connection.BeginTransaction();
+
+                await InsertAsync(connection, transaction, ResponseTable,
+                    ("ACK_ROW_ID", ackRowId),
+                    ("REQUEST_SEQ_NBR", Truncate(NullIfWhiteSpace(request?.RequestSequenceNumber) ?? correlationId, 50)),
+                    ("STATE_ID", Truncate(request?.State, 2)),
+                    ("REQUEST_SOURCE_CD", Truncate(request?.RequestSource, 20)),
+                    ("ACK_CODE", statusCode.ToString()),
+                    ("ACK_STATUS", Truncate(status, 20)),
+                    ("ACK_MESSAGE_TXT", Truncate(message, 500)),
+                    ("MWRP_CE_REQUEST_ID", Truncate(requestId, 50)),
+                    ("CREATED_TS", new DateTimeOffset(DateTime.SpecifyKind(createdTs, DateTimeKind.Utc))));
+
+                transaction.Commit();
+
+                _logger.LogInformation(
+                    "Response saved to Teradata. AckRowId: {AckRowId}, StatusCode: {StatusCode}, CorrelationId: {CorrelationId}",
+                    ackRowId, statusCode, correlationId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Failed to save response to Teradata. StatusCode: {StatusCode}, CorrelationId: {CorrelationId}",
+                    statusCode, correlationId);
+            }
+        }
 
         // ── MWRP_CE_ERROR_RESPONSE / _ERROR_MESSAGE / _ERROR_DETAIL / _INVALID_FIELD ─
         // One row per CepDWResultDTO level, joined on ERROR_TS (= result.Timestamp). Each

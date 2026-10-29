@@ -53,6 +53,9 @@ namespace MES_EDWS.Controllers
 
             var (statusCode, body) = await ProcessAsync(request, transactionId);
 
+            // Persist to MWRP_CE_RESPONSE for every response (non-blocking — failures are logged, not thrown).
+            await _clientInfoService.SaveResponseAsync(request, transactionId, statusCode, body);
+
             // Persist to MWRP_CE_ERROR_* / MWRP_CE_INVALID_FIELD (non-blocking — failures are logged, not thrown).
             if (body is CepDWResultDTO errorResult)
                 await _clientInfoService.SaveErrorResultAsync(errorResult);
@@ -131,8 +134,7 @@ namespace MES_EDWS.Controllers
 
             try
             {
-                // Persists both the request (MWRP_CE_REQUEST) and this same response (MWRP_CE_RESPONSE)
-                // to the MWRP_CE_* Teradata tables inside one transaction.
+                // Persists the request (MWRP_CE_REQUEST and below) inside one transaction.
                 var response = await _clientInfoService.SaveCeVerificationResultsAsync(request);
 
                 _logger.LogInformation(
@@ -173,7 +175,7 @@ namespace MES_EDWS.Controllers
 
         // ── CepDWResultDTO (CEP-003 ICD v1.7.4 "Error Response") ──────────────────
 
-        private const int ValidationErrorCode = 101;
+        private const int ValidationErrorCode = 400;
         private const int SystemErrorCode     = 500;
         private const string RequiredRule     = "Required";
         private const string FormatRule       = "Format";

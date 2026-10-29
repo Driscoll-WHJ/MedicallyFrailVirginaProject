@@ -27,7 +27,7 @@ namespace MES_EDWS.Models
 
     public class AcknowledgementDTO
     {
-        /// <summary>Always "REQUEST_CREATED" on success.</summary>
+        /// <summary>Always "REQUEST_CREATED" on success. Not persisted: MWRP_CE_RESPONSE.ACK_CODE holds the HTTP status code.</summary>
         [JsonPropertyName("code")]
         public string Code { get; set; } = "REQUEST_CREATED";
 
@@ -73,7 +73,7 @@ namespace MES_EDWS.Models
 
     public class ErrorMessageDTO
     {
-        /// <summary>Numeric error code, e.g. 101 for validation failure.</summary>
+        /// <summary>Numeric error code, e.g. 400 for validation failure.</summary>
         [JsonPropertyName("code")]
         public int Code { get; set; }
 
