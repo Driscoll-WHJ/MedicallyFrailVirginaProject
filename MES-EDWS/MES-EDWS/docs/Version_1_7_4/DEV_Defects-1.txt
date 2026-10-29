@@ -1,0 +1,20 @@
+
+Issue#1:
+
+MWRP_CE_FRAILTY					-->  Fields SOLQ_TITLE_II_DISABLED_IND and SOLQ_TITLE_XVI_DISABLED_IND are removed.
+
+Issue#2:
+
+MWRP_CE_MEDICARE_PART_AB		-->  Field TYPE_OF_COVERAGE is removed.
+
+Issue#3:
+
+MWRP_CE_EV_INDV_INCOME_BUDGET   --> Data Not Loaded into Table but JSON has DTO
+
+Issue#4:
+
+HR1_DMAS_POC.MWRP_CE_RESPONSE	--> Response Acknowledgement not loaded for this request
+
+Issue#5:
+
+HR1_DMAS_POC.MWRP_CE_RESPONSE	-->	Field ACK_CODE -> should be response/error code
