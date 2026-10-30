@@ -35,6 +35,49 @@ namespace MES_EDWS.Models
         }
     }
 
+    /// <summary>
+    /// Binds "" (or whitespace) to null for every nullable value type (bool?, int?, decimal?, DateTime?, ...),
+    /// so a required element may be sent empty without failing the whole body.
+    /// </summary>
+    public sealed class EmptyStringAsNullConverterFactory : JsonConverterFactory
+    {
+        public override bool CanConvert(Type typeToConvert) => Nullable.GetUnderlyingType(typeToConvert) != null;
+
+        public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
+            (JsonConverter)Activator.CreateInstance(
+                typeof(EmptyStringAsNullConverter<>).MakeGenericType(Nullable.GetUnderlyingType(typeToConvert)!))!;
+
+        private sealed class EmptyStringAsNullConverter<T> : JsonConverter<T?> where T : struct
+        {
+            public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TokenType == JsonTokenType.String && string.IsNullOrWhiteSpace(reader.GetString()))
+                    return null;
+                return JsonSerializer.Deserialize<T>(ref reader, options);
+            }
+
+            public override void Write(Utf8JsonWriter writer, T? value, JsonSerializerOptions options)
+            {
+                if (value is { } v) JsonSerializer.Serialize(writer, v, options);
+                else writer.WriteNullValue();
+            }
+        }
+    }
+
+    /// <summary>Marks a property as another JSON name for <see cref="Target"/>; sending it satisfies Target's [Required].</summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public sealed class AliasOfAttribute(string target) : Attribute
+    {
+        public string Target { get; } = target;
+    }
+
+    /// <summary>At least one of these JSON elements must be present on the object (any value, including null or "").</summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public sealed class RequiredElementAttribute(params string[] anyOf) : Attribute
+    {
+        public string[] AnyOf { get; } = anyOf;
+    }
+
     public class CepDWRequestDTO
     {
         /// <summary>
@@ -139,17 +182,10 @@ namespace MES_EDWS.Models
 
     // ─── CE Verification (CE_VERIFIED) ───────────────────────────────────────────
 
-    public class CeVerifiedDTO : IValidatableObject
+    /// <summary>ICD: applicationDate and renewalInitiatedDate are conditionally required — one of them must be sent.</summary>
+    [RequiredElement("applicationDate", "renewalInitiatedDate")]
+    public class CeVerifiedDTO
     {
-        /// <summary>ICD: applicationDate and renewalInitiatedDate are conditionally required — one of them must be sent.</summary>
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (string.IsNullOrWhiteSpace(ApplicationDate) && string.IsNullOrWhiteSpace(RenewalInitiatedDate))
-                yield return new ValidationResult(
-                    "Either applicationDate or renewalInitiatedDate is required.",
-                    new[] { nameof(ApplicationDate), nameof(RenewalInitiatedDate) });
-        }
-
         /// <summary>Renamed from "clientIdentificationNumber" to "clientId" in docs/SamplePayload.json.</summary>
         [Required]
         [JsonPropertyName("clientId")]
@@ -236,6 +272,7 @@ namespace MES_EDWS.Models
 
         /// <summary>Pre-v1.7.4 name of <see cref="IndividualCaseAction"/>, still sent by the v1.7.4 sample payload.</summary>
         [JsonPropertyName("caseAction")]
+        [AliasOf(nameof(IndividualCaseAction))]
         public string? CaseActionLegacy { set => IndividualCaseAction ??= value; }
 
         [JsonPropertyName("aidCategory")]
@@ -528,6 +565,7 @@ namespace MES_EDWS.Models
         /// <summary>Pre-v1.7.4 name still sent by the v1.7.3 QA payloads. System.Text.Json skips set-only
         /// collection properties, so list aliases need the null getter to bind.</summary>
         [JsonPropertyName("currentlyIncarcerated")]
+        [AliasOf(nameof(IncarceratedCircumstance))]
         public List<IncarcerationExemptionDTO>? CurrentlyIncarceratedLegacy { get => null; set => IncarceratedCircumstance ??= value; }
 
         /// <summary>New in docs/SamplePayload.json — persisted to the new MWRP_CE_PRIOR_INCARCERATION_DETAIL table.</summary>
@@ -555,6 +593,7 @@ namespace MES_EDWS.Models
 
         /// <summary>Spelling used in the v1.7.4 ICD ExemptionsDTO table.</summary>
         [JsonPropertyName("indvCcBCTypeDetails")]
+        [AliasOf(nameof(IndvCbcTypeDetails))]
         public List<IndvCbcTypeDetailDTO>? IndvCcbcTypeDetailsMisspelled { get => null; set => IndvCbcTypeDetails ??= value; }
 
         /// <summary>New in v1.7.4 (replaces the FrailtyDTO SOLQ flags) — persisted to MWRP_CE_SOLQ_TITLE_DISABLED.</summary>
@@ -732,6 +771,7 @@ namespace MES_EDWS.Models
 
         /// <summary>Older name still sent by docs/SamplePayload.json.</summary>
         [JsonPropertyName("typeOfCare")]
+        [AliasOf(nameof(TypeOfCare))]
         public string? TypeOfCareLegacy { set => TypeOfCare ??= value; }
 
         /// <summary>Persisted to MWRP_CE_CARE_RECEIVED_DETAILS.TYPE_OF_CARE_DESC.</summary>
@@ -896,6 +936,7 @@ namespace MES_EDWS.Models
 
         /// <summary>Misspelling ("disbility") is exactly as sent in docs/SamplePayload.json.</summary>
         [JsonPropertyName("disbilityOutcomeDeterminedByDDS")]
+        [AliasOf(nameof(DisabilityOutcomeDeterminedByDds))]
         public string? DisabilityOutcomeDeterminedByDdsMisspelled { set => DisabilityOutcomeDeterminedByDds ??= value; }
 
         [JsonPropertyName("updateSw")]
@@ -978,6 +1019,7 @@ namespace MES_EDWS.Models
 
         /// <summary>Pre-v1.7.4 name still sent by the v1.7.3 QA payloads.</summary>
         [JsonPropertyName("individualComplyingWithTANFWorkParticipationRequirements")]
+        [AliasOf(nameof(EnrolledForTanf))]
         public bool? IndividualComplyingWithTanfLegacy { set => EnrolledForTanf ??= value; }
 
         [JsonPropertyName("approvedForSNAPAndNotExemptFromSNAPWorkRequirement")]
@@ -1417,6 +1459,7 @@ namespace MES_EDWS.Models
         /// <summary>Name sent by the CEP v1.7.4 sample payload instead of the ICD's
         /// "evIndvIncomeBudgetForBudgetGroupMembers".</summary>
         [JsonPropertyName("evIndvIncomeBudget")]
+        [AliasOf(nameof(EvIndvIncomeBudget))]
         public List<IndvIncomeBudgetDTO>? EvIndvIncomeBudgetLegacy { get => null; set => EvIndvIncomeBudget ??= value; }
 
         /// <summary>Persisted to the new MWRP_CE_EDG_INCOME_BUDGET table.</summary>
@@ -1479,6 +1522,7 @@ namespace MES_EDWS.Models
 
         /// <summary>Name sent by docs/SamplePayload.json instead of the ICD's "isPriorEmployment".</summary>
         [JsonPropertyName("priorOrCurrentEmployment")]
+        [AliasOf(nameof(IsPriorEmployment))]
         public bool? PriorOrCurrentEmploymentLegacy { set => IsPriorEmployment ??= value; }
 
         [JsonPropertyName("startDate")]
@@ -1652,24 +1696,18 @@ namespace MES_EDWS.Models
 
     // ─── Job Training / In-Kind or Unpaid Work (CE_JOB_TRAINING / CE_INKIND_UNPAID_WORK) ─────
 
-    /// <summary>engagements.jobTraining[] — the in-kind shape plus a programType the ICD requires here only.</summary>
-    public class JobTrainingEntryDTO : InKindOrUnpaidWorkEntryDTO, IValidatableObject
+    /// <summary>engagements.jobTraining[] — the in-kind shape plus a programType the ICD requires here only.
+    /// v1.7.4 makes organizationName, monthlyHours and startDate required for job training only; they stay
+    /// optional for in-kind/unpaid work.</summary>
+    [RequiredElement("organizationName")]
+    [RequiredElement("monthlyHours")]
+    [RequiredElement("startDate")]
+    public class JobTrainingEntryDTO : InKindOrUnpaidWorkEntryDTO
     {
         /// <summary>Persisted to MWRP_CE_JOB_TRAINING.PROGRAM_TYPE (MWRP_CE_INKIND_UNPAID_WORK has no such column).</summary>
         [Required]
         [JsonPropertyName("programType")]
         public string? ProgramType { get; set; }
-
-        /// <summary>v1.7.4 makes these required for job training only; they stay optional for in-kind/unpaid work.</summary>
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (string.IsNullOrWhiteSpace(OrganizationName))
-                yield return new ValidationResult("organizationName is required.", new[] { nameof(OrganizationName) });
-            if (MonthlyHours == null)
-                yield return new ValidationResult("monthlyHours is required.", new[] { nameof(MonthlyHours) });
-            if (string.IsNullOrWhiteSpace(StartDate))
-                yield return new ValidationResult("startDate is required.", new[] { nameof(StartDate) });
-        }
     }
 
     /// <summary>engagements.inKindOrUnpaidWork[] (ICD IsInkindOrUnPaidResultDTO).</summary>
@@ -1934,21 +1972,27 @@ namespace MES_EDWS.Models
 
         // The ICD specifies snake_case, but senders also post camelCase; both must bind.
         [JsonPropertyName("productType")]
+        [AliasOf(nameof(ProductType))]
         public string? ProductTypeCamelCase { set => ProductType ??= value; }
 
         [JsonPropertyName("dataSource")]
+        [AliasOf(nameof(DataSource))]
         public string? DataSourceCamelCase { set => DataSource ??= value; }
 
         [JsonPropertyName("companyName")]
+        [AliasOf(nameof(CompanyName))]
         public string? CompanyNameCamelCase { set => CompanyName ??= value; }
 
         [JsonPropertyName("isSuspicious")]
+        [AliasOf(nameof(IsSuspicious))]
         public bool? IsSuspiciousCamelCase { set => IsSuspicious ??= value; }
 
         [JsonPropertyName("startDate")]
+        [AliasOf(nameof(StartDate))]
         public string? StartDateCamelCase { set => StartDate ??= value; }
 
         [JsonPropertyName("endDate")]
+        [AliasOf(nameof(EndDate))]
         public string? EndDateCamelCase { set => EndDate ??= value; }
     }
 
@@ -1965,6 +2009,7 @@ namespace MES_EDWS.Models
 
         // The ICD specifies snake_case, but senders also post camelCase; both must bind.
         [JsonPropertyName("logoUrl")]
+        [AliasOf(nameof(LogoUrl))]
         public string? LogoUrlCamelCase { set => LogoUrl ??= value; }
     }
 
@@ -2025,6 +2070,7 @@ namespace MES_EDWS.Models
 
         // The ICD names this field logo_url; SamplePayload.json sends logoUrl. Both must bind.
         [JsonPropertyName("logo_url")]
+        [AliasOf(nameof(LogoUrl))]
         public string? LogoUrlSnakeCase { set => LogoUrl ??= value; }
     }
 

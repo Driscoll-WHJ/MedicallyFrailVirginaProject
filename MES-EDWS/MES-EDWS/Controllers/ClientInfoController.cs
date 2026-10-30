@@ -51,7 +51,7 @@ namespace MES_EDWS.Controllers
             var transactionId = Guid.NewGuid().ToString();
             var requestJson   = await Request.ReadStorableJsonAsync();
 
-            var (statusCode, body) = await ProcessAsync(request, transactionId);
+            var (statusCode, body) = await ProcessAsync(request, requestJson, transactionId);
 
             // Persist to MWRP_CE_RESPONSE for every response (non-blocking — failures are logged, not thrown).
             await _clientInfoService.SaveResponseAsync(request, transactionId, statusCode, body);
@@ -79,10 +79,11 @@ namespace MES_EDWS.Controllers
             return StatusCode(statusCode, body);
         }
 
-        private async Task<(int StatusCode, object Body)> ProcessAsync(CepDWRequestDTO? request, string transactionId)
+        private async Task<(int StatusCode, object Body)> ProcessAsync(
+            CepDWRequestDTO? request, string? requestJson, string transactionId)
         {
             // Body was empty or not valid JSON for this DTO, so there is nothing to save.
-            if (request == null)
+            if (request == null || requestJson == null)
             {
                 var invalidFields = ModelState
                     .Where(entry => !string.IsNullOrEmpty(entry.Key))
@@ -112,7 +113,7 @@ namespace MES_EDWS.Controllers
                 request.RequestSource,
                 request.CeVerified is { Count: > 0 } ? request.CeVerified[0]?.ClientIdentificationNumber : null);
 
-            var missingFields = GetInvalidRequiredFields(request);
+            var missingFields = GetInvalidRequiredFields(request, requestJson);
             if (missingFields.Count > 0)
             {
                 _logger.LogWarning(
@@ -154,21 +155,24 @@ namespace MES_EDWS.Controllers
         }
 
         /// <summary>
-        /// Every [Required] model field (per CEP-003 ICD v1.7.4) that is absent, null, empty or
-        /// whitespace (rule "Required"), plus a requestTimestamp that is present but not an
-        /// ISO 8601 date-time (rule "Format").
+        /// Every [Required] element (per CEP-003 ICD v1.7.4) absent from the body (rule "Required");
+        /// a required element sent as null or "" is accepted, except requestSequenceNumber, which keys
+        /// every MWRP_CE_* data table and so must have a value. Plus a requestTimestamp that has a value
+        /// but is not an ISO 8601 date-time (rule "Format").
         /// </summary>
-        private static List<InvalidFieldDTO> GetInvalidRequiredFields(CepDWRequestDTO request)
+        private static List<InvalidFieldDTO> GetInvalidRequiredFields(CepDWRequestDTO request, string requestJson)
         {
-            var invalid = RequiredFieldValidator.GetMissingFields(request).Select(MissingField).ToList();
+            using var document = JsonDocument.Parse(requestJson);
+            var missing = RequiredFieldValidator.GetMissingFields(document.RootElement, typeof(CepDWRequestDTO));
+            var invalid = missing.Select(MissingField).ToList();
+
+            if (string.IsNullOrWhiteSpace(request.RequestSequenceNumber) && !missing.Contains(RequestSequenceNumberField))
+                invalid.Insert(0, InvalidField(RequestSequenceNumberField, RequiredRule,
+                    $"Malformed JSON or missing required field: {RequestSequenceNumberField} must have a value."));
 
             if (!string.IsNullOrWhiteSpace(request.Timestamp) && !request.TryGetRequestTimestamp(out _))
                 invalid.Insert(0, InvalidField("requestTimestamp", FormatRule,
                     "Malformed JSON or missing required field: requestTimestamp must be an ISO 8601 date-time (e.g. 2026-10-06T14:30:00-04:00)."));
-
-            // An empty list is present, so [Required] accepts it, but there is nothing to verify.
-            if (request.CeVerified is { Count: 0 })
-                invalid.Add(MissingField("ceVerified"));
 
             return invalid;
         }
@@ -179,6 +183,7 @@ namespace MES_EDWS.Controllers
         private const int SystemErrorCode     = 500;
         private const string RequiredRule     = "Required";
         private const string FormatRule       = "Format";
+        private const string RequestSequenceNumberField = "requestSequenceNumber";
 
         private static InvalidFieldDTO MissingField(string field) =>
             InvalidField(field, RequiredRule, $"Malformed JSON or missing required field: {field}");

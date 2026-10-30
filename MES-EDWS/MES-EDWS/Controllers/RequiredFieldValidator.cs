@@ -1,89 +1,101 @@
-using System.Collections;
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MES_EDWS.Models;
 
 namespace MES_EDWS.Controllers
 {
     /// <summary>
-    /// Walks a request DTO graph and returns the JSON path of every [Required] property that is
-    /// missing, null, empty or whitespace (e.g. "ceVerified[0].addresses[1].city"), plus the
-    /// fields named by any <see cref="IValidatableObject"/> rule (e.g. either-or requirements).
+    /// Walks the raw request JSON alongside its DTO type and returns the JSON path of every [Required]
+    /// element that is absent (e.g. "ceVerified[0].addresses[1].city"), plus every
+    /// <see cref="RequiredElementAttribute"/> rule with none of its elements present.
     /// </summary>
     /// <remarks>
-    /// Used instead of MVC ModelState, which keys errors by C# property name, stops after
-    /// MaxModelValidationErrors, and skips an object's IValidatableObject rule whenever one of its
-    /// attributes has already failed.
-    /// Required arrays only have to be present: the ICD's own payloads send [] for them.
+    /// Required means the element must be sent; its value may be null or "". An [AliasOf] property's
+    /// name counts as its target being sent. Keys match case-insensitively, as in model binding.
+    /// Used instead of MVC ModelState, which can only see deserialized values, so it cannot tell an
+    /// absent element from one sent as null.
     /// </remarks>
     public static class RequiredFieldValidator
     {
         private static readonly ConcurrentDictionary<Type, PropertyInfo[]> PropertiesByType = new();
 
-        public static List<string> GetMissingFields(object model)
+        public static List<string> GetMissingFields(JsonElement json, Type modelType)
         {
             var missing = new List<string>();
-            Visit(model, string.Empty, missing);
+            Visit(json, modelType, string.Empty, missing);
             return missing;
         }
 
-        private static void Visit(object model, string path, List<string> missing)
+        private static void Visit(JsonElement json, Type type, string path, List<string> missing)
         {
-            var type = model.GetType();
+            if (json.ValueKind != JsonValueKind.Object)
+                return;
 
-            foreach (var property in ReadableProperties(type))
+            var properties = JsonProperties(type);
+            foreach (var property in properties)
             {
-                var value    = property.GetValue(model);
-                var jsonPath = Join(path, JsonName(property));
+                var name     = JsonName(property);
+                var jsonPath = Join(path, name);
+                var element  = Find(json, name);
 
-                if (property.GetCustomAttribute<RequiredAttribute>(inherit: true) is { } required && !required.IsValid(value))
+                if (element is { } value)
+                    VisitChildren(value, property.PropertyType, jsonPath, missing);
+                else if (property.GetCustomAttribute<RequiredAttribute>(inherit: true) != null &&
+                         !properties.Any(alias => alias.GetCustomAttribute<AliasOfAttribute>()?.Target == property.Name &&
+                                                  Find(json, JsonName(alias)) != null))
                     missing.Add(jsonPath);
-
-                VisitChildren(value, jsonPath, missing);
             }
 
-            if (model is IValidatableObject validatable)
+            foreach (var rule in type.GetCustomAttributes<RequiredElementAttribute>(inherit: true))
             {
-                foreach (var result in validatable.Validate(new ValidationContext(model)))
-                {
-                    var names = result.MemberNames.Select(name => type.GetProperty(name) is { } p ? JsonName(p) : name);
-                    missing.Add(Join(path, string.Join(" or ", names)));
-                }
+                if (!rule.AnyOf.Any(name => Find(json, name) != null))
+                    missing.Add(Join(path, string.Join(" or ", rule.AnyOf)));
             }
         }
 
-        private static void VisitChildren(object? value, string path, List<string> missing)
+        private static void VisitChildren(JsonElement json, Type type, string path, List<string> missing)
         {
-            if (value == null || value is string)
-                return;
-
-            if (IsModel(value.GetType()))
+            if (json.ValueKind == JsonValueKind.Object && IsModel(type))
             {
-                Visit(value, path, missing);
+                Visit(json, type, path, missing);
                 return;
             }
 
-            if (value is IEnumerable items)
+            if (json.ValueKind == JsonValueKind.Array && ElementType(type) is { } itemType && IsModel(itemType))
             {
                 var index = 0;
-                foreach (var item in items)
-                {
-                    if (item != null && IsModel(item.GetType()))
-                        Visit(item, $"{path}[{index}]", missing);
-                    index++;
-                }
+                foreach (var item in json.EnumerateArray())
+                    Visit(item, itemType, $"{path}[{index++}]", missing);
             }
         }
+
+        private static JsonElement? Find(JsonElement json, string name)
+        {
+            foreach (var property in json.EnumerateObject())
+            {
+                if (string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
+                    return property.Value;
+            }
+            return null;
+        }
+
+        private static Type? ElementType(Type type) =>
+            type.IsArray
+                ? type.GetElementType()
+                : type.GetInterfaces().Append(type)
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    ?.GetGenericArguments()[0];
 
         private static bool IsModel(Type type) =>
             type.IsClass && type != typeof(string) && type.Assembly == typeof(RequiredFieldValidator).Assembly;
 
-        private static PropertyInfo[] ReadableProperties(Type type) =>
+        private static PropertyInfo[] JsonProperties(Type type) =>
             PropertiesByType.GetOrAdd(type, t => t
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.GetMethod != null && p.GetIndexParameters().Length == 0)
+                .Where(p => p.GetIndexParameters().Length == 0 && p.GetCustomAttribute<JsonIgnoreAttribute>() == null)
                 .ToArray());
 
         private static string JsonName(PropertyInfo property) =>

@@ -1,4 +1,5 @@
 using MES_EDWS.Controllers;
+using MES_EDWS.Models;
 using MES_EDWS.Options;
 using MES_EDWS.Services;
 using Microsoft.Extensions.Options;
@@ -46,6 +47,9 @@ builder.Services.AddControllers()
         // "organizationID" vs. "organizationId"). Case-insensitive matching lets all of
         // these bind correctly without hunting down every casing variant by hand.
         options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+
+        // CEP-003 required elements may be sent as "" even when they are bool/number/date fields.
+        options.JsonSerializerOptions.Converters.Add(new EmptyStringAsNullConverterFactory());
     });
 
 builder.Services.AddSwaggerGen();
