@@ -7,19 +7,21 @@ namespace MES_EDWS.Services
 {
     /// <summary>
     /// Persists CEP-ICD-003 v1.7.4 CE verification result payloads to the MWRP_CE_* Teradata tables
-    /// defined in docs/Version_1_7_4/CEP 003_Table_Defenitions V1.7.4.txt (the same shape is deployed
-    /// to every environment's schema, selected via <see cref="TeradataOptions.Schema"/> from
+    /// defined in docs/Version_1_7_4/CEP 003 - Table Defenitions V1.7.4_updated.txt (the same shape is
+    /// deployed to every environment's schema, selected via <see cref="TeradataOptions.Schema"/> from
     /// appsettings.{Environment}.json). The whole payload is written inside one transaction so a
     /// partially-saved request is never left behind.
     ///
-    /// Every v1.7.4 data table is keyed by REQUEST_SEQ_NBR (NOT NULL) and, below MWRP_CE_REQUEST /
-    /// MWRP_CE_DOCUMENT, by CLIENT_ID plus a VARCHAR(500) NOT NULL *_SEQ_NUM column. Each row gets a
-    /// new GUID as its own *_SEQ_NUM, and child rows repeat their parent row's *_SEQ_NUM values.
+    /// Every v1.7.4 data table is keyed by REQUEST_SEQ_NBR (NOT NULL). Below MWRP_CE_REQUEST every table
+    /// also carries the request's caseNumber as CASE_NBR (NOT NULL) and, below MWRP_CE_DOCUMENT, CLIENT_ID
+    /// plus a VARCHAR(500) NOT NULL *_SEQ_NUM column. Each row gets a new GUID as its own *_SEQ_NUM, and
+    /// child rows repeat their parent row's *_SEQ_NUM values.
     ///
     /// NOTE: when the controller finds required fields missing it still calls
     /// <see cref="SavePartialCeVerificationResultsAsync"/>. Without requestSequenceNumber nothing can
     /// be saved; otherwise rows whose NOT NULL key is absent are skipped (MWRP_CE_REQUEST without
-    /// requestTimestamp, every CLIENT_ID-keyed table for a ceVerified[] entry without clientId).
+    /// requestTimestamp, every table below MWRP_CE_REQUEST without caseNumber, every CLIENT_ID-keyed
+    /// table for a ceVerified[] entry without clientId).
     /// </summary>
     public class ClientInfoService : IClientInfoService
     {
@@ -34,7 +36,7 @@ namespace MES_EDWS.Services
         /// </summary>
         private readonly string _schema;
 
-        // ── Table names (docs/Version_1_7_4/CEP 003_Table_Defenitions V1.7.4.txt) ──
+        // ── Table names (docs/Version_1_7_4/CEP 003 - Table Defenitions V1.7.4_updated.txt) ──
         private string RequestTable                       => $"{_schema}.MWRP_CE_REQUEST";
         private string DocumentTable                      => $"{_schema}.MWRP_CE_DOCUMENT";
         private string VerifiedTable                      => $"{_schema}.MWRP_CE_VERIFIED";
@@ -97,8 +99,10 @@ namespace MES_EDWS.Services
         private string ApiRequestTable                    => $"{_schema}.MWRP_CE_API_REQUEST";
         private string ApiResponseTable                   => $"{_schema}.MWRP_CE_API_RESPONSE";
 
-        /// <summary>The open connection/transaction and the request key every data row carries.</summary>
-        private sealed record SaveScope(TdConnection Connection, TdTransaction Transaction, string RequestSeqNbr);
+        /// <summary>The open connection/transaction and the request keys every data row carries.
+        /// CaseNbr is null when the request has no caseNumber; then only MWRP_CE_REQUEST, the one table
+        /// where CASE_NBR is nullable, is written.</summary>
+        private sealed record SaveScope(TdConnection Connection, TdTransaction Transaction, string RequestSeqNbr, string? CaseNbr);
 
         public ClientInfoService(
             IConfiguration configuration,
@@ -137,7 +141,7 @@ namespace MES_EDWS.Services
             await connection.OpenAsync();
 
             await using var transaction = connection.BeginTransaction();
-            var scope = new SaveScope(connection, transaction, requestSequenceNumber);
+            var scope = new SaveScope(connection, transaction, requestSequenceNumber, NullIfWhiteSpace(request.CaseNumber));
 
             try
             {
@@ -148,9 +152,19 @@ namespace MES_EDWS.Services
                         "requestTimestamp missing — MWRP_CE_REQUEST row skipped. CaseNumber: {CaseNumber}",
                         request.CaseNumber);
 
-                var documentCount = await InsertDocumentsAsync(scope, request);
-
+                var documentCount = 0;
                 var verifiedEntries = request.CeVerified ?? new List<CeVerifiedDTO>();
+                if (scope.CaseNbr == null)
+                {
+                    _logger.LogWarning(
+                        "caseNumber missing — only MWRP_CE_REQUEST saved, every other MWRP_CE_* data table requires CASE_NBR. RequestSequenceNumber: {RequestSequenceNumber}",
+                        requestSequenceNumber);
+                    verifiedEntries = new List<CeVerifiedDTO>();
+                }
+                else
+                {
+                    documentCount = await InsertDocumentsAsync(scope, request);
+                }
                 for (var i = 0; i < verifiedEntries.Count; i++)
                 {
                     var verified = verifiedEntries[i];
@@ -216,7 +230,7 @@ namespace MES_EDWS.Services
                 ("REQUEST_SEQ_NBR", scope.RequestSeqNbr),
                 ("STATE_CD", request.State),
                 ("REQUEST_SOURCE_CD", request.RequestSource),
-                ("CASE_NBR", request.CaseNumber),
+                ("CASE_NBR", scope.CaseNbr),
                 ("SEND_EMAIL_FLG", ToYnChar(request.SendEmailToCustomer)),
                 ("PREF_COMM_LANG_CD", request.PreferredCommunicationLanguage),
                 ("APPLICATION_SOURCE", request.ApplicationSource));
@@ -233,6 +247,7 @@ namespace MES_EDWS.Services
             foreach (var (document, seq) in documents)
             {
                 await InsertAsync(scope.Connection, scope.Transaction, DocumentTable,
+                    ("CASE_NBR", scope.CaseNbr),
                     ("REQUEST_SEQ_NBR", scope.RequestSeqNbr),
                     ("DOCUMENT_SEQ_NUM", seq),
                     ("DOCUMENT_ID", document.DocumentId),
@@ -1244,11 +1259,11 @@ namespace MES_EDWS.Services
 
         // ── Helpers ────────────────────────────────────────────────────────────────
 
-        /// <summary>Inserts one row into a CLIENT_ID + REQUEST_SEQ_NBR keyed table.</summary>
+        /// <summary>Inserts one row into a CASE_NBR + CLIENT_ID + REQUEST_SEQ_NBR keyed table.</summary>
         private static Task InsertClientRowAsync(
             SaveScope scope, string table, string clientId, params (string Column, object? Value)[] columns) =>
             InsertAsync(scope.Connection, scope.Transaction, table,
-                [("CLIENT_ID", clientId), ("REQUEST_SEQ_NBR", scope.RequestSeqNbr), .. columns]);
+                [("CASE_NBR", scope.CaseNbr), ("CLIENT_ID", clientId), ("REQUEST_SEQ_NBR", scope.RequestSeqNbr), .. columns]);
 
         /// <summary>Inserts one row, appending the EDWS_CURRENT_IND / EDWS_DATASOURCE / EDWS_DATE_INSERT audit columns.</summary>
         private static async Task InsertAsync(
