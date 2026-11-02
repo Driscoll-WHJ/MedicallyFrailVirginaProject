@@ -297,7 +297,10 @@ namespace MES_EDWS.Services
                 await using var connection = new TdConnection(_connectionString);
                 await connection.OpenAsync();
 
-                await using (var command = new TdCommand(transactionSql, connection))
+                // Committed explicitly: in an ANSI-mode session uncommitted rows are rolled back on close.
+                await using var transaction = connection.BeginTransaction();
+
+                await using (var command = new TdCommand(transactionSql, connection) { Transaction = transaction })
                 {
                     command.Parameters.Add(new TdParameter { Value = audit.RequestId });
                     command.Parameters.Add(new TdParameter { Value = audit.TransactionId });
@@ -311,7 +314,7 @@ namespace MES_EDWS.Services
                     await command.ExecuteNonQueryAsync();
                 }
 
-                await using (var command = new TdCommand(requestSql, connection))
+                await using (var command = new TdCommand(requestSql, connection) { Transaction = transaction })
                 {
                     command.Parameters.Add(new TdParameter { Value = audit.RequestId });
                     command.Parameters.Add(new TdParameter { Value = audit.TransactionId });
@@ -322,7 +325,7 @@ namespace MES_EDWS.Services
                     await command.ExecuteNonQueryAsync();
                 }
 
-                await using (var command = new TdCommand(responseSql, connection))
+                await using (var command = new TdCommand(responseSql, connection) { Transaction = transaction })
                 {
                     command.Parameters.Add(new TdParameter { Value = audit.RequestId });
                     command.Parameters.Add(new TdParameter { Value = audit.TransactionId });
@@ -332,6 +335,8 @@ namespace MES_EDWS.Services
                     command.Parameters.Add(new TdParameter { Value = DateTime.Today });
                     await command.ExecuteNonQueryAsync();
                 }
+
+                transaction.Commit();
 
                 _logger.LogInformation(
                     "API audit saved to Teradata for RequestId: {RequestId}, TransactionId: {TransactionId}",
