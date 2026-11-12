@@ -1,0 +1,24 @@
+Here’s a summary of the changes- 
+- caseAction replaced by required individualCaseAction (reference table RT_INDIVIDUALCASEACTION)
+- source and updateSw removed from AcknowledgementDTO, CepDWResultDTO and CepDWAckResponseDTO
+- currentlyIncarcerated renamed incarceratedCircumstance
+- individualComplyingWithTANFWorkParticipationRequirements replaced by enrolledForTANF
+- MedicarePartABDTO: typeOfCoverage, medicareExpenseType, overallTypeOfCoverage and isSOLQ removed; replaced by required entitledToOrReceivingMedicareType
+- PregnancyDTO replaced by PregnancyCircumstanceDTO
+- SOLQ flags moved out of FrailtyDTO into SOLQTitleDisabledDTO (solqTitleDisability array); lTSSScreeningDetails array added (LTSSScreeningDTO); CBCTypeDetailsDTO replaced by indvCBCTypeDetails array (IndvCBCTypeDetailsDTO)
+
+New required fields
+- institutionCode and creditHours in EducationVerifiedDTO
+- source and totalBudgetHours in EvIndvIncomeBudgetDTO
+- maVerification made required
+- Job training organizationName, monthlyHours and startDate made required
+
+Non-breaking
+- Made optional: inKindOrUnpaidWork, dependentDOB, effectiveBeginDate (caregiver and foster care), clientId in DocumentsDTO, several education and employment fields, several FrailtyDTO flags, circumstances
+- documentUploadDate is now DateTime
+- maDisabilityEndDate and SNAPExemptionType added
+- Addition of SOLQTypeDisabledDTO and LTSSScreeningDTO
+- CircumstanceArray DTO is now optional
+- InKindorUnpaidWorkDTO is now optional
+- Within EducationDTO, credit hours were added and monthlyhours, term end date, and verification source are now optional
+- Within the electronicallyVerifiedEmploymentDTO, monthly hours is now optional
