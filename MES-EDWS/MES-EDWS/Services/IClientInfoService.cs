@@ -35,6 +35,12 @@ namespace MES_EDWS.Services
         Task SaveErrorResultAsync(CepDWResultDTO result);
 
         /// <summary>
+        /// Persists one row per API call to MWRP_CE_DW_RESULT, with CALLBACK_TS = the time the request
+        /// was received. Failures are logged but do not abort the caller.
+        /// </summary>
+        Task SaveDwResultAsync(CepDWRequestDTO? request, string correlationId, DateTime requestTime);
+
+        /// <summary>
         /// Persists one API call to MWRP_CE_API_TRANSACTION, MWRP_CE_API_REQUEST and
         /// MWRP_CE_API_RESPONSE. Failures are logged but do not abort the caller.
         /// </summary>

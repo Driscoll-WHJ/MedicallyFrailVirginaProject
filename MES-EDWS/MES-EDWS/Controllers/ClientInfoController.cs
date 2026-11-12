@@ -56,6 +56,9 @@ namespace MES_EDWS.Controllers
             // Persist to MWRP_CE_RESPONSE for every response (non-blocking — failures are logged, not thrown).
             await _clientInfoService.SaveResponseAsync(request, transactionId, statusCode, body);
 
+            // Persist to MWRP_CE_DW_RESULT for every call (non-blocking — failures are logged, not thrown).
+            await _clientInfoService.SaveDwResultAsync(request, transactionId, requestTime);
+
             // Persist to MWRP_CE_ERROR_* / MWRP_CE_INVALID_FIELD (non-blocking — failures are logged, not thrown).
             if (body is CepDWResultDTO errorResult)
                 await _clientInfoService.SaveErrorResultAsync(errorResult);

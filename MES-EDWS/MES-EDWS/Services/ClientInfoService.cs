@@ -29,6 +29,7 @@ namespace MES_EDWS.Services
         private readonly ILogger<ClientInfoService> _logger;
 
         private const string DataSource = "HR1_MWRP";
+        private const string DwResultDataSource = "MWRP";
 
         /// <summary>
         /// Teradata database/schema for this environment (HR1_DMAS_POC / HR1_DMAS_SIT /
@@ -95,6 +96,7 @@ namespace MES_EDWS.Services
         private string ErrorMessageTable                  => $"{_schema}.MWRP_CE_ERROR_MESSAGE";
         private string ErrorDetailTable                   => $"{_schema}.MWRP_CE_ERROR_DETAIL";
         private string InvalidFieldTable                  => $"{_schema}.MWRP_CE_INVALID_FIELD";
+        private string DwResultTable                      => $"{_schema}.MWRP_CE_DW_RESULT";
         private string ApiTransactionTable                => $"{_schema}.MWRP_CE_API_TRANSACTION";
         private string ApiRequestTable                    => $"{_schema}.MWRP_CE_API_REQUEST";
         private string ApiResponseTable                   => $"{_schema}.MWRP_CE_API_RESPONSE";
@@ -1208,6 +1210,38 @@ namespace MES_EDWS.Services
             }
         }
 
+        // ── MWRP_CE_DW_RESULT ──────────────────────────────────────────────────────
+        // One row per API call. CORRELATION_ID is the per-call id also written to MWRP_CE_ERROR_RESPONSE;
+        // REQUEST_SEQ_NBR is NOT NULL, so a request without one is keyed by correlationId.
+
+        public async Task SaveDwResultAsync(CepDWRequestDTO? request, string correlationId, DateTime requestTime)
+        {
+            try
+            {
+                await using var connection = new TdConnection(_connectionString);
+                await connection.OpenAsync();
+
+                await using var transaction = connection.BeginTransaction();
+
+                await InsertAsync(connection, transaction, DwResultTable, DwResultDataSource,
+                    ("CALLBACK_TS", new DateTimeOffset(requestTime)),
+                    ("REQUEST_SEQ_NBR", Truncate(NullIfWhiteSpace(request?.RequestSequenceNumber) ?? correlationId, 50)),
+                    ("STATE_ID", Truncate(request?.State, 2)),
+                    ("REQUEST_SOURCE_CD", Truncate(request?.RequestSource, 20)),
+                    ("CORRELATION_ID", Truncate(correlationId, 64)));
+
+                transaction.Commit();
+
+                _logger.LogInformation(
+                    "DW result saved to Teradata. CorrelationId: {CorrelationId}", correlationId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Failed to save DW result to Teradata. CorrelationId: {CorrelationId}", correlationId);
+            }
+        }
+
         // ── MWRP_CE_API_TRANSACTION / MWRP_CE_API_REQUEST / MWRP_CE_API_RESPONSE ──
         // Own connection and transaction, so the audit survives a rollback of the payload save.
         // TRANSACTION_ID is the per-call GUID in all three tables; CORRELATION_ID / REQUEST_ID /
@@ -1266,8 +1300,13 @@ namespace MES_EDWS.Services
                 [("CASE_NBR", scope.CaseNbr), ("CLIENT_ID", clientId), ("REQUEST_SEQ_NBR", scope.RequestSeqNbr), .. columns]);
 
         /// <summary>Inserts one row, appending the EDWS_CURRENT_IND / EDWS_DATASOURCE / EDWS_DATE_INSERT audit columns.</summary>
+        private static Task InsertAsync(
+            TdConnection connection, TdTransaction transaction, string table, params (string Column, object? Value)[] columns) =>
+            InsertAsync(connection, transaction, table, DataSource, columns);
+
         private static async Task InsertAsync(
-            TdConnection connection, TdTransaction transaction, string table, params (string Column, object? Value)[] columns)
+            TdConnection connection, TdTransaction transaction, string table, string dataSource,
+            params (string Column, object? Value)[] columns)
         {
             var sql =
                 $"INSERT INTO {table} ({string.Join(", ", columns.Select(c => c.Column))}, " +
@@ -1278,7 +1317,7 @@ namespace MES_EDWS.Services
 
             foreach (var (_, value) in columns)
                 command.Parameters.Add(new TdParameter { Value = value ?? DBNull.Value });
-            command.Parameters.Add(new TdParameter { Value = DataSource });
+            command.Parameters.Add(new TdParameter { Value = dataSource });
             command.Parameters.Add(new TdParameter { Value = DateTime.Today });
 
             await command.ExecuteNonQueryAsync();
