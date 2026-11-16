@@ -10,6 +10,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="docs\New_Payload\REQUEST_JSON15.json" />
+    <Content Remove="docs\New_Payload\REQUEST_JSON2.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="docs\New_Payload\REQUEST_JSON15.json" />
+    <None Include="docs\New_Payload\REQUEST_JSON2.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
     <PackageReference Include="Teradata.Client.Provider" Version="20.0.9" />
   </ItemGroup>
