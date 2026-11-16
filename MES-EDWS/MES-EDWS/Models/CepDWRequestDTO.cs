@@ -1452,6 +1452,11 @@ namespace MES_EDWS.Models
         [JsonPropertyName("electronicallyVerifiedEmployment")]
         public List<ElectronicallyVerifiedEmploymentDTO>? ElectronicallyVerifiedEmployment { get; set; }
 
+        /// <summary>The Truv employer tree sent at engagement level (docs/New_Payload) rather than under an
+        /// incomeDetails[] entry. Persisted to MWRP_CE_TRUV_EMPLOYER and its child tables.</summary>
+        [JsonPropertyName("truvIncomeDetails")]
+        public List<TruvEmployerDTO>? TruvIncomeDetails { get; set; }
+
         /// <summary>Persisted to the MWRP_CE_EV_INDV_INCOME_BUDGET table.</summary>
         [JsonPropertyName("evIndvIncomeBudgetForBudgetGroupMembers")]
         public List<IndvIncomeBudgetDTO>? EvIndvIncomeBudget { get; set; }
@@ -2064,6 +2069,11 @@ namespace MES_EDWS.Models
 
         [JsonPropertyName("fullName")]
         public string? FullName { get; set; }
+
+        /// <summary>Snake_case name sent by the truvIncomeDetails[] profiles in docs/New_Payload.</summary>
+        [JsonPropertyName("full_name")]
+        [AliasOf(nameof(FullName))]
+        public string? FullNameSnakeCase { set => FullName ??= value; }
 
         [JsonPropertyName("logoUrl")]
         public string? LogoUrl { get; set; }

@@ -759,6 +759,10 @@ namespace MES_EDWS.Services
             foreach (var (income, seq) in WithSeqNums(engagements.Employment))
                 await InsertIncomeDetailsAsync(scope, clientId, seq, income);
 
+            // INCOME_DTLS_SEQ_NUM is NOT NULL on every Truv table, so engagement-level Truv rows share one
+            // GUID per engagements object that matches no MWRP_CE_INCOME_DETAILS row.
+            await InsertTruvEmployersAsync(scope, clientId, NewSeqNum(), engagements.TruvIncomeDetails);
+
             foreach (var (jobTraining, seq) in WithSeqNums(engagements.JobTraining))
                 await InsertActivityAsync(scope, clientId, JobTrainingTable, "JOB_TRAIN_SEQ_NUM", seq, jobTraining);
 
@@ -911,10 +915,16 @@ namespace MES_EDWS.Services
                     ("VACMS_SEQUENCE_NUM", budget.VaCmsSequenceNumber));
             }
 
-            foreach (var (truvEmployer, truvSeq) in WithSeqNums(income.ElectronicallyVerifiedData))
+            await InsertTruvEmployersAsync(scope, clientId, seq, income.ElectronicallyVerifiedData);
+        }
+
+        private async Task InsertTruvEmployersAsync(
+            SaveScope scope, string clientId, string incomeSeq, List<TruvEmployerDTO>? truvEmployers)
+        {
+            foreach (var (truvEmployer, truvSeq) in WithSeqNums(truvEmployers))
             {
                 await InsertClientRowAsync(scope, TruvEmployerTable, clientId,
-                    ("INCOME_DTLS_SEQ_NUM", seq),
+                    ("INCOME_DTLS_SEQ_NUM", incomeSeq),
                     ("TRUV_EMPLR_SEQ_NUM", truvSeq),
                     ("TRUV_EMPLOYER_ID", truvEmployer.Id),
                     ("PRODUCT_TYPE", truvEmployer.ProductType),
@@ -928,7 +938,7 @@ namespace MES_EDWS.Services
                 if (truvEmployer.Provider is { } provider)
                 {
                     await InsertClientRowAsync(scope, PayrollProviderTable, clientId,
-                        ("INCOME_DTLS_SEQ_NUM", seq),
+                        ("INCOME_DTLS_SEQ_NUM", incomeSeq),
                         ("TRUV_EMPLR_SEQ_NUM", truvSeq),
                         ("PAYROLL_PROV_SEQ_NUM", NewSeqNum()),
                         ("TRUV_EMPLOYER_ID", truvEmployer.Id),
@@ -938,7 +948,7 @@ namespace MES_EDWS.Services
                 }
 
                 foreach (var (detail, empSeq) in WithSeqNums(truvEmployer.Employments))
-                    await InsertTruvEmploymentAsync(scope, clientId, seq, truvSeq, empSeq, detail);
+                    await InsertTruvEmploymentAsync(scope, clientId, incomeSeq, truvSeq, empSeq, detail);
             }
         }
 
@@ -1244,8 +1254,9 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_API_TRANSACTION / MWRP_CE_API_REQUEST / MWRP_CE_API_RESPONSE ──
         // Own connection and transaction, so the audit survives a rollback of the payload save.
-        // TRANSACTION_ID is the per-call GUID in all three tables; CORRELATION_ID / REQUEST_ID /
-        // RESPONSE_ID carry the caller's requestSequenceNumber.
+        // TRANSACTION_ID (and MWRP_CE_API_TRANSACTION.CORRELATION_ID) is the per-call GUID, the same value
+        // written to MWRP_CE_DW_RESULT.CORRELATION_ID; REQUEST_ID / RESPONSE_ID carry the caller's
+        // requestSequenceNumber.
 
         public async Task SaveApiAuditAsync(ApiAudit audit)
         {
@@ -1258,7 +1269,7 @@ namespace MES_EDWS.Services
 
                 await InsertAsync(connection, transaction, ApiTransactionTable,
                     ("TRANSACTION_ID", audit.TransactionId),
-                    ("CORRELATION_ID", audit.RequestId),
+                    ("CORRELATION_ID", audit.TransactionId),
                     ("API_NAME", audit.ApiName),
                     ("REQUEST_TIME", audit.RequestTime),
                     ("RESPONSE_TIME", audit.ResponseTime),
