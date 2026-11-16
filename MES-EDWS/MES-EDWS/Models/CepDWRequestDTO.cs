@@ -178,6 +178,10 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("status")]
         public string? DocumentStatus { get; set; }
+
+        /// <summary>New in v1.7.8 — persisted to MWRP_CE_DOCUMENT.FILE_NAME.</summary>
+        [JsonPropertyName("fileName")]
+        public string? FileName { get; set; }
     }
 
     // ─── CE Verification (CE_VERIFIED) ───────────────────────────────────────────
@@ -218,6 +222,18 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("mwrStatus")]
         public string? MwrStatus { get; set; }
+
+        /// <summary>New in v1.7.8 — persisted to MWRP_CE_VERIFIED.MWR_CIRCUMSTANCE_CODE.</summary>
+        [JsonPropertyName("mwrCircumstanceCode")]
+        public string? MwrCircumstanceCode { get; set; }
+
+        /// <summary>New in v1.7.8 — persisted to MWRP_CE_VERIFIED.EXCL_PERIOD_START_DT.</summary>
+        [JsonPropertyName("exclusionPeriodStartDate")]
+        public string? ExclusionPeriodStartDate { get; set; }
+
+        /// <summary>New in v1.7.8 — persisted to MWRP_CE_VERIFIED.EXCL_PERIOD_END_DT.</summary>
+        [JsonPropertyName("exclusionPeriodEndDate")]
+        public string? ExclusionPeriodEndDate { get; set; }
 
         /// <summary>Renamed from "mwrStartDate" to "mwrStatusStartDate" in docs/SamplePayload.json.</summary>
         [JsonPropertyName("mwrStatusStartDate")]
@@ -658,6 +674,10 @@ namespace MES_EDWS.Models
         [JsonPropertyName("tribeName")]
         public string? TribeName { get; set; }
 
+        /// <summary>New in v1.7.8 — persisted to MWRP_CE_AMERICAN_INDIAN_ALASKAN_NATIVE.INDIAN_HEALTH_SERVICE_IND.</summary>
+        [JsonPropertyName("indianHealthService")]
+        public bool? IndianHealthService { get; set; }
+
         [JsonPropertyName("effectiveBeginDate")]
         public string? EffectiveBeginDate { get; set; }
 
@@ -843,8 +863,9 @@ namespace MES_EDWS.Models
         [JsonPropertyName("effectiveEndDate")]
         public string? EffectiveEndDate { get; set; }
 
-        [JsonPropertyName("verificationSource")]
-        public string? VerificationSource { get; set; }
+        /// <summary>New in v1.7.8 (replaces VERIFICATION_SOURCE) — persisted to MWRP_CE_TRAVELING_OUTSIDE.TRAVEL_FOR_NECESSARY_CARE.</summary>
+        [JsonPropertyName("travelForNecessaryCare")]
+        public string? TravelForNecessaryCare { get; set; }
 
         [JsonPropertyName("verificationDate")]
         public string? VerificationDate { get; set; }
@@ -1083,6 +1104,10 @@ namespace MES_EDWS.Models
         [JsonPropertyName("relationshipWithDependent")]
         public string? RelationshipWithDependent { get; set; }
 
+        /// <summary>New in v1.7.8 — persisted to MWRP_CE_CARE_GIVER_CIRCUMSTANCE.DEPENDENT_NAME.</summary>
+        [JsonPropertyName("dependentName")]
+        public string? DependentName { get; set; }
+
         [Required]
         [JsonPropertyName("dependentLiveInTheSameHome")]
         public bool? DependentLivesSameHome { get; set; }
@@ -1161,6 +1186,10 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("clientReceivedFormerFosterCare")]
         public string? ClientReceivedFormerFosterCare { get; set; }
+
+        /// <summary>New in v1.7.8 — persisted to MWRP_CE_FORMER_FOSTER_CARE.STATE_IN_FOSTERCARE_AT_18.</summary>
+        [JsonPropertyName("stateInFosterCareAt18")]
+        public string? StateInFosterCareAt18 { get; set; }
 
         [Required]
         [JsonPropertyName("source")]
@@ -1574,6 +1603,10 @@ namespace MES_EDWS.Models
         [JsonPropertyName("monthlyHours")]
         public decimal? MonthlyHours { get; set; }
 
+        /// <summary>New in v1.7.8 — persisted to MWRP_CE_INCOME_BUDGET_DETAILS.MONTHLY_EXPENSE.</summary>
+        [JsonPropertyName("monthlyExpense")]
+        public decimal? MonthlyExpense { get; set; }
+
         [Required]
         [JsonPropertyName("incomeMonth")]
         public int? IncomeMonth { get; set; }
@@ -1620,6 +1653,16 @@ namespace MES_EDWS.Models
         [Required]
         [JsonPropertyName("incomeYear")]
         public int? IncomeYear { get; set; }
+
+        /// <summary>New in v1.7.8 — SOURCE_SYSTEM / UPDATE_SW / VACMS_SEQUENCE_NUM on MWRP_CE_ELECTRONICALLY_VERIFIED_EMPLOYMENT.</summary>
+        [JsonPropertyName("source")]
+        public string? Source { get; set; }
+
+        [JsonPropertyName("updateSw")]
+        public string? UpdateSw { get; set; }
+
+        [JsonPropertyName("vaCMSSequenceNum")]
+        public string? VaCmsSequenceNumber { get; set; }
     }
 
     /// <summary>engagements.evIndvIncomeBudget[] — persisted to the new MWRP_CE_INDV_INCOME_BUDGET table.</summary>
@@ -2074,6 +2117,41 @@ namespace MES_EDWS.Models
         [JsonPropertyName("full_name")]
         [AliasOf(nameof(FullName))]
         public string? FullNameSnakeCase { set => FullName ??= value; }
+
+        // New in v1.7.8 — persisted to the MWRP_CE_EMPLOYEE_PROFILE.EMP_* columns. Names match the
+        // snake_case Truv profile in docs/New_Payload.
+        [JsonPropertyName("first_name")]
+        public string? FirstName { get; set; }
+
+        [JsonPropertyName("middle_name")]
+        public string? MiddleName { get; set; }
+
+        [JsonPropertyName("last_name")]
+        public string? LastName { get; set; }
+
+        [JsonPropertyName("employee_email")]
+        public string? Email { get; set; }
+
+        [JsonPropertyName("employee_adr_street")]
+        public string? AddressStreet { get; set; }
+
+        [JsonPropertyName("employee_adr_city")]
+        public string? AddressCity { get; set; }
+
+        [JsonPropertyName("employee_adr_state")]
+        public string? AddressState { get; set; }
+
+        [JsonPropertyName("employee_adr_zip")]
+        public string? AddressZip { get; set; }
+
+        [JsonPropertyName("employee_adr_country")]
+        public string? AddressCountry { get; set; }
+
+        [JsonPropertyName("employee_dob")]
+        public string? DateOfBirth { get; set; }
+
+        [JsonPropertyName("employee_ssn")]
+        public string? Ssn { get; set; }
 
         [JsonPropertyName("logoUrl")]
         public string? LogoUrl { get; set; }

@@ -7,7 +7,7 @@ namespace MES_EDWS.Services
 {
     /// <summary>
     /// Persists CEP-ICD-003 v1.7.4 CE verification result payloads to the MWRP_CE_* Teradata tables
-    /// defined in docs/Version_1_7_4/CEP 003 - Table Defenitions V1.7.4_updated.txt (the same shape is
+    /// defined in docs/Version_1_7_8/CEP 003 - Table Defenitions V1.7.8.TXT (the same shape is
     /// deployed to every environment's schema, selected via <see cref="TeradataOptions.Schema"/> from
     /// appsettings.{Environment}.json). The whole payload is written inside one transaction so a
     /// partially-saved request is never left behind.
@@ -37,7 +37,7 @@ namespace MES_EDWS.Services
         /// </summary>
         private readonly string _schema;
 
-        // ── Table names (docs/Version_1_7_4/CEP 003 - Table Defenitions V1.7.4_updated.txt) ──
+        // ── Table names (docs/Version_1_7_8/CEP 003 - Table Defenitions V1.7.8.TXT) ──
         private string RequestTable                       => $"{_schema}.MWRP_CE_REQUEST";
         private string DocumentTable                      => $"{_schema}.MWRP_CE_DOCUMENT";
         private string VerifiedTable                      => $"{_schema}.MWRP_CE_VERIFIED";
@@ -259,7 +259,8 @@ namespace MES_EDWS.Services
                     ("DOCUMENT_UPLOAD_DT", ToDbDateFromDateTime(document.DocumentUploadTimestamp)),
                     ("DOCUMENT_DELETED_DT", ToDbDateFromDateTime(document.DocumentDeletedTimestamp)),
                     ("SOURCE_CD", document.SourceSystem),
-                    ("STATUS_CD", document.DocumentStatus));
+                    ("STATUS_CD", document.DocumentStatus),
+                    ("FILE_NAME", Truncate(document.FileName, 1000)));
             }
 
             return documents.Count;
@@ -277,8 +278,11 @@ namespace MES_EDWS.Services
                 ("GENDER_CD", verified.Gender),
                 ("DATE_OF_BIRTH", ToDbDate(verified.DateOfBirth)),
                 ("MMIS_ENROLLEE_ID", NullIfWhiteSpace(verified.MmisEnrolleeId)),
-                ("SSN_NBR", verified.SocialSecurityNumber),
+                ("SSN", verified.SocialSecurityNumber),
                 ("MWR_STATUS_CD", verified.MwrStatus),
+                ("MWR_CIRCUMSTANCE_CODE", verified.MwrCircumstanceCode),
+                ("EXCL_PERIOD_START_DT", ToDbDate(verified.ExclusionPeriodStartDate)),
+                ("EXCL_PERIOD_END_DT", ToDbDate(verified.ExclusionPeriodEndDate)),
                 ("MWR_STATUS_START_DT", ToDbDate(verified.MwrStartDate)),
                 ("MWR_STATUS_END_DT", ToDbDate(verified.MwrEndDate)),
                 ("REVIEW_MONTH_DT", ToDbDate(verified.ReviewMonth)),
@@ -413,6 +417,7 @@ namespace MES_EDWS.Services
                     ("AMERICAN_INDIAN_ALASKAN_NATIVE_IND", ToYnChar(aian.AmericanIndianAlaskanNative)),
                     ("FED_RECOGNIZED_TRIBE_IND", ToYnChar(aian.FedRecognizedTribe)),
                     ("TRIBE_NAME", aian.TribeName),
+                    ("INDIAN_HEALTH_SERVICE_IND", ToYnChar(aian.IndianHealthService)),
                     ("EFFECTIVE_BEGIN_DATE", ToDbDate(aian.EffectiveBeginDate)),
                     ("EFFECTIVE_END_DATE", ToDbDate(aian.EffectiveEndDate)),
                     ("SOURCE_SYSTEM", aian.Source),
@@ -426,6 +431,7 @@ namespace MES_EDWS.Services
                     ("CARE_GIVER_SEQ_NUM", seq),
                     ("CIRCUMSTANCE_CODE", caregiver.CircumstanceCode),
                     ("RELATIONSHIP_WITH_DEPENDENT", caregiver.RelationshipWithDependent),
+                    ("DEPENDENT_NAME", Truncate(caregiver.DependentName, 100)),
                     ("DEPENDENT_DOB", ToDbDate(caregiver.DependentDob)),
                     ("DEPENDENT_LIVE_IN_SAME_HOME_IND", ToYnChar(caregiver.DependentLivesSameHome)),
                     ("DEPENDENT_DISABLED_IND", ToYnChar(caregiver.IsDependentDisabled)),
@@ -472,7 +478,8 @@ namespace MES_EDWS.Services
                     ("UPDATE_SW", formerFosterCare.UpdateSw),
                     ("VACMS_SEQUENCE_NUM", formerFosterCare.VaCmsSequenceNumber),
                     ("AID_CATEGORY_WHEN_TURNED_18", formerFosterCare.AidCategoryWhenTurned18),
-                    ("CLIENT_RECEIVED_FORMER_FOSTER_CARE", formerFosterCare.ClientReceivedFormerFosterCare));
+                    ("CLIENT_RECEIVED_FORMER_FOSTER_CARE", formerFosterCare.ClientReceivedFormerFosterCare),
+                    ("STATE_IN_FOSTERCARE_AT_18", Truncate(formerFosterCare.StateInFosterCareAt18, 50)));
             }
 
             foreach (var (incarceration, seq) in WithSeqNums(exemptions.IncarceratedCircumstance))
@@ -599,7 +606,7 @@ namespace MES_EDWS.Services
                     ("TRAVELING_OUTSIDE_COMMUNITY_IND", ToYnChar(travelingOutside.TravelingOutsideCommunity)),
                     ("EFFECTIVE_BEGIN_DATE", ToDbDate(travelingOutside.EffectiveBeginDate)),
                     ("EFFECTIVE_END_DATE", ToDbDate(travelingOutside.EffectiveEndDate)),
-                    ("VERIFICATION_SOURCE", travelingOutside.VerificationSource),
+                    ("TRAVEL_FOR_NECESSARY_CARE", Truncate(travelingOutside.TravelForNecessaryCare, 500)),
                     ("VERIFICATION_DATE", ToDbDate(travelingOutside.VerificationDate)),
                     ("SOURCE_SYSTEM", travelingOutside.Source),
                     ("VACMS_SEQUENCE_NUM", travelingOutside.VaCmsSequenceNumber),
@@ -700,7 +707,7 @@ namespace MES_EDWS.Services
 
         // ── MWRP_CE_CARE_RECEIVED_DETAILS ─────────────────────────────────────────
         // Shared child of medicalExemptions[] and travelingOutside[]; the DDL names the parent key
-        // MEDICAL_EXCEMPT_SEQ_NUM for both, holding the parent row's *_SEQ_NUM.
+        // MED_EXMPT_TRAVEL_SEQ_NUM for both, holding the parent row's *_SEQ_NUM.
 
         private async Task InsertCareReceivedDetailsAsync(
             SaveScope scope, string clientId, string parentSeq, List<CareReceivedDetailDTO>? careReceivedDetails)
@@ -708,7 +715,7 @@ namespace MES_EDWS.Services
             foreach (var (careReceived, seq) in WithSeqNums(careReceivedDetails))
             {
                 await InsertClientRowAsync(scope, CareReceivedDetailsTable, clientId,
-                    ("MEDICAL_EXCEMPT_SEQ_NUM", parentSeq),
+                    ("MED_EXMPT_TRAVEL_SEQ_NUM", parentSeq),
                     ("CARE_RCD_DTLS_SEQ_NUM", seq),
                     ("TYPE_OF_CARE_CD", careReceived.TypeOfCare),
                     ("TYPE_OF_CARE_DESC", careReceived.TypeOfCareDescription),
@@ -796,7 +803,10 @@ namespace MES_EDWS.Services
                     ("MONTHLY_INCOME", summary.MonthlyIncome),
                     ("MONTHLY_HOURS", summary.MonthlyHours),
                     ("INCOME_MONTH", summary.IncomeMonth),
-                    ("INCOME_YEAR", summary.IncomeYear));
+                    ("INCOME_YEAR", summary.IncomeYear),
+                    ("SOURCE_SYSTEM", summary.Source),
+                    ("UPDATE_SW", summary.UpdateSw),
+                    ("VACMS_SEQUENCE_NUM", summary.VaCmsSequenceNumber));
             }
 
             // CLIENT_ID is the budget group member's own (required) clientId; entries without one are skipped.
@@ -907,6 +917,7 @@ namespace MES_EDWS.Services
                     ("INCOME_BDGT_DTLS_SEQ_NUM", budgetSeq),
                     ("MONTHLY_INCOME", budget.MonthlyIncome),
                     ("MONTHLY_HOURS", budget.MonthlyHours),
+                    ("MONTHLY_EXPENSE", budget.MonthlyExpense),
                     ("INCOME_MONTH", budget.IncomeMonth),
                     ("INCOME_YEAR", budget.IncomeYear),
                     ("VERIFICATION_SOURCE", budget.VerificationSource),
@@ -979,7 +990,18 @@ namespace MES_EDWS.Services
                     ("EMP_PROFILE_SEQ_NUM", NewSeqNum()),
                     ("EMPLOYEE_ID", profile.EmployeeId),
                     ("FULL_NAME", profile.FullName),
-                    ("PAYROLL_PROVIDER_LOGO_URL", profile.LogoUrl));
+                    ("PAYROLL_PROVIDER_LOGO_URL", profile.LogoUrl),
+                    ("EMP_FIRST_NAME", Truncate(profile.FirstName, 100)),
+                    ("EMP_MIDDLE_INITIAL", Truncate(profile.MiddleName, 100)),
+                    ("EMP_LAST_NAME", Truncate(profile.LastName, 100)),
+                    ("EMP_EMAIL", Truncate(profile.Email, 320)),
+                    ("EMP_ADDR_STREET", Truncate(profile.AddressStreet, 500)),
+                    ("EMP_ADDR_CITY", Truncate(profile.AddressCity, 100)),
+                    ("EMP_ADDR_STATE", Truncate(profile.AddressState, 100)),
+                    ("EMP_ADDR_ZIP", Truncate(profile.AddressZip, 100)),
+                    ("EMP_ADDR_COUNTRY", Truncate(profile.AddressCountry, 100)),
+                    ("EMP_DOB", ToDbDate(profile.DateOfBirth)),
+                    ("EMP_SSN", Truncate(profile.Ssn, 11)));
             }
 
             foreach (var (statement, statementSeq) in WithSeqNums(detail.Statement))
