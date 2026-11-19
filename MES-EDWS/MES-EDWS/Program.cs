@@ -8,6 +8,19 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Credentials that must not be committed (the GitHub repository is public) go in an untracked
+// appsettings.{Environment}.secrets.json beside the app; it is git-ignored but still published.
+builder.Configuration.AddJsonFile(
+    $"appsettings.{builder.Environment.EnvironmentName}.secrets.json", optional: true, reloadOnChange: true);
+
+// appsettings.Production.json blanks the shared Dev/SIT/UAT connection string, so Production
+// refuses to start instead of silently connecting with the non-production login.
+if (string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString("TeradataConnection")))
+    throw new InvalidOperationException(
+        "ConnectionStrings:TeradataConnection is not configured for environment " +
+        $"'{builder.Environment.EnvironmentName}'. Supply it in appsettings.{builder.Environment.EnvironmentName}.secrets.json " +
+        "or the ConnectionStrings__TeradataConnection environment variable.");
+
 // ── Environment-specific configuration ──────────────────────────────────────────
 // WebApplication.CreateBuilder already loads appsettings.json and then
 // appsettings.{ASPNETCORE_ENVIRONMENT}.json on top of it, so Development / SIT / UAT /

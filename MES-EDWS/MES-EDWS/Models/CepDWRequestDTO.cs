@@ -2003,6 +2003,31 @@ namespace MES_EDWS.Models
         [JsonPropertyName("company_name")]
         public string? CompanyName { get; set; }
 
+        // New in v1.8 — persisted to the MWRP_CE_TRUV_EMPLOYER.COMPANY_* columns.
+        [JsonPropertyName("company_ein")]
+        [JsonConverter(typeof(FlexibleStringConverter))]
+        public string? CompanyEin { get; set; }
+
+        [JsonPropertyName("company_adr_street")]
+        public string? CompanyAddressStreet { get; set; }
+
+        [JsonPropertyName("company_adr_city")]
+        public string? CompanyAddressCity { get; set; }
+
+        [JsonPropertyName("company_adr_state")]
+        public string? CompanyAddressState { get; set; }
+
+        [JsonPropertyName("company_adr_zip")]
+        [JsonConverter(typeof(FlexibleStringConverter))]
+        public string? CompanyAddressZip { get; set; }
+
+        [JsonPropertyName("company_adr_country")]
+        public string? CompanyAddressCountry { get; set; }
+
+        [JsonPropertyName("company_phone")]
+        [JsonConverter(typeof(FlexibleStringConverter))]
+        public string? CompanyPhone { get; set; }
+
         [JsonPropertyName("is_suspicious")]
         public bool? IsSuspicious { get; set; }
 

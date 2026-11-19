@@ -7,7 +7,7 @@ namespace MES_EDWS.Services
 {
     /// <summary>
     /// Persists CEP-ICD-003 v1.7.4 CE verification result payloads to the MWRP_CE_* Teradata tables
-    /// defined in docs/Version_1_7_8/CEP 003 - Table Defenitions V1.7.8.TXT (the same shape is
+    /// defined in docs/Version_1_7_8/CEP 003 - Table Defenitions V1.8.txt (the same shape is
     /// deployed to every environment's schema, selected via <see cref="TeradataOptions.Schema"/> from
     /// appsettings.{Environment}.json). The whole payload is written inside one transaction so a
     /// partially-saved request is never left behind.
@@ -37,7 +37,7 @@ namespace MES_EDWS.Services
         /// </summary>
         private readonly string _schema;
 
-        // ── Table names (docs/Version_1_7_8/CEP 003 - Table Defenitions V1.7.8.TXT) ──
+        // ── Table names (docs/Version_1_7_8/CEP 003 - Table Defenitions V1.8.txt) ──
         private string RequestTable                       => $"{_schema}.MWRP_CE_REQUEST";
         private string DocumentTable                      => $"{_schema}.MWRP_CE_DOCUMENT";
         private string VerifiedTable                      => $"{_schema}.MWRP_CE_VERIFIED";
@@ -942,6 +942,13 @@ namespace MES_EDWS.Services
                     ("STATUS_CD", truvEmployer.Status),
                     ("DATA_SOURCE", truvEmployer.DataSource),
                     ("COMPANY_NAME", truvEmployer.CompanyName),
+                    ("COMPANY_EIN", Truncate(truvEmployer.CompanyEin, 15)),
+                    ("COMPANY_ADDR_STREET", Truncate(truvEmployer.CompanyAddressStreet, 500)),
+                    ("COMPANY_ADDR_CITY", Truncate(truvEmployer.CompanyAddressCity, 100)),
+                    ("COMPANY_ADDR_STATE", Truncate(truvEmployer.CompanyAddressState, 100)),
+                    ("COMPANY_ADDR_ZIP", Truncate(truvEmployer.CompanyAddressZip, 100)),
+                    ("COMPANY_ADDR_COUNTRY", Truncate(truvEmployer.CompanyAddressCountry, 100)),
+                    ("COMPANY_PHONE", Truncate(truvEmployer.CompanyPhone, 20)),
                     ("IS_SUSPICIOUS_IND", ToYnChar(truvEmployer.IsSuspicious)),
                     ("START_DATE", ToDbDate(truvEmployer.StartDate)),
                     ("END_DATE", ToDbDate(truvEmployer.EndDate)));

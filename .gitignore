@@ -429,3 +429,16 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Cloud-sync / file-copy conflict duplicates (e.g. "ClientInfoService (Wjoudrey 2nd copy).cs")
+* (*copy)*
+*conflicted copy*
+* - Copy*
+
+# Local SQLite files
+*.db
+*.db-shm
+*.db-wal
+
+# Per-environment credentials (repository is public) - see Program.cs
+appsettings.*.secrets.json
