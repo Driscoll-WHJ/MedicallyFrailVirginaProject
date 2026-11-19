@@ -10,40 +10,8 @@ namespace MES_EDWS.Services
         /// records (verified member, addresses, exclusions, exceptions, employment,
         /// job training, education, volunteering and Truv-verified employment) are
         /// inserted with generated surrogate keys.
-        /// Returns the acknowledgement response; <see cref="SaveResponseAsync"/> persists it.
+        /// Returns the generated REQUEST_ROW_ID used for the acknowledgement.
         /// </summary>
-        Task<CepDWAckResponseDTO> SaveCeVerificationResultsAsync(CepDWRequestDTO request);
-
-        /// <summary>
-        /// Persists whatever a payload with missing required fields does contain, skipping rows
-        /// whose NOT NULL key is absent.
-        /// </summary>
-        Task SavePartialCeVerificationResultsAsync(CepDWRequestDTO request);
-
-        /// <summary>
-        /// Persists the response returned to the caller (a <see cref="CepDWAckResponseDTO"/> or
-        /// <see cref="CepDWResultDTO"/>) to MWRP_CE_RESPONSE, with the HTTP status code as ACK_CODE.
-        /// Failures are logged but do not abort the caller.
-        /// </summary>
-        Task SaveResponseAsync(CepDWRequestDTO? request, string correlationId, int statusCode, object body);
-
-        /// <summary>
-        /// Persists an error response to MWRP_CE_ERROR_RESPONSE, MWRP_CE_ERROR_MESSAGE,
-        /// MWRP_CE_ERROR_DETAIL and one MWRP_CE_INVALID_FIELD row per invalid field.
-        /// Failures are logged but do not abort the caller.
-        /// </summary>
-        Task SaveErrorResultAsync(CepDWResultDTO result);
-
-        /// <summary>
-        /// Persists one row per API call to MWRP_CE_DW_RESULT, with CALLBACK_TS = the time the request
-        /// was received. Failures are logged but do not abort the caller.
-        /// </summary>
-        Task SaveDwResultAsync(CepDWRequestDTO? request, string correlationId, DateTime requestTime);
-
-        /// <summary>
-        /// Persists one API call to MWRP_CE_API_TRANSACTION, MWRP_CE_API_REQUEST and
-        /// MWRP_CE_API_RESPONSE. Failures are logged but do not abort the caller.
-        /// </summary>
-        Task SaveApiAuditAsync(ApiAudit audit);
+        Task<long> SaveCeVerificationResultsAsync(CepDWRequestDTO request);
     }
 }

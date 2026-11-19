@@ -16,7 +16,7 @@ namespace MES_EDWS.Services
                 ["1000000001"] = new MedicalFrailtyRecord
                 {
                     MmisEnrolleeId        = "1000000001",
-                    Ssn                   = "111111111",
+                    Ssn                   = "111-11-1111",
                     MedicallyFrail        = true,
                     CircumstanceStartDate = "2026-03-01",
                     CircumstanceEndDate   = null,
@@ -26,7 +26,7 @@ namespace MES_EDWS.Services
                 ["1000000002"] = new MedicalFrailtyRecord
                 {
                     MmisEnrolleeId        = "1000000002",
-                    Ssn                   = "222222222",
+                    Ssn                   = "222-22-2222",
                     MedicallyFrail        = false,
                     CircumstanceStartDate = "2025-10-05",
                     CircumstanceEndDate   = null,
@@ -36,7 +36,7 @@ namespace MES_EDWS.Services
                 ["1000000003"] = new MedicalFrailtyRecord
                 {
                     MmisEnrolleeId        = "1000000003",
-                    Ssn                   = "333333333",
+                    Ssn                   = "333-33-3333",
                     MedicallyFrail        = true,
                     CircumstanceStartDate = "2026-01-01",
                     CircumstanceEndDate   = "2026-08-01",
@@ -53,11 +53,6 @@ namespace MES_EDWS.Services
         public Task<MedicalFrailtyRecord?> GetByMmisEnrolleeIdOrSsnAsync(
             string requestId, string? mmisEnrolleeId, string? ssn)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(requestId);
-
-            if (!string.IsNullOrWhiteSpace(ssn) && !SsnValidationException.IsValidFormat(ssn))
-                throw new SsnValidationException(SsnValidationException.RequiredFormatMessage);
-
             if (!string.IsNullOrWhiteSpace(mmisEnrolleeId) &&
                 SampleData.TryGetValue(mmisEnrolleeId, out var record))
             {
@@ -86,8 +81,6 @@ namespace MES_EDWS.Services
 
         public Task SaveRequestAsync(string requestId, string? mmisEnrolleeId, string? ssn)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(requestId);
-
             _logger.LogInformation(
                 "[MOCK] SaveRequest — RequestId: {RequestId}, MmisEnrolleeId: {MmisEnrolleeId}",
                 requestId, mmisEnrolleeId);
@@ -96,25 +89,15 @@ namespace MES_EDWS.Services
 
         public Task SaveResponseAsync(
             string requestId,
-            string? medicallyFrail,
+            string medicallyFrail,
             string? circumstanceStartDate,
             string? circumstanceEndDate,
-            string? code,
-            string? message)
+            string? errorCode,
+            string? errorMessage)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(requestId);
-
             _logger.LogInformation(
                 "[MOCK] SaveResponse — RequestId: {RequestId}, MedicallyFrail: {MedicallyFrail}",
                 requestId, medicallyFrail);
-            return Task.CompletedTask;
-        }
-
-        public Task SaveApiAuditAsync(ApiAudit audit)
-        {
-            _logger.LogInformation(
-                "[MOCK] SaveApiAudit — RequestId: {RequestId}, TransactionId: {TransactionId}, StatusCode: {StatusCode}",
-                audit.RequestId, audit.TransactionId, audit.StatusCode);
             return Task.CompletedTask;
         }
     }
